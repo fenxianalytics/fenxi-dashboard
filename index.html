@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fenxi — India Electricity Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --panel: #111118;
+    --border: #1e1e2e;
+    --accent: #f0e040;
+    --accent2: #40e0d0;
+    --accent3: #ff6b35;
+    --text: #e8e8f0;
+    --muted: #5a5a7a;
+    --green: #39ff7a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(240,224,64,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(240,224,64,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .container { max-width: 1400px; margin: 0 auto; padding: 24px; position: relative; z-index: 1; }
+
+  /* LOADING */
+  #loader {
+    position: fixed; inset: 0;
+    background: var(--bg);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    z-index: 100;
+    transition: opacity 0.5s ease;
+  }
+  #loader.hidden { opacity: 0; pointer-events: none; }
+  .loader-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 48px;
+    letter-spacing: 6px;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+  .loader-bar-track {
+    width: 200px; height: 2px;
+    background: var(--border);
+  }
+  .loader-bar {
+    height: 100%;
+    background: var(--accent);
+    animation: loadBar 1.2s ease forwards;
+  }
+  .loader-sub {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    margin-top: 12px;
+  }
+  @keyframes loadBar { from { width: 0; } to { width: 100%; } }
+
+  /* HEADER */
+  header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 20px;
+    margin-bottom: 32px;
+    animation: fadeDown 0.6s ease;
+  }
+  .tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .tag::before { content: ''; width: 20px; height: 1px; background: var(--accent); display: inline-block; }
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(40px, 6vw, 72px);
+    letter-spacing: 4px;
+    line-height: 0.9;
+  }
+  h1 span { color: var(--accent); }
+  .header-right {
+    text-align: right;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.8;
+  }
+  .live-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(57,255,122,0.1);
+    border: 1px solid var(--green);
+    color: var(--green);
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    padding: 4px 10px;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+  .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse 1.5s infinite; }
+
+  /* ERROR BANNER */
+  #errorBanner {
+    display: none;
+    background: rgba(255,107,53,0.1);
+    border: 1px solid var(--accent3);
+    color: var(--accent3);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    letter-spacing: 1px;
+  }
+
+  /* KPI STRIP */
+  .kpi-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--border);
+    margin-bottom: 32px;
+    animation: fadeUp 0.7s ease 0.1s both;
+  }
+  .kpi {
+    background: var(--panel);
+    padding: 22px 24px;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.2s;
+  }
+  .kpi:hover { background: #15151f; }
+  .kpi::after {
+    content: ''; position: absolute; bottom: 0; left: 0;
+    height: 2px; width: 100%; background: var(--accent);
+    transform: scaleX(0); transform-origin: left; transition: transform 0.3s ease;
+  }
+  .kpi:hover::after { transform: scaleX(1); }
+  .kpi-label { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .kpi-value { font-family: 'Bebas Neue', sans-serif; font-size: 36px; letter-spacing: 2px; line-height: 1; }
+  .kpi-unit { font-size: 14px; color: var(--muted); margin-left: 2px; }
+  .kpi-sub { font-size: 11px; color: var(--muted); margin-top: 4px; font-family: 'Space Mono', monospace; }
+
+  /* GRID */
+  .grid-main {
+    display: grid; grid-template-columns: 1.4fr 1fr;
+    gap: 16px; margin-bottom: 16px;
+    animation: fadeUp 0.8s ease 0.2s both;
+  }
+  .grid-bottom {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    animation: fadeUp 0.9s ease 0.3s both;
+  }
+  .panel {
+    background: var(--panel); border: 1px solid var(--border); padding: 24px; position: relative;
+  }
+  .panel-title {
+    font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 3px;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 20px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .panel-title span { color: var(--accent); font-size: 9px; }
+
+  /* TABLE */
+  .state-table { width: 100%; border-collapse: collapse; }
+  .state-table th {
+    font-family: 'Space Mono', monospace; font-size: 8px; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--muted); text-align: right;
+    padding: 6px 8px; border-bottom: 1px solid var(--border);
+  }
+  .state-table th:first-child { text-align: left; }
+  .state-table td {
+    padding: 10px 8px; font-size: 13px; font-family: 'Space Mono', monospace;
+    text-align: right; border-bottom: 1px solid rgba(30,30,46,0.5);
+  }
+  .state-table td:first-child { text-align: left; font-family: 'DM Sans', sans-serif; font-weight: 500; }
+  .state-table tr:hover td { background: rgba(240,224,64,0.03); }
+  .bar-cell { display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
+  .mini-bar { height: 4px; background: var(--accent); opacity: 0.6; border-radius: 2px; }
+  .state-table tr:hover .mini-bar { opacity: 1; }
+  .loss-high { color: var(--accent3); }
+  .loss-mid { color: var(--accent); }
+  .loss-low { color: var(--green); }
+
+  /* ACCESS BARS */
+  .access-item { margin-bottom: 16px; }
+  .access-header { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 12px; }
+  .access-vals { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--muted); }
+  .access-track { height: 6px; background: var(--border); position: relative; }
+  .access-rural { position: absolute; left: 0; top: 0; height: 100%; background: var(--accent); opacity: 0.5; }
+  .access-urban { position: absolute; left: 0; top: 0; height: 100%; background: var(--accent2); opacity: 0.8; }
+  .access-legend { display: flex; gap: 16px; margin-top: 14px; font-size: 10px; font-family: 'Space Mono', monospace; color: var(--muted); }
+  .legend-dot { width: 8px; height: 8px; display: inline-block; margin-right: 4px; }
+
+  footer {
+    margin-top: 32px; padding-top: 16px; border-top: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: 'Space Mono', monospace; font-size: 10px; color: var(--muted);
+    animation: fadeUp 1s ease 0.5s both;
+  }
+
+  @keyframes fadeDown { from { opacity: 0; transform: translateY(-16px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+  @media (max-width: 900px) {
+    .kpi-strip { grid-template-columns: repeat(2, 1fr); }
+    .grid-main { grid-template-columns: 1fr; }
+    .grid-bottom { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-title">FENXI</div>
+  <div class="loader-bar-track"><div class="loader-bar"></div></div>
+  <div class="loader-sub">FETCHING LIVE DATA...</div>
+</div>
+
+<div class="container">
+  <header>
+    <div>
+      <div class="tag">Energy Intelligence Platform</div>
+      <h1>INDIA<br><span>ELECTRICITY</span><br>STATISTICS</h1>
+    </div>
+    <div class="header-right">
+      <div class="live-badge"><span class="live-dot"></span>LIVE DATA</div>
+      <div>GOOGLE SHEETS · SERVICE ACCOUNT</div>
+      <div>8 STATES · REAL-TIME</div>
+      <div id="clock">—</div>
+    </div>
+  </header>
+
+  <div id="errorBanner"></div>
+
+  <div class="kpi-strip">
+    <div class="kpi">
+      <div class="kpi-label">Total Installed Capacity</div>
+      <div class="kpi-value" style="color:var(--accent)" id="kpi-capacity">—</div>
+      <div class="kpi-sub">Across all states</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Total Generation</div>
+      <div class="kpi-value" id="kpi-generation">—</div>
+      <div class="kpi-sub">GWh total</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Avg ATC Loss</div>
+      <div class="kpi-value" style="color:var(--accent3)" id="kpi-loss">—</div>
+      <div class="kpi-sub">Aggregate &amp; Technical</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Avg Rural Access</div>
+      <div class="kpi-value" style="color:var(--accent2)" id="kpi-rural">—</div>
+      <div class="kpi-sub" id="kpi-urban-sub">Urban avg: —</div>
+    </div>
+  </div>
+
+  <div class="grid-main">
+    <div class="panel">
+      <div class="panel-title">Generation vs Consumption <span>GWh PER STATE</span></div>
+      <canvas id="genConsChart" height="220"></canvas>
+    </div>
+    <div class="panel">
+      <div class="panel-title">ATC Loss Ranking <span>% LOSS</span></div>
+      <canvas id="lossChart" height="220"></canvas>
+    </div>
+  </div>
+
+  <div class="grid-bottom">
+    <div class="panel" style="grid-column: span 2;">
+      <div class="panel-title">State Breakdown <span>ALL METRICS</span></div>
+      <table class="state-table">
+        <thead>
+          <tr>
+            <th>State</th>
+            <th>Capacity MW</th>
+            <th>Generation GWh</th>
+            <th>Consumption GWh</th>
+            <th>ATC Loss %</th>
+            <th>Urban %</th>
+            <th>Rural %</th>
+          </tr>
+        </thead>
+        <tbody id="stateTableBody"></tbody>
+      </table>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Urban vs Rural Access <span>%</span></div>
+      <div id="accessBars"></div>
+      <div class="access-legend">
+        <span><span class="legend-dot" style="background:var(--accent2)"></span>Urban</span>
+        <span><span class="legend-dot" style="background:var(--accent);opacity:0.5"></span>Rural</span>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div>FENXI · INDIA ELECTRICITY STATISTICS · LIVE VIA GOOGLE SHEETS API</div>
+    <div id="lastUpdated">—</div>
+  </footer>
+</div>
+
+<script>
+  Chart.defaults.color = '#5a5a7a';
+  Chart.defaults.font.family = "'Space Mono', monospace";
+  Chart.defaults.font.size = 10;
+
+  const YELLOW = '#f0e040', TEAL = '#40e0d0', ORANGE = '#ff6b35', GREEN = '#39ff7a', MUTED = '#5a5a7a';
+
+  let genConsChartInst = null;
+  let lossChartInst = null;
+
+  // Clock
+  setInterval(() => {
+    document.getElementById('clock').textContent = new Date().toLocaleTimeString('en-IN', { hour12: false });
+  }, 1000);
+
+  // Parse raw 2D array from /api/sheet
+  function parseSheet(rows) {
+    const [headers, ...data] = rows;
+    return data.map(row =>
+      Object.fromEntries(headers.map((h, i) => [h, isNaN(row[i]) ? row[i] : Number(row[i])]))
+    );
+  }
+
+  function renderDashboard(records) {
+    const states = records.map(d => d.State);
+
+    // KPIs
+    const totalCap = records.reduce((s, d) => s + d.Installed_Capacity_MW, 0);
+    const totalGen = records.reduce((s, d) => s + d.Electricity_Generation_GWh, 0);
+    const avgLoss = (records.reduce((s, d) => s + d.ATC_Loss_Percent, 0) / records.length).toFixed(1);
+    const avgRural = Math.round(records.reduce((s, d) => s + d.Rural_Access_Percent, 0) / records.length);
+    const avgUrban = Math.round(records.reduce((s, d) => s + d.Urban_Access_Percent, 0) / records.length);
+
+    document.getElementById('kpi-capacity').innerHTML = `${(totalCap/1000).toFixed(0)}K <span class="kpi-unit">MW</span>`;
+    document.getElementById('kpi-generation').innerHTML = `${totalGen.toLocaleString()} <span class="kpi-unit">GWh</span>`;
+    document.getElementById('kpi-loss').innerHTML = `${avgLoss} <span class="kpi-unit">%</span>`;
+    document.getElementById('kpi-rural').innerHTML = `${avgRural} <span class="kpi-unit">%</span>`;
+    document.getElementById('kpi-urban-sub').textContent = `Urban avg: ${avgUrban}%`;
+
+    // Gen vs Consumption Chart
+    if (genConsChartInst) genConsChartInst.destroy();
+    genConsChartInst = new Chart(document.getElementById('genConsChart'), {
+      type: 'bar',
+      data: {
+        labels: states,
+        datasets: [
+          {
+            label: 'Generation (GWh)',
+            data: records.map(d => d.Electricity_Generation_GWh),
+            backgroundColor: YELLOW + 'cc', borderColor: YELLOW, borderWidth: 1,
+          },
+          {
+            label: 'Consumption (GWh)',
+            data: records.map(d => d.Electricity_Consumption_GWh),
+            backgroundColor: TEAL + '88', borderColor: TEAL, borderWidth: 1,
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        interaction: { mode: 'index' },
+        plugins: { legend: { labels: { color: '#8888aa', font: { size: 10 }, boxWidth: 10 } } },
+        scales: {
+          x: { grid: { color: '#1e1e2e' }, ticks: { color: MUTED } },
+          y: { grid: { color: '#1e1e2e' }, ticks: { color: MUTED } }
+        }
+      }
+    });
+
+    // ATC Loss Chart
+    const lossSorted = [...records].sort((a, b) => b.ATC_Loss_Percent - a.ATC_Loss_Percent);
+    if (lossChartInst) lossChartInst.destroy();
+    lossChartInst = new Chart(document.getElementById('lossChart'), {
+      type: 'bar',
+      data: {
+        labels: lossSorted.map(d => d.State),
+        datasets: [{
+          label: 'ATC Loss %',
+          data: lossSorted.map(d => d.ATC_Loss_Percent),
+          backgroundColor: lossSorted.map(d => d.ATC_Loss_Percent > 25 ? ORANGE + 'cc' : d.ATC_Loss_Percent > 20 ? YELLOW + 'cc' : GREEN + 'cc'),
+          borderColor: lossSorted.map(d => d.ATC_Loss_Percent > 25 ? ORANGE : d.ATC_Loss_Percent > 20 ? YELLOW : GREEN),
+          borderWidth: 1,
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { color: '#1e1e2e' }, ticks: { color: MUTED } },
+          y: { grid: { color: '#1e1e2e' }, ticks: { color: '#e8e8f0' } }
+        }
+      }
+    });
+
+    // State Table
+    const maxCap = Math.max(...records.map(d => d.Installed_Capacity_MW));
+    const tbody = document.getElementById('stateTableBody');
+    tbody.innerHTML = '';
+    records.forEach(d => {
+      const lossClass = d.ATC_Loss_Percent > 25 ? 'loss-high' : d.ATC_Loss_Percent > 20 ? 'loss-mid' : 'loss-low';
+      const barW = Math.round((d.Installed_Capacity_MW / maxCap) * 60);
+      tbody.innerHTML += `
+        <tr>
+          <td>${d.State}</td>
+          <td><div class="bar-cell"><div class="mini-bar" style="width:${barW}px"></div>${d.Installed_Capacity_MW.toLocaleString()}</div></td>
+          <td>${d.Electricity_Generation_GWh.toLocaleString()}</td>
+          <td>${d.Electricity_Consumption_GWh.toLocaleString()}</td>
+          <td class="${lossClass}">${d.ATC_Loss_Percent}%</td>
+          <td>${d.Urban_Access_Percent}%</td>
+          <td>${d.Rural_Access_Percent}%</td>
+        </tr>`;
+    });
+
+    // Access Bars
+    const accessContainer = document.getElementById('accessBars');
+    accessContainer.innerHTML = '';
+    records.forEach(d => {
+      accessContainer.innerHTML += `
+        <div class="access-item">
+          <div class="access-header">
+            <span>${d.State}</span>
+            <span class="access-vals">${d.Urban_Access_Percent}% / ${d.Rural_Access_Percent}%</span>
+          </div>
+          <div class="access-track">
+            <div class="access-rural" style="width:${d.Rural_Access_Percent}%"></div>
+            <div class="access-urban" style="width:${d.Urban_Access_Percent}%"></div>
+          </div>
+        </div>`;
+    });
+
+    document.getElementById('lastUpdated').textContent =
+      'LAST UPDATED: ' + new Date().toLocaleTimeString('en-IN', { hour12: false });
+  }
+
+  async function fetchAndRender() {
+    try {
+      const res = await fetch('/api/sheet');
+      if (!res.ok) throw new Error(`API returned ${res.status}`);
+      const rows = await res.json(); // raw 2D array
+      const records = parseSheet(rows);
+      renderDashboard(records);
+      document.getElementById('errorBanner').style.display = 'none';
+    } catch (err) {
+      const banner = document.getElementById('errorBanner');
+      banner.style.display = 'block';
+      banner.textContent = `⚠ Failed to fetch data: ${err.message}`;
+    }
+  }
+
+  // Initial load
+  fetchAndRender().then(() => {
+    setTimeout(() => document.getElementById('loader').classList.add('hidden'), 600);
+  });
+
+  // Refresh every 60 seconds
+  setInterval(fetchAndRender, 60_000);
+</script>
+</body>
+</html>
