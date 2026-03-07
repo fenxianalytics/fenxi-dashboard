@@ -1,6 +1,6 @@
 export default async function handler(req, res) {
   try {
-    const SUPABASE_URL = process.env.SUPABASE_URL;
+    const SUPABASE_URL = "https://rlivkvcykrcpwskuumot.supabase.co";
     const SUPABASE_SECRET_KEY = process.env.SUPABASE_SECRET_KEY;
 
     const response = await fetch(
@@ -15,7 +15,8 @@ export default async function handler(req, res) {
     );
 
     if (!response.ok) {
-      throw new Error(`Supabase error: ${response.status}`);
+      const text = await response.text();
+      throw new Error(`Supabase error: ${response.status} - ${text}`);
     }
 
     const data = await response.json();
