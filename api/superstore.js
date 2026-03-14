@@ -1,27 +1,25 @@
 export default async function handler(req, res) {
-  try {
-    const SUPABASE_URL = "https://rlivkvcykrcpwskuumot.supabase.co";
-    const SUPABASE_SECRET_KEY = process.env.SUPABASE_SECRET_KEY;
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET');
 
-    const response = await fetch(
-      `${SUPABASE_URL}/rest/v1/Superstore?select=*`,
-      {
-        headers: {
-          apikey: SUPABASE_SECRET_KEY,
-          Authorization: `Bearer ${SUPABASE_SECRET_KEY}`,
-          "Content-Type": "application/json",
-        },
-      }
+  const sheetId = process.env.GOOGLE_SHEET_ID;
+  const apiKey  = process.env.GOOGLE_API_KEY;
+
+  const range = encodeURIComponent('Sample - Superstore.csv');
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`;
+
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Sheets API error: ${response.status}`);
+    const json = await response.json();
+
+    const [headers, ...rows] = json.values;
+    const data = rows.map(row =>
+      Object.fromEntries(headers.map((h, i) => [h, row[i] ?? '']))
     );
 
-    if (!response.ok) {
-      const text = await response.text();
-      throw new Error(`Supabase error: ${response.status} - ${text}`);
-    }
-
-    const data = await response.json();
     res.status(200).json(data);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 }
