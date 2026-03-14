@@ -3,27 +3,16 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Methods', 'GET');
 
   try {
-    const credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON);
+    const privateKey = process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n');
+    const clientEmail = process.env.GOOGLE_CLIENT_EMAIL;
+    const sheetId = process.env.SPREADSHEET_ID;
 
-    // Get access token using service account
-    const tokenRes = await fetch(
-      `https://oauth2.googleapis.com/token`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({
-          grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-          assertion: await makeJWT(credentials),
-        }),
-      }
-    );
-    const { access_token } = await tokenRes.json();
+    const token = await getAccessToken(clientEmail, privateKey);
 
-    const sheetId = process.env.GOOGLE_SHEET_ID;
     const range = encodeURIComponent('Sample - Superstore.csv');
     const dataRes = await fetch(
       `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}`,
-      { headers: { Authorization: `Bearer ${access_token}` } }
+      { headers: { Authorization: `Bearer ${token}` } }
     );
     const json = await dataRes.json();
     const [headers, ...rows] = json.values;
@@ -37,11 +26,11 @@ export default async function handler(req, res) {
   }
 }
 
-async function makeJWT(credentials) {
-  const header = btoa(JSON.stringify({ alg: 'RS256', typ: 'JWT' }));
+async function getAccessToken(clientEmail, privateKey) {
   const now = Math.floor(Date.now() / 1000);
+  const header = btoa(JSON.stringify({ alg: 'RS256', typ: 'JWT' }));
   const claim = btoa(JSON.stringify({
-    iss: credentials.client_email,
+    iss: clientEmail,
     scope: 'https://www.googleapis.com/auth/spreadsheets.readonly',
     aud: 'https://oauth2.googleapis.com/token',
     exp: now + 3600,
@@ -50,7 +39,7 @@ async function makeJWT(credentials) {
 
   const key = await crypto.subtle.importKey(
     'pkcs8',
-    pemToBuffer(credentials.private_key),
+    pemToBuffer(privateKey),
     { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
     false,
     ['sign']
@@ -62,7 +51,15 @@ async function makeJWT(credentials) {
     new TextEncoder().encode(`${header}.${claim}`)
   );
 
-  return `${header}.${claim}.${btoa(String.fromCharCode(...new Uint8Array(sig)))}`;
+  const jwt = `${header}.${claim}.${btoa(String.fromCharCode(...new Uint8Array(sig)))}`;
+
+  const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${jwt}`,
+  });
+  const { access_token } = await tokenRes.json();
+  return access_token;
 }
 
 function pemToBuffer(pem) {
