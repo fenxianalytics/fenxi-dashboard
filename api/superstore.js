@@ -15,12 +15,10 @@ export default async function handler(req, res) {
       { headers: { Authorization: `Bearer ${token}` } }
     );
     const json = await dataRes.json();
-    const [headers, ...rows] = json.values;
-    const data = rows.map(row =>
-      Object.fromEntries(headers.map((h, i) => [h, row[i] ?? '']))
-    );
+    
+    // Return raw response so we can see what's happening
+    res.status(200).json(json);
 
-    res.status(200).json(data);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
