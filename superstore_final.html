@@ -2304,7 +2304,7 @@ function switchPage(n){
   if(n===4&&_agg.totalSales){renderCharts_p4();}
   if(n===5&&_agg.totalSales){renderCharts_p5();}
   if(n===6&&_agg.totalSales) renderCharts_p6();
-  
+  if(n===8&&_data.length) chInit();
 }
 
 // ═══════════════════════════════════════
@@ -2689,12 +2689,7 @@ ACTION: [one concrete recommended action]';
   });
 }
 
-// Hook into switchPage to init page 8
-var _ch_origSwitchPage = switchPage;
-switchPage = function(n) {
-  _ch_origSwitchPage(n);
-  if (n===8 && _data.length) chInit();
-};
+// switchPage already handles page 8
 
 </script>
 </body>
