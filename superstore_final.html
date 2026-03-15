@@ -425,8 +425,8 @@ ol li{counter-increment:list-counter}
 
 <!-- PAGE 1: OVERVIEW -->
 <div id="page-1" class="page active">
-  <div id="status-row">
-    <span id="sr-rows">—</span><span class="sep">·</span><span id="sr-orders">—</span><span id="sr-sep-fetch" class="sep" style="display:none">·</span><span id="sr-fetch"></span><span id="sr-key"></span>
+  <div id="status-row" style="visibility:hidden">
+    <span id="sr-rows"></span><span id="sr-orders"></span><span id="sr-fetch"></span><span id="sr-key"></span>
   </div>
   <div id="ticker"><div class="ticker-badge">Updated</div><span id="ticker-msg">Data refreshed</span></div>
 
@@ -1076,7 +1076,7 @@ function fetchData(){
     var now=new Date();
     document.getElementById('sr-rows').textContent=fN(rows.length)+' rows';
     document.getElementById('sr-orders').textContent=fN(_agg.totalOrders)+' orders';
-    document.getElementById('sr-fetch').textContent='fetched '+now.toLocaleTimeString();
+    document.getElementById('sr-fetch').textContent='live · '+now.toLocaleTimeString();document.getElementById('status-row').style.visibility='visible';
     document.getElementById('sr-key').textContent='AI ready';
     if(prev>0 && Math.abs(_agg.totalSales-prev)/prev>0.005){
       showTicker('Data refreshed — sales: '+fS(_agg.totalSales));
@@ -1102,7 +1102,7 @@ function aggregate(){
     var cat=r.Category||'?',seg=r.Segment||'?',reg=r.Region||'?';
     var sub=r['Sub-Category']||'?',state=r.State||'?',mode=r['Ship Mode']||'?';
     var prod=r['Product Name']||'?',cid=r['Customer ID']||'',cname=r['Customer Name']||'',oid=r['Order ID']||'';
-    var odP=(r['Order Date']||'').split('/'),sdP=(r['Ship Date']||'').split('/');
+    var odP=(r['Order Date']||r['Date']||r['order_date']||'').split('/'),sdP=(r['Ship Date']||'').split('/');
     var yr='',mo='',dts=0;
     if(odP.length===3){ yr=odP[2]; mo=odP[2]+'-'+odP[0].padStart(2,'0'); }
     if(odP.length===3&&sdP.length===3){
