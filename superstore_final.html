@@ -1917,7 +1917,8 @@ function callAI(msgs, sysOverride){
   .then(function(d){
     setAIStatus(true,'AI Connected');
     if(d.text)return d.text;
-    if(d.content)return d.content.map(function(b){return b.text||'';}).join('');
+    if(d.content&&typeof d.content==='string')return d.content;
+    if(d.content&&Array.isArray(d.content))return d.content.map(function(b){return b.text||'';}).join('');
     if(d.choices)return d.choices[0].message.content||'';
     return '';
   })
