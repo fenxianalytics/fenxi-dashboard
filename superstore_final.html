@@ -426,10 +426,7 @@ ol li{counter-increment:list-counter}
 <!-- PAGE 1: OVERVIEW -->
 <div id="page-1" class="page active">
   <div id="status-row">
-    <span id="sr-rows">—</span><span class="sep">·</span>
-    <span id="sr-orders">—</span><span class="sep">·</span>
-    <span id="sr-fetch"></span>
-    <span id="sr-key"></span>
+    <span id="sr-rows">—</span><span class="sep">·</span><span id="sr-orders">—</span><span id="sr-sep-fetch" class="sep" style="display:none">·</span><span id="sr-fetch"></span><span id="sr-key"></span>
   </div>
   <div id="ticker"><div class="ticker-badge">Updated</div><span id="ticker-msg">Data refreshed</span></div>
 
@@ -856,7 +853,7 @@ ol li{counter-increment:list-counter}
           <button id="chat-send-btn" onclick="chatSend()">↑</button>
         </div>
         <div class="chat-meta">
-          <span id="chat-key-status">Connect API key to start chatting</span>
+          <span id="chat-key-status">AI ready</span>
           <button onclick="clearChat()" style="background:none;border:none;color:var(--dim);font-size:11px;cursor:pointer">Clear</button>
         </div>
       </div>
@@ -955,7 +952,7 @@ ol li{counter-increment:list-counter}
       <button id="panel-send" onclick="panelSend()">↑</button>
     </div>
     <div class="panel-input-meta">
-      <span id="panel-key-status">No API key — click ⚙ to add</span>
+      <span id="panel-key-status">AI ready</span>
       <button onclick="clearPanel()" style="background:none;border:none;color:var(--dim);font-size:11px;cursor:pointer">Clear</button>
     </div>
   </div>
@@ -1075,6 +1072,7 @@ function fetchData(){
     var prev=_lastSales;
     _data=rows; aggregate(); _lastSales=_agg.totalSales;
     renderAll();
+    if(!_execLoaded) genExecSummary(false);
     var now=new Date();
     document.getElementById('sr-rows').textContent=fN(rows.length)+' rows';
     document.getElementById('sr-orders').textContent=fN(_agg.totalOrders)+' orders';
@@ -1086,7 +1084,6 @@ function fetchData(){
       var stale=document.getElementById('exec-stale-nudge');
       if(stale&&_execLoaded) stale.style.display='inline-flex';
     }
-    if(!_execLoaded) genExecSummary(false);
   })
   .catch(function(){ setTimeout(fetchData,5000); });
 }
@@ -1304,7 +1301,7 @@ function scoreDimRow(label, score, weight, detail){
 function renderAll(){
   renderKPIs(); renderCatCards(); renderTakeaways();
   renderChatSugs();
-  setTimeout(function(){ renderCharts_p1(); }, 50);
+  setTimeout(function(){ document.querySelectorAll('.chart-wrap canvas').forEach(function(c){var p=c.parentElement;if(p&&p.offsetHeight>0)c.style.height=p.offsetHeight+'px';});renderCharts_p1();setTimeout(function(){window.dispatchEvent(new Event('resize'));},100);}, 300);
   renderRegionScoreCards(); // always update region score cards
   if(_activePage===2){renderCharts_p2();renderSubTbl();}
   if(_activePage===3){renderCharts_p3();renderStateTbl();}
@@ -1782,7 +1779,7 @@ function openCHDetail(custId){
     +'• Signal two with specific number\n'
     +'• Risk or opportunity with number\n\n'
     +'**Action:** One specific action to take this week.\n\n'
-    +'FOLLOWUPS: ["q1 with number","q2","q3"]';
+    +'FOLLOWUPS: ["specific question with exact number","specific insight question","actionable recommendation question"]';
   openDetailModal(c.name,meta,
     [['Health Score',c.score+'/100'],['Lifetime Sales',fS(c.s)],['Profit',fS(c.p),''],['Margin',fP(c.margin,1),''],['Avg Discount',(c.avgDisc*100).toFixed(0)+'%',''],['Orders/Month',c.freq.toFixed(2),'']],
     true,'Score Breakdown',subTbl,prompt,'ch-'+custId);
@@ -1814,7 +1811,7 @@ function runPortfolioAI(){
     +'• Customer name: why valuable and one retention action\n'
     +'• Customer name: why valuable and one retention action\n\n'
     +'**Strategic Recommendation:** One portfolio-level action with expected impact.\n\n'
-    +'FOLLOWUPS: ["q1","q2","q3"]';
+    +'FOLLOWUPS: ["specific question with exact number","specific insight question","actionable recommendation question"]';
   callAI([{role:'user',content:prompt}]).then(function(r){
     var fu=extractFU(r),clean=cleanR(r);var html=fmtAI(clean);
     if(fu.length)html+=makeFuChipsStr(fu,function(q){askAI(q);});
@@ -1985,7 +1982,7 @@ function genExecSummary(force){
   document.getElementById('exec-body').innerHTML='<div class="typing-dots"><div class="td"></div><div class="td"></div><div class="td"></div></div>';
   var lossTot=0;Object.keys(_agg.subM).forEach(function(k){if(_agg.subM[k].p<0)lossTot+=_agg.subM[k].p;});
   var worstSub='';var wv=Infinity;Object.keys(_agg.subM).forEach(function(k){if(_agg.subM[k].p<wv){wv=_agg.subM[k].p;worstSub=k;}});
-  callAI([{role:'user',content:'4-bullet executive summary of the live Superstore dataset.\n\nExact format:\n**Performance:** [one sentence — total sales, profit, margin, healthy or not]\n\n• [Category insight: best and worst margin with exact %]\n• [Biggest loss-maker: '+worstSub+' destroying '+fS(Math.abs(wv))+' — why]\n• [Regional standout: best margin region and the gap vs worst]\n• [Discount insight: breakeven point and total loss from over-discounting]\n\n**CFO Action:** [One specific numbered recommendation — e.g. discount cap on Tables recovers ~$X]\n\nFOLLOWUPS: ["q1 with $","q2 with %","q3 with name"]'}])
+  callAI([{role:'user',content:'4-bullet executive summary of the live Superstore dataset.\n\nExact format:\n**Performance:** [one sentence — total sales, profit, margin, healthy or not]\n\n• [Category insight: best and worst margin with exact %]\n• [Biggest loss-maker: '+worstSub+' destroying '+fS(Math.abs(wv))+' — why]\n• [Regional standout: best margin region and the gap vs worst]\n• [Discount insight: breakeven point and total loss from over-discounting]\n\n**CFO Action:** [One specific numbered recommendation — e.g. discount cap on Tables recovers ~$X]\n\nFOLLOWUPS: ["specific question with exact dollar figure","specific question with exact percentage","actionable question naming a specific product or region"]'}])
   .then(function(r){
     var fu=extractFU(r),clean=cleanR(r);var html=fmtAI(clean);
     if(fu.length)html+=makeFuChipsStr(fu,function(q){askAI(q);});
@@ -1993,8 +1990,8 @@ function genExecSummary(force){
     document.getElementById('exec-live-badge').style.display='inline-flex';
     var ts=document.getElementById('exec-timestamp');if(ts)ts.textContent='Generated just now';
   }).catch(function(e){
-    document.getElementById('exec-body').innerHTML='<div style="color:var(--muted);font-size:12.5px">AI summary unavailable — '+errMsg(e)+'</div>';
     _execLoaded=false;
+    setTimeout(function(){ if(!_execLoaded&&_agg.totalSales) genExecSummary(false); },3000);
   });
 }
 
@@ -2225,7 +2222,7 @@ function openStateDetail(state){
     +'• Second insight with specific number\n'
     +'• Risk or opportunity with number\n\n'
     +'**Action:** One specific recommendation for this state.\n\n'
-    +'FOLLOWUPS: ["q1","q2","q3"]';
+    +'FOLLOWUPS: ["specific question with exact number","specific insight question","actionable recommendation question"]';
   openDetailModal(state,meta,[['Sales',fS(sd.s)],['Profit',fS(sd.p),''],['Margin',fP(m,2),''],['Orders',fN(sd.ord),'']],true,'Category Breakdown',subTbl,prompt,'state-'+state);
 }
 
@@ -2255,7 +2252,7 @@ function openRegionDetail(reg){
     +'• Category or discount insight\n'
     +'• Growth trend or opportunity\n\n'
     +'**Action:** One specific recommendation for this region.\n\n'
-    +'FOLLOWUPS: ["q1","q2","q3"]';
+    +'FOLLOWUPS: ["specific question with exact number","specific insight question","actionable recommendation question"]';
   document.getElementById('detail-title').textContent=reg+' Region';
   document.getElementById('detail-meta').innerHTML=meta;
   document.getElementById('detail-metrics').innerHTML=[['Sales',fS(rv.s)],['Profit',fS(rv.p),''],['Margin',fP(m,2),''],['Health Score',rs.score+'/100',''],['Orders',fN(rv.ordCount),''],['Avg Disc',(rs.avgDisc*100).toFixed(0)+'%','']].map(function(m){return'<div class="detail-metric"><div class="dm-label">'+m[0]+'</div><div class="dm-val '+(m[2]||'')+'">'+m[1]+'</div></div>';}).join('');
@@ -2288,7 +2285,7 @@ function openSubDetail(name, cat){
     +'• Discount impact with specific number\n'
     +'• Revenue/volume context\n\n'
     +'**Action:** Discount cap, reprice, or remove — one specific recommendation with estimated recovery.\n\n'
-    +'FOLLOWUPS: ["q1","q2","q3"]';
+    +'FOLLOWUPS: ["specific question with exact number","specific insight question","actionable recommendation question"]';
   openDetailModal(name,meta,[['Sales',fS(sub.s)],['Profit',fS(sub.p),''],['Margin',fP(m,2),''],['Health Score',sub.score+'/100',''],['Avg Discount',(sub.avgDisc*100).toFixed(0)+'%',''],['Orders',fN(sub.ord),'']],true,'Score Breakdown',subTbl,prompt,'sub-'+name);
 }
 
@@ -2312,7 +2309,7 @@ function openProdDetail(name, cat){
     +'• Discount impact with specific number\n'
     +'• Volume/orders context\n\n'
     +'**Action:** Keep / Reprice / Discontinue — one specific reason with a number.\n\n'
-    +'FOLLOWUPS: ["q1","q2","q3"]';
+    +'FOLLOWUPS: ["specific question with exact number","specific insight question","actionable recommendation question"]';
   openDetailModal(name.length>55?name.slice(0,55)+'…':name,meta,[['Sales',fS(prod.s)],['Profit',fS(prod.p),''],['Margin',fP(m,2),''],['Score',prod.score+'/100',''],['Avg Discount',(prod.avgDisc*100).toFixed(0)+'%',''],['Orders',fN(prod.ordCount),'']],true,'Score Breakdown',subTbl,prompt,'prod-'+name.slice(0,40));
 }
 
@@ -2333,7 +2330,7 @@ function openCustDetail(custId){
     +'• Profitability insight with number\n'
     +'• Opportunity or risk with number\n\n'
     +'**Action:** One specific account strategy recommendation.\n\n'
-    +'FOLLOWUPS: ["q1","q2","q3"]';
+    +'FOLLOWUPS: ["specific question with exact number","specific insight question","actionable recommendation question"]';
   openDetailModal(cust.name,meta,[['Lifetime Sales',fS(cust.s)],['Lifetime Profit',fS(cust.p),''],['Margin',fP(m,1),''],['Health Score',cust.score+'/100',''],['Orders',fN(cust.ord),''],['AOV',fS(cust.s/Math.max(cust.ord,1)),'']],true,'Purchase Categories',subTbl,prompt,'cust-'+custId);
 }
 
@@ -2563,6 +2560,7 @@ document.addEventListener('DOMContentLoaded',function(){
   setAIStatus(false,'AI connecting…');
   fetchData();
   startCountdown();
+  window.addEventListener('load',function(){ setTimeout(function(){ if(typeof renderCharts_p1==='function') renderCharts_p1(); },500); });
 });
 
 
