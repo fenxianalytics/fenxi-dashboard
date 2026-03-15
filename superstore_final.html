@@ -114,9 +114,9 @@ input,textarea{font-family:'DM Sans',sans-serif}
 @media(max-width:900px){.grid-2,.grid-3{grid-template-columns:1fr}}
 
 /* CHART */
-.chart-wrap{position:relative;width:100%;overflow:hidden}
-.chart-wrap canvas{width:100%!important}
-.h180{height:180px}.h220{height:220px}.h260{height:260px}.h300{height:300px}.h350{height:350px}.h400{height:400px}
+.chart-wrap{position:relative;width:100%;overflow:hidden;min-height:200px}
+.chart-wrap canvas{width:100%!important;display:block}
+.h180{height:180px}.h220{height:220px}.h260{height:260px;min-height:260px}.h300{height:300px}.h350{height:350px}.h400{height:400px}
 
 /* CALLOUT */
 .callout{padding:12px 16px;border-radius:8px;border:1px solid;display:flex;gap:10px;align-items:flex-start;margin-bottom:18px}
@@ -428,7 +428,7 @@ input,textarea{font-family:'DM Sans',sans-serif}
     <span id="sr-orders">—</span><span class="sep">·</span>
     <span id="sr-fetch">fetching…</span><span class="sep">·</span>
     <span>fenxi-dashboard.vercel.app</span><span class="sep">·</span>
-    <span id="sr-key">no api key</span>
+    <span id="sr-key"></span>
   </div>
   <div id="ticker"><div class="ticker-badge">Updated</div><span id="ticker-msg">Data refreshed</span></div>
 
@@ -1078,6 +1078,7 @@ function fetchData(){
     document.getElementById('sr-rows').textContent=fN(rows.length)+' rows';
     document.getElementById('sr-orders').textContent=fN(_agg.totalOrders)+' orders';
     document.getElementById('sr-fetch').textContent='fetched '+now.toLocaleTimeString();
+    document.getElementById('sr-key').textContent='AI ready';
     if(prev>0 && Math.abs(_agg.totalSales-prev)/prev>0.005){
       showTicker('Data refreshed — sales: '+fS(_agg.totalSales));
       _exploreCache={}; _detailCache={};
