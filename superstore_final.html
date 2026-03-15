@@ -115,6 +115,8 @@ input,textarea{font-family:'DM Sans',sans-serif}
 
 /* CHART */
 .chart-wrap{position:relative;width:100%;overflow:hidden;min-height:200px}
+ol{list-style:decimal;padding-left:20px;counter-reset:list-counter}
+ol li{counter-increment:list-counter}
 .chart-wrap canvas{width:100%!important;display:block}
 .h180{height:180px}.h220{height:220px}.h260{height:260px;min-height:260px}.h300{height:300px}.h350{height:350px}.h400{height:400px}
 
@@ -1087,7 +1089,7 @@ function fetchData(){
     }
     if(!_execLoaded) genExecSummary(false);
   })
-  .catch(function(){ document.getElementById('sr-fetch').textContent='fetch error — retrying'; });
+  .catch(function(){ document.getElementById('sr-fetch').textContent='retrying...'; setTimeout(fetchData,5000); });
 }
 
 function aggregate(){
@@ -1302,7 +1304,8 @@ function scoreDimRow(label, score, weight, detail){
 // ═══════════════════════════════════════════════════════
 function renderAll(){
   renderKPIs(); renderCatCards(); renderTakeaways();
-  renderCharts_p1(); renderChatSugs();
+  renderChatSugs();
+  setTimeout(function(){ renderCharts_p1(); }, 50);
   renderRegionScoreCards(); // always update region score cards
   if(_activePage===2){renderCharts_p2();renderSubTbl();}
   if(_activePage===3){renderCharts_p3();renderStateTbl();}
@@ -1829,11 +1832,12 @@ function buildSys(){
   var s='You are Fenxi AI, a sharp retail data analyst in a live Superstore dashboard. Data refreshes every 60s.\n\n';
   s+='## OUTPUT FORMAT — ALWAYS USE THIS\n';
   s+='**Bold headline** — one sharp sentence with the key number.\n\n';
-  s+='• Bullet one with **specific dollar or % figure**\n';
-  s+='• Bullet two with **specific figure**\n';
-  s+='• Bullet three with **specific figure**\n\n';
+  s+='- Bullet one with **specific dollar or % figure**\n';
+  s+='- Bullet two with **specific figure**\n';
+  s+='- Bullet three with **specific figure**\n\n';
   s+='**Recommendation:** One specific action with estimated $ or % impact.\n\n';
-  s+='Last line: FOLLOWUPS: ["q1 with number","q2 with number","q3 with number"]\n\n';
+  s+='Last line only: FOLLOWUPS: ["real specific question using actual numbers from above","second real question about a different insight","third actionable question"]\n';
+  s+='FOLLOWUPS must reference actual figures from the data. Never write q1/q2/q3 or generic placeholders.\n\n';
 
   s+='## LIVE DATA\n';
   s+='Sales: '+fS(a.totalSales)+' | Profit: '+fS(a.totalProfit)+' | Margin: '+fP(a.margin,2)+'\n';
