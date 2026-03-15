@@ -1252,6 +1252,7 @@ function fetchData(){
     var prevSales=_lastSales;
     _data=rows; aggregate(); _lastSales=_agg.totalSales;
     renderAll();
+    if(_activePage===8) chInit();
     var now=new Date();
     document.getElementById('sr-rows').textContent=fN(rows.length)+' rows';
     document.getElementById('sr-orders').textContent=fN(_agg.totalOrders)+' orders';
@@ -2354,11 +2355,11 @@ function chComputeAvg() {
   _data.forEach(function(r) {
     var id = r['Customer ID'] || r['Customer Name'];
     if (!custMap[id]) custMap[id] = {sales:0,profit:0,orders:new Set(),items:0,disc:0};
-    custMap[id].sales += +r['Sales']||0;
-    custMap[id].profit += +r['Profit']||0;
+    custMap[id].sales += +r.Sales||0;
+    custMap[id].profit += +r.Profit||0;
     custMap[id].orders.add(r['Order ID']);
     custMap[id].items++;
-    custMap[id].disc += +r['Discount%']||0;
+    custMap[id].disc += +r.Discount||0;
   });
   var custs = Object.values(custMap);
   var allSales = custs.map(function(c){return c.sales;}).sort(function(a,b){return a-b;});
@@ -2403,7 +2404,7 @@ function chShowDrop(matches) {
   if (!matches.length) { el.style.display='none'; return; }
   el.innerHTML = matches.map(function(r) {
     var rows = _data.filter(function(x){return x['Customer Name']===r['Customer Name'];});
-    var sales = rows.reduce(function(s,x){return s+(+x['Sales']||0);},0);
+    var sales = rows.reduce(function(s,x){return s+(+x.Sales||0);},0);
     var esc = r['Customer Name'].replace(/'/g,"\'");
     return '<div class="ch-opt" onclick="chSelectCustomer(''+esc+'')">' +
       '<span class="ch-opt-name">'+r['Customer Name']+'</span>' +
@@ -2466,28 +2467,28 @@ function chBuildProfile(rows) {
   var segment = rows[0]['Segment']||'—';
   var region = rows[0]['Region']||'—';
 
-  var totalSales = rows.reduce(function(s,r){return s+(+r['Sales']||0);},0);
-  var totalProfit = rows.reduce(function(s,r){return s+(+r['Profit']||0);},0);
+  var totalSales = rows.reduce(function(s,r){return s+(+r.Sales||0);},0);
+  var totalProfit = rows.reduce(function(s,r){return s+(+r.Profit||0);},0);
   var orders = new Set(rows.map(function(r){return r['Order ID'];}));
   var orderCount = orders.size;
   var margin = totalSales>0?(totalProfit/totalSales)*100:0;
-  var avgDisc = rows.reduce(function(s,r){return s+(+r['Discount%']||0);},0)/rows.length;
+  var avgDisc = rows.reduce(function(s,r){return s+(+r.Discount||0);},0)/rows.length;
 
-  var dates = rows.map(function(r){return chParseDate(r['Order Date']||r['Date']);}).filter(Boolean).sort(function(a,b){return b-a;});
+  var dates = rows.map(function(r){return chParseDate(r['Order Date']);}).filter(Boolean).sort(function(a,b){return b-a;});
   var lastDate = dates[0]||null;
   var now = new Date('2018-01-01');
   var daysSince = lastDate ? Math.round((now-lastDate)/(1000*60*60*24)) : 999;
 
   var catMap={};
-  rows.forEach(function(r){var c=r['Category']||'Other';catMap[c]=(catMap[c]||0)+(+r['Sales']||0);});
+  rows.forEach(function(r){var c=r['Category']||'Other';catMap[c]=(catMap[c]||0)+(+r.Sales||0);});
   var topCat = Object.entries(catMap).sort(function(a,b){return b[1]-a[1];})[0]?.[0]||'—';
 
   var monthMap={};
   rows.forEach(function(r){
-    var d=chParseDate(r['Order Date']||r['Date']);
+    var d=chParseDate(r['Order Date']);
     if(!d) return;
     var k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
-    monthMap[k]=(monthMap[k]||0)+(+r['Sales']||0);
+    monthMap[k]=(monthMap[k]||0)+(+r.Sales||0);
   });
   var months=Object.keys(monthMap).sort();
   var monthVals=months.map(function(m){return monthMap[m];});
@@ -2547,8 +2548,8 @@ function chRenderResult(p) {
   // Orders table
   var tbody = document.getElementById('ch-order-tbody');
   tbody.innerHTML = p.recentOrders.map(function(r){
-    var pr=+r['Profit']||0;
-    return '<tr><td>'+(r['Order Date']||r['Date']||'—')+'</td><td>'+(r['Category']||'—')+'</td><td>$'+Math.round(+r['Sales']||0).toLocaleString()+'</td><td class="'+(pr>=0?'ch-profit-pos':'ch-profit-neg')+'">$'+Math.round(pr).toLocaleString()+'</td></tr>';
+    var pr=+r.Profit||0;
+    return '<tr><td>'+(r['Order Date']||'—')+'</td><td>'+(r['Category']||'—')+'</td><td>$'+Math.round(+r.Sales||0).toLocaleString()+'</td><td class="'+(pr>=0?'ch-profit-pos':'ch-profit-neg')+'">$'+Math.round(pr).toLocaleString()+'</td></tr>';
   }).join('');
 
   // AI reset
