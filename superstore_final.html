@@ -183,7 +183,7 @@ input,textarea{font-family:'DM Sans',sans-serif}
 #exec-stale-nudge{display:none;font-size:11px;color:var(--orange);background:var(--orange-dim);border:1px solid rgba(234,88,12,.2);padding:3px 10px;border-radius:5px;cursor:pointer;transition:all .15s}
 #exec-stale-nudge:hover{background:var(--orange)}
 #exec-stale-nudge:hover{color:#fff}
-#exec-body{padding:13px 16px;font-size:13px;line-height:1.7}
+#exec-body{padding:13px 16px;font-size:13px;line-height:1.7;transition:opacity .3s}
 #exec-body p{margin-bottom:5px}
 #exec-body strong{font-weight:700}
 #exec-body ul{list-style-type:disc;padding-left:16px;margin:4px 0}
@@ -559,7 +559,7 @@ input,textarea{font-family:'DM Sans',sans-serif}
 <!-- NAV -->
 <div id="nav">
   <div id="nav-brand">
-    <img id="nav-logo" src="" alt="Fenxi"/>
+    <img id="nav-logo" class="fenxi-logo" src="" alt="Fenxi"/>
     SUPERSTORE <span>/ Live Analytics</span>
   </div>
   <div class="nav-tabs">
@@ -1012,11 +1012,11 @@ input,textarea{font-family:'DM Sans',sans-serif}
     <div id="chat-input-zone">
       <div class="chat-input-inner">
         <div class="chat-inp-row">
-          <textarea id="chat-input" rows="1" placeholder="Ask anything about the Superstore data…"></textarea>
+          <textarea id="chat-input" rows="1" placeholder="Ask anything — profit, margins, discounts, customers, trends…"></textarea>
           <button id="chat-send-btn" onclick="chatSend()">↑</button>
         </div>
         <div class="chat-meta">
-          <span id="chat-key-status">Connect API key to start chatting</span>
+          <span id="chat-key-status" style="color:var(--dim);font-size:11px">AI connected via proxy</span>
           <button onclick="clearChat()" style="background:none;border:none;color:var(--dim);font-size:11px;cursor:pointer">Clear</button>
         </div>
       </div>
@@ -1115,7 +1115,7 @@ input,textarea{font-family:'DM Sans',sans-serif}
       <button id="panel-send" onclick="panelSend()">↑</button>
     </div>
     <div class="panel-input-meta">
-      <span id="panel-key-status">No API key — click ⚙ to add</span>
+      <span id="panel-key-status" style="color:var(--dim);font-size:11px">AI connected via proxy</span>
       <button onclick="clearPanel()" style="background:none;border:none;color:var(--dim);font-size:11px;cursor:pointer">Clear</button>
     </div>
   </div>
@@ -1163,7 +1163,9 @@ var _countdown=60, _timer=null;
 var _charts={};
 var _prodSort='profit', _prodData=[], _stateData=[], _custData=[], _subData=[];
 var _chData=[], _chBand='all', _chSeg='all';
-var _activePage=1, _theme='light';
+var _activePage=1;
+try{var _theme=localStorage.getItem('fenxi-theme')||'light';}catch(e){var _theme='light';}
+
 var _lastSales=0;
 
 // ═══════════════════════════════════════════════════════
@@ -1202,8 +1204,24 @@ function toggleTheme(){
   _theme=_theme==='light'?'dark':'light';
   document.documentElement.setAttribute('data-theme',_theme);
   document.getElementById('theme-btn').textContent=_theme==='dark'?'☀':'🌙';
+  try{localStorage.setItem('fenxi-theme',_theme);}catch(e){}
   rerenderCharts();
 }
+// Restore saved theme on load
+(function(){
+  try{
+    var saved=localStorage.getItem('fenxi-theme');
+    if(saved==='dark'){
+      _theme='dark';
+      document.documentElement.setAttribute('data-theme','dark');
+      // theme-btn may not exist yet - set it safely after DOM ready
+      document.addEventListener('DOMContentLoaded',function(){
+        var btn=document.getElementById('theme-btn');
+        if(btn)btn.textContent='☀';
+      },true);
+    }
+  }catch(e){}
+})();
 function getCD(){
   var dk=_theme==='dark';
   return {grid:dk?'rgba(255,255,255,.06)':'rgba(0,0,0,.07)',text:dk?'#8888aa':'#55557a',bg:dk?'#18181f':'#ffffff'};
@@ -1218,7 +1236,7 @@ function setAIStatus(ok,msg){
   var pill=document.getElementById('ai-status-pill');
   if(!dot||!txt||!pill) return;
   dot.style.background=ok?'var(--green)':'var(--red)';
-  txt.textContent=msg||(ok?'AI Connected':'AI Unavailable');
+  txt.textContent=msg||(ok?'● AI Connected':'○ AI Unavailable');
   pill.style.borderColor=ok?'var(--green-dim)':'var(--red-dim)';
   pill.style.background=ok?'var(--green-dim)':'var(--red-dim)';
   pill.style.color=ok?'var(--green)':'var(--red)';
@@ -1975,7 +1993,7 @@ function buildSys(){
   s+='3. End every response with one clear recommendation that has a specific dollar or % impact\n';
   s+='4. Last line MUST be: FOLLOWUPS: ["real question 1 with a specific number","real question 2 about a different angle","real action question with estimated impact"] — these must be genuine, distinct questions about THIS data\n';
   s+='5. Format: **Bold headline** then bullet points then **Recommendation:**\n';
-  s+='6. Only include a CHART if it genuinely adds value — format: CHART: {"type":"bar"|"line"|"doughnut","title":"...","labels":[...],"datasets":[{"label":"...","data":[...],"color":"#hex"}]}\n\n';
+  s+='6. CHARTS — include a CHART whenever the question involves comparing values, showing a trend, ranking items, or visualising a distribution. Format: CHART: {"type":"bar"|"line"|"doughnut","title":"...","labels":[...],"datasets":[{"label":"...","data":[...],"color":"#hex"}]} — use real numbers from the data, max 8 labels, keep it simple and readable.\n\n';
 
   s+='## LIVE DATA\n';
   s+='Sales: '+fS(a.totalSales)+' | Profit: '+fS(a.totalProfit)+' | Margin: '+fP(a.margin,2)+'\n';
