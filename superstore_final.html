@@ -428,8 +428,7 @@ ol li{counter-increment:list-counter}
   <div id="status-row">
     <span id="sr-rows">—</span><span class="sep">·</span>
     <span id="sr-orders">—</span><span class="sep">·</span>
-    <span id="sr-fetch">fetching…</span><span class="sep">·</span>
-    <span>fenxi-dashboard.vercel.app</span><span class="sep">·</span>
+    <span id="sr-fetch"></span>
     <span id="sr-key"></span>
   </div>
   <div id="ticker"><div class="ticker-badge">Updated</div><span id="ticker-msg">Data refreshed</span></div>
@@ -1089,7 +1088,7 @@ function fetchData(){
     }
     if(!_execLoaded) genExecSummary(false);
   })
-  .catch(function(){ document.getElementById('sr-fetch').textContent='retrying...'; setTimeout(fetchData,5000); });
+  .catch(function(){ setTimeout(fetchData,5000); });
 }
 
 function aggregate(){
@@ -1947,8 +1946,8 @@ function fmtAI(t){
   h=h.replace(/(\d+\.?\d*%)/g,'<span style="font-family:\'DM Mono\',monospace;color:var(--blue)">$1</span>');
   var lines=h.split('\n'),out='',inL=false,lt='';
   lines.forEach(function(l){
-    var tr=l.trim();var isBul=/^[•\-] /.test(tr);var isNum=/^\d+\. /.test(tr);
-    if(isBul||isNum){var ltype=isBul?'ul':'ol';if(!inL||lt!==ltype){if(inL)out+='</'+lt+'>';out+='<'+ltype+'>';inL=true;lt=ltype;}out+='<li>'+tr.replace(/^[•\-\d]+[.)]\s/,'')+'</li>';}
+    var tr=l.trim();var isBul=/^[•\-\u2022] /.test(tr)||/^&bull;\s/.test(tr);var isNum=/^\d+\. /.test(tr);
+    if(isBul||isNum){var ltype=isBul?'ul':'ol';if(!inL||lt!==ltype){if(inL)out+='</'+lt+'>';out+='<'+ltype+'>';inL=true;lt=ltype;}out+='<li>'+tr.replace(/^[•\-]\s+|^\d+[.)]\s+/,'')+'</li>';}
     else{if(inL){out+='</'+lt+'>';inL=false;lt='';}if(tr)out+='<p>'+l+'</p>';}
   });
   if(inL)out+='</'+lt+'>';
