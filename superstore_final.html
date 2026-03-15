@@ -114,11 +114,11 @@ input,textarea{font-family:'DM Sans',sans-serif}
 @media(max-width:900px){.grid-2,.grid-3{grid-template-columns:1fr}}
 
 /* CHART */
-.chart-wrap{position:relative;width:100%;overflow:hidden;min-height:200px}
+.chart-wrap{position:relative;width:100%;overflow:hidden}
 ol{list-style:decimal;padding-left:20px;counter-reset:list-counter}
 ol li{counter-increment:list-counter}
-.chart-wrap canvas{width:100%!important;display:block}
-.h180{height:180px}.h220{height:220px}.h260{height:260px;min-height:260px}.h300{height:300px}.h350{height:350px}.h400{height:400px}
+.chart-wrap canvas{width:100%!important;display:block;height:100%!important}
+.h180{height:180px}.h220{height:220px}.h260{height:260px}.h260 canvas{height:260px!important}.h300{height:300px}.h300 canvas{height:300px!important}.h350{height:350px}.h350 canvas{height:350px!important}.h400{height:400px}.h400 canvas{height:400px!important}
 
 /* CALLOUT */
 .callout{padding:12px 16px;border-radius:8px;border:1px solid;display:flex;gap:10px;align-items:flex-start;margin-bottom:18px}
