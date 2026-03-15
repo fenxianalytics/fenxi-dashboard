@@ -186,6 +186,8 @@ input,textarea{font-family:'DM Sans',sans-serif}
 #exec-body{padding:13px 16px;font-size:13px;line-height:1.7}
 #exec-body p{margin-bottom:5px}
 #exec-body strong{font-weight:700}
+#exec-body ul{list-style-type:disc;padding-left:16px;margin:4px 0}
+#exec-body ol{list-style-type:decimal;padding-left:16px;margin:4px 0}
 
 /* EXPAND / EXPLORE OVERLAY */
 #expand-overlay{display:none;position:fixed;inset:0;z-index:400;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px}
@@ -211,6 +213,8 @@ input,textarea{font-family:'DM Sans',sans-serif}
 .exp-ai-block{background:var(--bg2);border:1px solid rgba(99,102,241,.18);border-radius:8px;padding:13px 15px;font-size:13px;line-height:1.65}
 .exp-ai-block p{margin-bottom:5px}
 .exp-ai-block strong{font-weight:700}
+.exp-ai-block ul{list-style-type:disc;padding-left:16px;margin:4px 0}
+.exp-ai-block ol{list-style-type:decimal;padding-left:16px;margin:4px 0}
 .exp-ai-hdr{display:flex;align-items:center;gap:7px;margin-bottom:10px}
 .exp-ai-logo{width:20px;height:20px;border-radius:5px;object-fit:cover}
 .exp-ai-lbl{font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.04em}
@@ -243,6 +247,8 @@ input,textarea{font-family:'DM Sans',sans-serif}
 #detail-ai-text{font-size:13px;line-height:1.6}
 #detail-ai-text p{margin-bottom:4px}
 #detail-ai-text strong{font-weight:700}
+#detail-ai-text ul{list-style-type:disc;padding-left:16px;margin:4px 0}
+#detail-ai-text ol{list-style-type:decimal;padding-left:16px;margin:4px 0}
 .detail-sub-tbl{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}
 .detail-sub-tbl th{padding:6px 10px;text-align:left;font-size:10.5px;font-weight:700;color:var(--muted);text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--bg2)}
 .detail-sub-tbl td{padding:7px 10px;border-bottom:1px solid var(--border);font-family:'DM Mono',monospace;font-size:11.5px}
@@ -280,6 +286,7 @@ input,textarea{font-family:'DM Sans',sans-serif}
 .pmsg-bub p{margin-bottom:4px}
 .pmsg-bub strong{font-weight:700}
 .pmsg-bub ul,.pmsg-bub ol{padding-left:16px;margin:4px 0}
+.pmsg-bub ul{list-style-type:disc}.pmsg-bub ol{list-style-type:decimal}
 .pmsg-row.user .pmsg-bub{background:var(--accent-dim);border-color:rgba(99,102,241,.2)}
 
 /* FULL CHAT PAGE */
@@ -307,6 +314,7 @@ input,textarea{font-family:'DM Sans',sans-serif}
 .cmsg-bub p{margin-bottom:5px}
 .cmsg-bub strong{font-weight:700}
 .cmsg-bub ul,.cmsg-bub ol{padding-left:18px;margin:5px 0}
+.cmsg-bub ul{list-style-type:disc}.cmsg-bub ol{list-style-type:decimal}
 .cmsg-row.user .cmsg-bub{background:var(--accent-dim);border-color:rgba(99,102,241,.2)}
 .chat-sugs{display:flex;flex-wrap:wrap;gap:7px;padding:0 0 8px}
 .chat-sug{background:var(--bg-card);border:1.5px solid var(--border2);color:var(--muted);padding:7px 14px;border-radius:20px;font-size:12.5px;font-weight:500;cursor:pointer;transition:all .18s}
@@ -1214,6 +1222,10 @@ function setAIStatus(ok,msg){
   pill.style.borderColor=ok?'var(--green-dim)':'var(--red-dim)';
   pill.style.background=ok?'var(--green-dim)':'var(--red-dim)';
   pill.style.color=ok?'var(--green)':'var(--red)';
+  var pks=document.getElementById('panel-key-status');
+  if(pks)pks.style.display=ok?'none':'inline';
+  var cks=document.getElementById('chat-key-status');
+  if(cks)cks.style.display=ok?'none':'inline';
 }
 function updateKeyUI(){}
 
@@ -2044,8 +2056,11 @@ function callAI(msgs, sysOverride){
   .then(function(d){
     setAIStatus(true,'AI Connected');
     if(d.text)return d.text;
-    if(d.content)return d.content.map(function(b){return b.text||'';}).join('');
-    if(d.choices)return d.choices[0].message.content||'';
+    if(d.content){
+      if(Array.isArray(d.content))return d.content.map(function(b){return b.text||'';}).join('');
+      return String(d.content);
+    }
+    if(d.choices&&d.choices[0])return d.choices[0].message&&d.choices[0].message.content||'';
     return '';
   })
   .catch(function(e){setAIStatus(false,'AI Unavailable');throw e;});
@@ -2073,7 +2088,7 @@ function fmtAI(t){
   var lines=h.split('\n'),out='',inL=false,lt='';
   lines.forEach(function(l){
     var tr=l.trim();var isBul=/^[•\-] /.test(tr);var isNum=/^\d+\. /.test(tr);
-    if(isBul||isNum){var ltype=isBul?'ul':'ol';if(!inL||lt!==ltype){if(inL)out+='</'+lt+'>';out+='<'+ltype+'>';inL=true;lt=ltype;}out+='<li>'+tr.replace(/^[•\-\d]+[.)]\s/,'')+'</li>';}
+    if(isBul||isNum){var ltype=isBul?'ul':'ol';if(!inL||lt!==ltype){if(inL)out+='</'+lt+'>';out+='<'+ltype+'>';inL=true;lt=ltype;}out+='<li>'+tr.replace(/^[•\-]\s+|^\d+[.)]\s/,'')+'</li>';}
     else{if(inL){out+='</'+lt+'>';inL=false;lt='';}if(tr)out+='<p>'+l+'</p>';}
   });
   if(inL)out+='</'+lt+'>';
