@@ -115,10 +115,8 @@ input,textarea{font-family:'DM Sans',sans-serif}
 
 /* CHART */
 .chart-wrap{position:relative;width:100%;overflow:hidden}
-ol{list-style:decimal;padding-left:20px;counter-reset:list-counter}
-ol li{counter-increment:list-counter}
-.chart-wrap canvas{width:100%!important;display:block;height:100%!important}
-.h180{height:180px}.h220{height:220px}.h260{height:260px}.h260 canvas{height:260px!important}.h300{height:300px}.h300 canvas{height:300px!important}.h350{height:350px}.h350 canvas{height:350px!important}.h400{height:400px}.h400 canvas{height:400px!important}
+.chart-wrap canvas{width:100%!important}
+.h180{height:180px}.h220{height:220px}.h260{height:260px}.h300{height:300px}.h350{height:350px}.h400{height:400px}
 
 /* CALLOUT */
 .callout{padding:12px 16px;border-radius:8px;border:1px solid;display:flex;gap:10px;align-items:flex-start;margin-bottom:18px}
@@ -169,12 +167,7 @@ ol li{counter-increment:list-counter}
 .color-bar{height:5px;background:var(--bg2);border-radius:3px;overflow:hidden}
 .color-bar-fill{height:100%;border-radius:3px;transition:width .6s}
 
-/* TAKEAWAYS */
-.takeaways{background:var(--bg-card);border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:var(--radius);padding:16px 18px;margin-top:22px;box-shadow:var(--shadow)}
-.takeaways-ttl{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:9px}
-.takeaways-list{display:flex;flex-direction:column;gap:7px}
-.tw-item{font-size:13px;line-height:1.55;padding-left:14px;position:relative}
-.tw-item::before{content:'→';position:absolute;left:0;color:var(--dim);font-size:12px}
+
 
 /* EXEC SUMMARY */
 #exec-wrap{margin-bottom:22px;border-radius:var(--radius);border:1px solid rgba(99,102,241,.22);background:linear-gradient(135deg,var(--accent-dim),rgba(99,102,241,.02));overflow:hidden}
@@ -392,13 +385,173 @@ ol li{counter-increment:list-counter}
 @media print{#nav,#slide-panel,#panel-overlay,#saved-panel,#key-modal,#float-btn,#exec-wrap,#page-2,#page-3,#page-4,#page-5,#page-6,#page-7{display:none!important}body{background:#fff!important}#page-1{display:block!important}.card{box-shadow:none!important;border:1px solid #ddd!important;break-inside:avoid}@page{margin:18mm;size:A4}}
 
 @media(max-width:768px){#slide-panel,#saved-panel{width:100vw;max-width:100vw}#float-btn{display:none}}
+
+/* ══════════════════════════════════════════
+   MOBILE RESPONSIVE — full overhaul
+══════════════════════════════════════════ */
+@media(max-width:768px){
+
+  /* Nav */
+  :root{--nav-h:48px}
+  #nav{padding:0 12px;gap:8px;height:var(--nav-h)}
+  #nav-brand{font-size:12px}
+  #nav-brand span{display:none}
+  .nav-tabs{gap:2px}
+  .nav-tab{padding:5px 9px;font-size:11.5px}
+  .countdown-txt{display:none}
+  .live-pill span{display:none}
+  .live-pill{padding:4px 7px}
+  #ai-status-pill span:last-child{display:none}
+  .btn{padding:4px 8px;font-size:11px}
+
+  /* Main padding */
+  #main{padding:14px 12px 100px}
+
+  /* Section */
+  .section{margin-bottom:24px}
+  .section-title{font-size:15px}
+
+  /* Cards */
+  .card{padding:14px}
+
+  /* KPI grid — 2 cols, smaller values */
+  .kpi-grid{grid-template-columns:repeat(2,1fr);gap:8px}
+  .kpi-value{font-size:18px}
+  .kpi-card{padding:12px}
+  .kpi-label{font-size:9.5px}
+  .kpi-sub{font-size:10.5px}
+
+  /* Grids stack */
+  .grid-2,.grid-3{grid-template-columns:1fr;gap:12px}
+  .cat-grid{grid-template-columns:1fr}
+
+  /* Chart heights — shorter on mobile */
+  .h260{height:200px}
+  .h300{height:220px}
+  .h350{height:240px}
+  .h400{height:260px}
+  .h220{height:180px}
+  .h180{height:160px}
+
+  /* Exec summary */
+  .exec-topbar{flex-wrap:wrap;gap:6px;padding:8px 12px}
+  .exec-actions{flex-wrap:wrap;gap:4px}
+  #exec-body{padding:10px 12px;font-size:12.5px}
+  .exec-lbl{font-size:12px}
+  .exec-regen-btn{font-size:10.5px;padding:3px 8px}
+  #exec-stale-nudge{font-size:10px}
+
+  /* Status row */
+  #status-row{font-size:10.5px;gap:5px;margin-bottom:12px}
+
+  /* Score legend wraps nicely */
+  #score-legend{gap:8px;padding:6px 10px;font-size:10.5px}
+
+  /* Category cards */
+  .cat-big{font-size:22px}
+  .cat-name{font-size:13px}
+
+  /* Tables — horizontal scroll */
+  .tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .data-tbl{min-width:520px}
+  .tbl-controls{gap:7px}
+  .tbl-search{min-width:140px}
+
+  /* Expand/Explore overlay — stack vertically */
+  #expand-overlay{padding:0;align-items:flex-end}
+  #expand-box{max-width:100%;max-height:92vh;border-radius:14px 14px 0 0}
+  #expand-body{flex-direction:column;overflow-y:auto}
+  #expand-left{flex:none;height:220px;border-right:none;border-bottom:1px solid var(--border);padding:14px}
+  #expand-right{flex:none;padding:14px 16px;overflow-y:visible}
+  #expand-hdr{padding:12px 16px}
+
+  /* Detail modal */
+  #detail-modal{padding:0;align-items:flex-end}
+  #detail-box{max-width:100%;border-radius:14px 14px 0 0;max-height:88vh}
+  #detail-hdr{padding:14px 16px}
+  #detail-body{padding:14px 16px 18px}
+  .detail-metrics{grid-template-columns:repeat(2,1fr);gap:8px}
+  .dm-val{font-size:16px}
+
+  /* Slide panel — full width */
+  #slide-panel{width:100vw;max-width:100vw;top:var(--nav-h);height:calc(100vh - var(--nav-h))}
+
+  /* Saved panel — full width */
+  #saved-panel{width:100vw;max-width:100vw;top:var(--nav-h);height:calc(100vh - var(--nav-h))}
+
+  /* Panel input */
+  #panel-input{font-size:14px}
+  #panel-msgs{padding:10px}
+
+  /* Chat page */
+  #chat-msgs-scroll{padding:14px 12px}
+  #chat-input-zone{padding:10px 12px}
+  #chat-input{font-size:14px}
+  .cmsg-bub{font-size:13px;padding:11px 13px}
+  .chat-sug{font-size:12px;padding:6px 12px}
+
+  /* FU chips wrap better */
+  .fu-chips{gap:4px}
+  .fu-chip{font-size:11px;padding:4px 9px}
+
+  /* Float button position */
+  #float-btn{display:flex;bottom:16px;right:16px;width:46px;height:46px}
+
+  /* Mobile bottom nav */
+  #mobile-bottom-nav{display:flex}
+
+  /* Toggle groups */
+  .toggle-grp{flex-wrap:wrap}
+  .tog-btn{font-size:11px;padding:5px 10px}
+
+  /* Region score cards */
+  #region-score-cards{grid-template-columns:repeat(2,1fr)!important}
+
+  /* Key modal */
+  #key-box{border-radius:14px 14px 0 0;max-width:100vw}
+  #key-modal{padding:0;align-items:flex-end}
+
+  /* Callout */
+  .callout{padding:10px 12px;font-size:12.5px}
+
+  /* Section header row */
+  .section-header .card-title-row{flex-wrap:wrap;gap:6px}
+
+  /* Chart explore btn smaller */
+  .chart-explore-btn{font-size:10.5px;padding:3px 8px}
+}
+
+/* Small phones */
+@media(max-width:380px){
+  .kpi-value{font-size:16px}
+  .nav-tab{padding:4px 7px;font-size:11px}
+  #main{padding:10px 8px 100px}
+}
+
+/* Mobile bottom nav bar */
+#mobile-bottom-nav{
+  display:none;
+  position:fixed;bottom:0;left:0;right:0;z-index:150;
+  background:var(--bg-card);border-top:1px solid var(--border);
+  height:58px;align-items:center;justify-content:space-around;
+  padding:0 4px;box-shadow:0 -4px 20px rgba(0,0,0,.08);
+}
+.mbn-btn{
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  background:none;border:none;color:var(--dim);font-size:9.5px;font-weight:600;
+  padding:6px 8px;border-radius:8px;cursor:pointer;transition:all .15s;
+  min-width:52px;text-transform:uppercase;letter-spacing:.03em;
+}
+.mbn-btn.active{color:var(--accent)}
+.mbn-btn svg,.mbn-icon{font-size:18px;line-height:1;margin-bottom:1px}
+
 </style>
 </head>
 <body>
 <!-- NAV -->
 <div id="nav">
   <div id="nav-brand">
-    <img id="nav-logo" class="fenxi-logo" src="" alt="Fenxi"/>
+    <img id="nav-logo" src="" alt="Fenxi"/>
     SUPERSTORE <span>/ Live Analytics</span>
   </div>
   <div class="nav-tabs">
@@ -425,8 +578,12 @@ ol li{counter-increment:list-counter}
 
 <!-- PAGE 1: OVERVIEW -->
 <div id="page-1" class="page active">
-  <div id="status-row" style="visibility:hidden">
-    <span id="sr-rows"></span><span id="sr-orders"></span><span id="sr-fetch"></span><span id="sr-key"></span>
+  <div id="status-row">
+    <span id="sr-rows">—</span><span class="sep">·</span>
+    <span id="sr-orders">—</span><span class="sep">·</span>
+    <span id="sr-fetch">fetching…</span><span class="sep">·</span>
+    <span>fenxi-dashboard.vercel.app</span><span class="sep">·</span>
+    <span id="sr-key" style="display:none"></span>
   </div>
   <div id="ticker"><div class="ticker-badge">Updated</div><span id="ticker-msg">Data refreshed</span></div>
 
@@ -519,6 +676,7 @@ ol li{counter-increment:list-counter}
     </div>
   </div>
 
+
 </div>
 
 <!-- PAGE 2: SALES & PROFIT -->
@@ -577,10 +735,7 @@ ol li{counter-increment:list-counter}
     <div class="tbl-wrap"><table class="data-tbl" id="sub-tbl"></table></div>
   </div>
 
-  <div class="takeaways" style="border-left-color:var(--blue)">
-    <div class="takeaways-ttl">Key Takeaways — Sales &amp; Profit</div>
-    <div class="takeaways-list" id="tw-p2"><div class="tw-item">Loading…</div></div>
-  </div>
+
 </div>
 
 <!-- PAGE 3: REGIONAL -->
@@ -853,7 +1008,7 @@ ol li{counter-increment:list-counter}
           <button id="chat-send-btn" onclick="chatSend()">↑</button>
         </div>
         <div class="chat-meta">
-          <span id="chat-key-status">AI ready</span>
+          <span id="chat-key-status">Connect API key to start chatting</span>
           <button onclick="clearChat()" style="background:none;border:none;color:var(--dim);font-size:11px;cursor:pointer">Clear</button>
         </div>
       </div>
@@ -952,7 +1107,7 @@ ol li{counter-increment:list-counter}
       <button id="panel-send" onclick="panelSend()">↑</button>
     </div>
     <div class="panel-input-meta">
-      <span id="panel-key-status">AI ready</span>
+      <span id="panel-key-status">No API key — click ⚙ to add</span>
       <button onclick="clearPanel()" style="background:none;border:none;color:var(--dim);font-size:11px;cursor:pointer">Clear</button>
     </div>
   </div>
@@ -1072,20 +1227,19 @@ function fetchData(){
     var prev=_lastSales;
     _data=rows; aggregate(); _lastSales=_agg.totalSales;
     renderAll();
-    if(!_execLoaded) genExecSummary(false);
     var now=new Date();
     document.getElementById('sr-rows').textContent=fN(rows.length)+' rows';
     document.getElementById('sr-orders').textContent=fN(_agg.totalOrders)+' orders';
-    document.getElementById('sr-fetch').textContent='live · '+now.toLocaleTimeString();document.getElementById('status-row').style.visibility='visible';
-    document.getElementById('sr-key').textContent='AI ready';
+    document.getElementById('sr-fetch').textContent='fetched '+now.toLocaleTimeString();
     if(prev>0 && Math.abs(_agg.totalSales-prev)/prev>0.005){
       showTicker('Data refreshed — sales: '+fS(_agg.totalSales));
       _exploreCache={}; _detailCache={};
       var stale=document.getElementById('exec-stale-nudge');
       if(stale&&_execLoaded) stale.style.display='inline-flex';
     }
+    if(!_execLoaded) genExecSummary(false);
   })
-  .catch(function(){ setTimeout(fetchData,5000); });
+  .catch(function(){ document.getElementById('sr-fetch').textContent='fetch error — retrying'; });
 }
 
 function aggregate(){
@@ -1102,7 +1256,7 @@ function aggregate(){
     var cat=r.Category||'?',seg=r.Segment||'?',reg=r.Region||'?';
     var sub=r['Sub-Category']||'?',state=r.State||'?',mode=r['Ship Mode']||'?';
     var prod=r['Product Name']||'?',cid=r['Customer ID']||'',cname=r['Customer Name']||'',oid=r['Order ID']||'';
-    var odP=(r['Order Date']||r['Date']||r['order_date']||'').split('/'),sdP=(r['Ship Date']||'').split('/');
+    var odP=(r['Order Date']||'').split('/'),sdP=(r['Ship Date']||'').split('/');
     var yr='',mo='',dts=0;
     if(odP.length===3){ yr=odP[2]; mo=odP[2]+'-'+odP[0].padStart(2,'0'); }
     if(odP.length===3&&sdP.length===3){
@@ -1299,9 +1453,8 @@ function scoreDimRow(label, score, weight, detail){
 // RENDER ALL
 // ═══════════════════════════════════════════════════════
 function renderAll(){
-  renderKPIs(); renderCatCards(); renderTakeaways();
-  renderChatSugs();
-  setTimeout(function(){ document.querySelectorAll('.chart-wrap canvas').forEach(function(c){var p=c.parentElement;if(p&&p.offsetHeight>0)c.style.height=p.offsetHeight+'px';});renderCharts_p1();setTimeout(function(){window.dispatchEvent(new Event('resize'));},100);}, 300);
+  renderKPIs(); renderCatCards();
+  renderCharts_p1(); renderChatSugs();
   renderRegionScoreCards(); // always update region score cards
   if(_activePage===2){renderCharts_p2();renderSubTbl();}
   if(_activePage===3){renderCharts_p3();renderStateTbl();}
@@ -1375,30 +1528,8 @@ function renderCatCards(){
   }).join('');
 }
 
-// ═══════════════════════════════════════════════════════
-// TAKEAWAYS
-// ═══════════════════════════════════════════════════════
-function renderTakeaways(){
-  var a=_agg;
-  var topCat='';var tv=-Infinity;Object.keys(a.catM).forEach(function(k){if(a.catM[k].s>tv){tv=a.catM[k].s;topCat=k;}});
-  var worstSub='';var wv=Infinity;Object.keys(a.subM).forEach(function(k){if(a.subM[k].p<wv){wv=a.subM[k].p;worstSub=k;}});
-  var topReg='';var trv=-Infinity;Object.keys(a.regM).forEach(function(k){if(a.regM[k].p>trv){trv=a.regM[k].p;topReg=k;}});
-  var lossMakers=Object.keys(a.subM).filter(function(k){return a.subM[k].p<0;}).length;
-  var tw=[
-    'Total sales <strong>'+fS(a.totalSales)+'</strong> from <strong>'+fN(a.totalOrders)+'</strong> orders — blended margin <strong>'+fP(a.margin,2)+'</strong> '+(a.margin>=0.12?'(healthy for retail)':'(below the 10–12% retail benchmark)'),
-    '<strong>'+topCat+'</strong> leads revenue. Technology and Office Supplies deliver the strongest margins — Furniture is the structural drag',
-    '<strong>'+lossMakers+' sub-categories</strong> are loss-making. <strong>'+worstSub+'</strong> is the worst, destroying <strong>'+fS(Math.abs(wv))+'</strong> through heavy discounting',
-    '<strong>'+topReg+'</strong> is the most profitable region. Regional margin gaps nearly always trace to discount policy or product mix differences'
-  ];
-  document.getElementById('tw-overview').innerHTML=tw.map(function(t){return'<div class="tw-item">'+t+'</div>';}).join('');
-  var lossTot=0;Object.keys(a.subM).forEach(function(k){if(a.subM[k].p<0)lossTot+=a.subM[k].p;});
-  var tw2=[
-    '<strong>'+lossMakers+' sub-categories</strong> are net loss-making — total destruction: <strong>'+fS(Math.abs(lossTot))+'</strong>. Review for discount caps or removal',
-    'Technology leads both sales and profit. Office Supplies has the highest margin efficiency — most profit per dollar of sales',
-    'Orders above 30% discount are loss-making on average. A discount cap policy would be the single highest-ROI margin lever'
-  ];
-  var el2=document.getElementById('tw-p2');if(el2)el2.innerHTML=tw2.map(function(t){return'<div class="tw-item">'+t+'</div>';}).join('');
-}
+
+
 
 // ═══════════════════════════════════════════════════════
 // CHART HELPERS
@@ -1779,7 +1910,7 @@ function openCHDetail(custId){
     +'• Signal two with specific number\n'
     +'• Risk or opportunity with number\n\n'
     +'**Action:** One specific action to take this week.\n\n'
-    +'FOLLOWUPS: ["specific question with exact number","specific insight question","actionable recommendation question"]';
+    +'FOLLOWUPS: ["<specific follow-up question with a number from the data>","<follow-up about a different dimension or action>","<question about what to do next with an estimated impact>"] — write 3 real questions specific to this analysis, not placeholders';
   openDetailModal(c.name,meta,
     [['Health Score',c.score+'/100'],['Lifetime Sales',fS(c.s)],['Profit',fS(c.p),''],['Margin',fP(c.margin,1),''],['Avg Discount',(c.avgDisc*100).toFixed(0)+'%',''],['Orders/Month',c.freq.toFixed(2),'']],
     true,'Score Breakdown',subTbl,prompt,'ch-'+custId);
@@ -1811,7 +1942,7 @@ function runPortfolioAI(){
     +'• Customer name: why valuable and one retention action\n'
     +'• Customer name: why valuable and one retention action\n\n'
     +'**Strategic Recommendation:** One portfolio-level action with expected impact.\n\n'
-    +'FOLLOWUPS: ["specific question with exact number","specific insight question","actionable recommendation question"]';
+    +'FOLLOWUPS: ["<specific follow-up question with a number from the data>","<follow-up about a different dimension or action>","<question about what to do next with an estimated impact>"] — write 3 real questions specific to this analysis, not placeholders';
   callAI([{role:'user',content:prompt}]).then(function(r){
     var fu=extractFU(r),clean=cleanR(r);var html=fmtAI(clean);
     if(fu.length)html+=makeFuChipsStr(fu,function(q){askAI(q);});
@@ -1825,15 +1956,14 @@ function runPortfolioAI(){
 // ═══════════════════════════════════════════════════════
 function buildSys(){
   var a=_agg;if(!a.totalSales)return'You are Fenxi AI. Data is loading.';
-  var s='You are Fenxi AI, a sharp retail data analyst in a live Superstore dashboard. Data refreshes every 60s.\n\n';
-  s+='## OUTPUT FORMAT — ALWAYS USE THIS\n';
-  s+='**Bold headline** — one sharp sentence with the key number.\n\n';
-  s+='- Bullet one with **specific dollar or % figure**\n';
-  s+='- Bullet two with **specific figure**\n';
-  s+='- Bullet three with **specific figure**\n\n';
-  s+='**Recommendation:** One specific action with estimated $ or % impact.\n\n';
-  s+='Last line only: FOLLOWUPS: ["real specific question using actual numbers from above","second real question about a different insight","third actionable question"]\n';
-  s+='FOLLOWUPS must reference actual figures from the data. Never write q1/q2/q3 or generic placeholders.\n\n';
+  var s='You are Fenxi AI — a sharp, direct retail data analyst. Answer only from the LIVE DATA below. Never invent numbers.\n\n';
+  s+='RULES:\n';
+  s+='1. Always include specific numbers ($, %) from the data in every response\n';
+  s+='2. Keep responses concise — max 5 bullets unless a breakdown is explicitly requested\n';
+  s+='3. End every response with one clear recommendation that has a specific dollar or % impact\n';
+  s+='4. Last line MUST be: FOLLOWUPS: ["real question 1 with a specific number","real question 2 about a different angle","real action question with estimated impact"] — these must be genuine, distinct questions about THIS data\n';
+  s+='5. Format: **Bold headline** then bullet points then **Recommendation:**\n';
+  s+='6. Only include a CHART if it genuinely adds value — format: CHART: {"type":"bar"|"line"|"doughnut","title":"...","labels":[...],"datasets":[{"label":"...","data":[...],"color":"#hex"}]}\n\n';
 
   s+='## LIVE DATA\n';
   s+='Sales: '+fS(a.totalSales)+' | Profit: '+fS(a.totalProfit)+' | Margin: '+fP(a.margin,2)+'\n';
@@ -1914,8 +2044,7 @@ function callAI(msgs, sysOverride){
   .then(function(d){
     setAIStatus(true,'AI Connected');
     if(d.text)return d.text;
-    if(d.content&&typeof d.content==='string')return d.content;
-    if(d.content&&Array.isArray(d.content))return d.content.map(function(b){return b.text||'';}).join('');
+    if(d.content)return d.content.map(function(b){return b.text||'';}).join('');
     if(d.choices)return d.choices[0].message.content||'';
     return '';
   })
@@ -1943,8 +2072,8 @@ function fmtAI(t){
   h=h.replace(/(\d+\.?\d*%)/g,'<span style="font-family:\'DM Mono\',monospace;color:var(--blue)">$1</span>');
   var lines=h.split('\n'),out='',inL=false,lt='';
   lines.forEach(function(l){
-    var tr=l.trim();var isBul=/^[•\-\u2022] /.test(tr)||/^&bull;\s/.test(tr);var isNum=/^\d+\. /.test(tr);
-    if(isBul||isNum){var ltype=isBul?'ul':'ol';if(!inL||lt!==ltype){if(inL)out+='</'+lt+'>';out+='<'+ltype+'>';inL=true;lt=ltype;}out+='<li>'+tr.replace(/^[•\-]\s+|^\d+[.)]\s+/,'')+'</li>';}
+    var tr=l.trim();var isBul=/^[•\-] /.test(tr);var isNum=/^\d+\. /.test(tr);
+    if(isBul||isNum){var ltype=isBul?'ul':'ol';if(!inL||lt!==ltype){if(inL)out+='</'+lt+'>';out+='<'+ltype+'>';inL=true;lt=ltype;}out+='<li>'+tr.replace(/^[•\-\d]+[.)]\s/,'')+'</li>';}
     else{if(inL){out+='</'+lt+'>';inL=false;lt='';}if(tr)out+='<p>'+l+'</p>';}
   });
   if(inL)out+='</'+lt+'>';
@@ -1980,9 +2109,24 @@ function genExecSummary(force){
   _execLoaded=true;_execTime=Date.now();
   var stale=document.getElementById('exec-stale-nudge');if(stale)stale.style.display='none';
   document.getElementById('exec-body').innerHTML='<div class="typing-dots"><div class="td"></div><div class="td"></div><div class="td"></div></div>';
-  var lossTot=0;Object.keys(_agg.subM).forEach(function(k){if(_agg.subM[k].p<0)lossTot+=_agg.subM[k].p;});
-  var worstSub='';var wv=Infinity;Object.keys(_agg.subM).forEach(function(k){if(_agg.subM[k].p<wv){wv=_agg.subM[k].p;worstSub=k;}});
-  callAI([{role:'user',content:'4-bullet executive summary of the live Superstore dataset.\n\nExact format:\n**Performance:** [one sentence — total sales, profit, margin, healthy or not]\n\n• [Category insight: best and worst margin with exact %]\n• [Biggest loss-maker: '+worstSub+' destroying '+fS(Math.abs(wv))+' — why]\n• [Regional standout: best margin region and the gap vs worst]\n• [Discount insight: breakeven point and total loss from over-discounting]\n\n**CFO Action:** [One specific numbered recommendation — e.g. discount cap on Tables recovers ~$X]\n\nFOLLOWUPS: ["specific question with exact dollar figure","specific question with exact percentage","actionable question naming a specific product or region"]'}])
+  var a=_agg;
+  var lossTot=0;Object.keys(a.subM).forEach(function(k){if(a.subM[k].p<0)lossTot+=a.subM[k].p;});
+  var worstSub='';var wv=Infinity;Object.keys(a.subM).forEach(function(k){if(a.subM[k].p<wv){wv=a.subM[k].p;worstSub=k;}});
+  var bestReg='';var brv=-Infinity;Object.keys(a.regM).forEach(function(k){var m=a.regM[k].s>0?a.regM[k].p/a.regM[k].s:0;if(m>brv){brv=m;bestReg=k;}});
+  var worstReg='';var wrv=Infinity;Object.keys(a.regM).forEach(function(k){var m=a.regM[k].s>0?a.regM[k].p/a.regM[k].s:0;if(m<wrv){wrv=m;worstReg=k;}});
+  var prompt='Write a 4-bullet executive summary for this Superstore dataset. Use the exact data below — do not invent numbers.\n\n'
+    +'DATA: Sales='+fS(a.totalSales)+' Profit='+fS(a.totalProfit)+' Margin='+fP(a.margin,2)+' Orders='+fN(a.totalOrders)+'\n'
+    +'Worst sub-cat: '+worstSub+' ('+fS(wv)+' loss) | Total loss sub-cats: '+fS(Math.abs(lossTot))+'\n'
+    +'Best region: '+bestReg+' ('+fP(brv,1)+' margin) | Worst region: '+worstReg+' ('+fP(wrv,1)+' margin)\n\n'
+    +'FORMAT — use exactly this:\n'
+    +'**Performance:** One sentence: total sales, profit, margin, and whether margin is healthy for retail.\n\n'
+    +'• Category insight: which category has the best margin and which is the drag — use exact %\n'
+    +'• Loss-maker: '+worstSub+' destroying '+fS(Math.abs(wv))+' — state the cause\n'
+    +'• Regional gap: '+bestReg+' vs '+worstReg+' — exact margin gap and likely cause\n'
+    +'• Discount: state where orders go loss-making and the total value destroyed\n\n'
+    +'**CFO Action:** One specific recommendation with a specific dollar recovery estimate.\n\n'
+    +'FOLLOWUPS: ["question about the biggest $ recovery opportunity with specific amount","question about a specific region or category with its exact margin","question about what to prioritise first and why"] — write 3 real questions from this data.';
+  callAI([{role:'user',content:prompt}])
   .then(function(r){
     var fu=extractFU(r),clean=cleanR(r);var html=fmtAI(clean);
     if(fu.length)html+=makeFuChipsStr(fu,function(q){askAI(q);});
@@ -1990,8 +2134,8 @@ function genExecSummary(force){
     document.getElementById('exec-live-badge').style.display='inline-flex';
     var ts=document.getElementById('exec-timestamp');if(ts)ts.textContent='Generated just now';
   }).catch(function(e){
+    document.getElementById('exec-body').innerHTML='<div style="color:var(--muted);font-size:12.5px">AI summary unavailable — '+errMsg(e)+'</div>';
     _execLoaded=false;
-    setTimeout(function(){ if(!_execLoaded&&_agg.totalSales) genExecSummary(false); },3000);
   });
 }
 
@@ -2007,7 +2151,7 @@ function buildExpPrompt(ttl, nums, specific){
     +'• Bullet insight two with specific figure\n'
     +'• Bullet insight three with specific figure\n\n'
     +'**Recommendation:** One CFO-level action with an estimated dollar or percentage impact.\n\n'
-    +'No FOLLOWUPS needed.';
+    +'Last line: FOLLOWUPS: ["specific question about the biggest number above","specific question exploring a different angle of this data","specific action question with estimated dollar or % impact"] — write 3 real follow-up questions about THIS specific analysis, not placeholders.';
 }
 
 function openExpand(key){
@@ -2023,7 +2167,10 @@ function openExpand(key){
   if(_exploreCache[key]){document.getElementById('exp-ai-text').innerHTML=_exploreCache[key];}
   else{
     callAI([{role:'user',content:buildExpPrompt(def.ttl,def.nums,def.specific||'')}]).then(function(r){
-      var html=fmtAI(cleanR(r));_exploreCache[key]=html;
+      var fu=extractFU(r),clean=cleanR(r);
+      var html=fmtAI(clean);
+      if(fu&&fu.length)html+=makeFuChipsStr(fu,function(q){closeExpand();askAI(q);});
+      _exploreCache[key]=html;
       document.getElementById('exp-ai-text').innerHTML=html;
     }).catch(function(e){document.getElementById('exp-ai-text').innerHTML='<span style="color:var(--red)">'+errMsg(e)+'</span>';});
   }
@@ -2222,7 +2369,7 @@ function openStateDetail(state){
     +'• Second insight with specific number\n'
     +'• Risk or opportunity with number\n\n'
     +'**Action:** One specific recommendation for this state.\n\n'
-    +'FOLLOWUPS: ["specific question with exact number","specific insight question","actionable recommendation question"]';
+    +'FOLLOWUPS: ["<specific follow-up question with a number from the data>","<follow-up about a different dimension or action>","<question about what to do next with an estimated impact>"] — write 3 real questions specific to this analysis, not placeholders';
   openDetailModal(state,meta,[['Sales',fS(sd.s)],['Profit',fS(sd.p),''],['Margin',fP(m,2),''],['Orders',fN(sd.ord),'']],true,'Category Breakdown',subTbl,prompt,'state-'+state);
 }
 
@@ -2252,7 +2399,7 @@ function openRegionDetail(reg){
     +'• Category or discount insight\n'
     +'• Growth trend or opportunity\n\n'
     +'**Action:** One specific recommendation for this region.\n\n'
-    +'FOLLOWUPS: ["specific question with exact number","specific insight question","actionable recommendation question"]';
+    +'FOLLOWUPS: ["<specific follow-up question with a number from the data>","<follow-up about a different dimension or action>","<question about what to do next with an estimated impact>"] — write 3 real questions specific to this analysis, not placeholders';
   document.getElementById('detail-title').textContent=reg+' Region';
   document.getElementById('detail-meta').innerHTML=meta;
   document.getElementById('detail-metrics').innerHTML=[['Sales',fS(rv.s)],['Profit',fS(rv.p),''],['Margin',fP(m,2),''],['Health Score',rs.score+'/100',''],['Orders',fN(rv.ordCount),''],['Avg Disc',(rs.avgDisc*100).toFixed(0)+'%','']].map(function(m){return'<div class="detail-metric"><div class="dm-label">'+m[0]+'</div><div class="dm-val '+(m[2]||'')+'">'+m[1]+'</div></div>';}).join('');
@@ -2285,7 +2432,7 @@ function openSubDetail(name, cat){
     +'• Discount impact with specific number\n'
     +'• Revenue/volume context\n\n'
     +'**Action:** Discount cap, reprice, or remove — one specific recommendation with estimated recovery.\n\n'
-    +'FOLLOWUPS: ["specific question with exact number","specific insight question","actionable recommendation question"]';
+    +'FOLLOWUPS: ["<specific follow-up question with a number from the data>","<follow-up about a different dimension or action>","<question about what to do next with an estimated impact>"] — write 3 real questions specific to this analysis, not placeholders';
   openDetailModal(name,meta,[['Sales',fS(sub.s)],['Profit',fS(sub.p),''],['Margin',fP(m,2),''],['Health Score',sub.score+'/100',''],['Avg Discount',(sub.avgDisc*100).toFixed(0)+'%',''],['Orders',fN(sub.ord),'']],true,'Score Breakdown',subTbl,prompt,'sub-'+name);
 }
 
@@ -2309,7 +2456,7 @@ function openProdDetail(name, cat){
     +'• Discount impact with specific number\n'
     +'• Volume/orders context\n\n'
     +'**Action:** Keep / Reprice / Discontinue — one specific reason with a number.\n\n'
-    +'FOLLOWUPS: ["specific question with exact number","specific insight question","actionable recommendation question"]';
+    +'FOLLOWUPS: ["<specific follow-up question with a number from the data>","<follow-up about a different dimension or action>","<question about what to do next with an estimated impact>"] — write 3 real questions specific to this analysis, not placeholders';
   openDetailModal(name.length>55?name.slice(0,55)+'…':name,meta,[['Sales',fS(prod.s)],['Profit',fS(prod.p),''],['Margin',fP(m,2),''],['Score',prod.score+'/100',''],['Avg Discount',(prod.avgDisc*100).toFixed(0)+'%',''],['Orders',fN(prod.ordCount),'']],true,'Score Breakdown',subTbl,prompt,'prod-'+name.slice(0,40));
 }
 
@@ -2330,7 +2477,7 @@ function openCustDetail(custId){
     +'• Profitability insight with number\n'
     +'• Opportunity or risk with number\n\n'
     +'**Action:** One specific account strategy recommendation.\n\n'
-    +'FOLLOWUPS: ["specific question with exact number","specific insight question","actionable recommendation question"]';
+    +'FOLLOWUPS: ["<specific follow-up question with a number from the data>","<follow-up about a different dimension or action>","<question about what to do next with an estimated impact>"] — write 3 real questions specific to this analysis, not placeholders';
   openDetailModal(cust.name,meta,[['Lifetime Sales',fS(cust.s)],['Lifetime Profit',fS(cust.p),''],['Margin',fP(m,1),''],['Health Score',cust.score+'/100',''],['Orders',fN(cust.ord),''],['AOV',fS(cust.s/Math.max(cust.ord,1)),'']],true,'Purchase Categories',subTbl,prompt,'cust-'+custId);
 }
 
@@ -2357,7 +2504,7 @@ function panelAsk(override){
   var badge=document.getElementById('panel-ctx-badge');
   if(badge&&!badge.textContent){badge.textContent=text.slice(0,34)+(text.length>34?'…':'');badge.style.display='inline';}
   appendPMsg('user',text);
-  _pHistory.push({role:'user',content:text+'\n\nAlways use bullet format. Include FOLLOWUPS: [...] and CHART: {...} only if genuinely adds value.'});
+  _pHistory.push({role:'user',content:text});
   var typId=pTyping();_pLoading2=true;
   var snd=document.getElementById('panel-send');if(snd)snd.disabled=true;
   callAI(_pHistory).then(function(r){
@@ -2400,7 +2547,28 @@ function clearChat(){
   wrap.appendChild(sugsDiv);inner.appendChild(wrap);renderChatSugs();
 }
 function renderChatSugs(){
-  var sugs=['What is the overall profit margin and is it healthy for retail?','Which sub-categories are loss-making and how much value are they destroying?','Which region has the worst margin and why?','Who are the 5 most valuable customers by lifetime profit?','At what discount level do orders start losing money?','How has sales growth trended year over year?','Which category should we focus on to improve profitability?','What would profit look like if we capped all discounts at 20%?'];
+  var a=_agg;
+  var sugs;
+  if(a&&a.totalSales){
+    // Dynamic suggestions based on live data
+    var worstSub='Tables';var wv=Infinity;
+    Object.keys(a.subM||{}).forEach(function(k){if((a.subM[k].p||0)<wv){wv=a.subM[k].p;worstSub=k;}});
+    var worstReg='Central';var wrv=Infinity;
+    Object.keys(a.regM||{}).forEach(function(k){var m=(a.regM[k].s>0?a.regM[k].p/a.regM[k].s:0);if(m<wrv){wrv=m;worstReg=k;}});
+    var lossMakers=Object.keys(a.subM||{}).filter(function(k){return(a.subM[k].p||0)<0;}).length;
+    sugs=[
+      'What is the overall profit margin and is it healthy for retail?',
+      worstSub+' is loss-making — how much profit would a 20% discount cap recover?',
+      'Which sub-categories are loss-making and how much total value are they destroying?',
+      worstReg+' has the worst margin — what is causing it and what should we do?',
+      'Who are the 5 most valuable customers by lifetime profit?',
+      'At what discount level do orders start losing money?',
+      'How has sales growth trended year over year — is margin keeping pace?',
+      'Which single action would have the highest impact on overall profitability?'
+    ];
+  } else {
+    sugs=['What is the overall profit margin?','Which sub-categories are loss-making?','Which region has the worst margin?','Who are the top customers by profit?','At what discount level do orders lose money?','How has sales trended year over year?'];
+  }
   var el=document.getElementById('chat-sugs');if(!el)return;
   el.innerHTML=sugs.map(function(s){return'<button class="chat-sug" onclick="chatFromSug(\''+s.replace(/'/g,"\\'")+'\')">'+ s+'</button>';}).join('');
 }
@@ -2411,7 +2579,7 @@ function chatSend(){
   var sw=document.getElementById('chat-sugs-wrap');if(sw)sw.style.display='none';
   if(inp){inp.value='';inp.style.height='auto';}
   appendCMsg('user',text);
-  _chatHistory.push({role:'user',content:text+'\n\nAlways use bullet point format. Include FOLLOWUPS: [...] and CHART: {...} only if a visual genuinely adds value.'});
+  _chatHistory.push({role:'user',content:text});
   var typId=cTyping();_chatLoading=true;
   var snd=document.getElementById('chat-send-btn');if(snd)snd.disabled=true;
   callAI(_chatHistory).then(function(r){
@@ -2560,7 +2728,6 @@ document.addEventListener('DOMContentLoaded',function(){
   setAIStatus(false,'AI connecting…');
   fetchData();
   startCountdown();
-  window.addEventListener('load',function(){ setTimeout(function(){ if(typeof renderCharts_p1==='function') renderCharts_p1(); },500); });
 });
 
 
@@ -2758,7 +2925,7 @@ function runAutopsy(){
     +'\n• Issue with specific dollar amount and root cause'
     +'\n• Issue with specific dollar amount and root cause'
     +'\n\n**Prognosis:** If nothing changes, one sentence on trajectory. If we implement the top recovery lever, expected outcome with a number.'
-    +'\n\nFOLLOWUPS: ["q1 with $","q2 with %","q3 about specific action"]';
+    +'\n\nFOLLOWUPS: ["<specific follow-up question with a number from the data>","<follow-up about a different dimension or action>","<question about what to do next with an estimated impact>"] — write 3 real questions specific to this analysis, not placeholders';
   callAI([{role:'user',content:prompt}]).then(function(r){
     var fu=extractFU(r),clean=cleanR(r);
     var html=fmtAI(clean);
@@ -2821,6 +2988,42 @@ function runAutopsy(){
     </div>
   </div>
 </div>
+
+<!-- MOBILE BOTTOM NAV -->
+<nav id="mobile-bottom-nav">
+  <button class="mbn-btn active" data-page="1" onclick="switchPage(1);mbnActive(this)">
+    <span class="mbn-icon">⊞</span>Overview
+  </button>
+  <button class="mbn-btn" data-page="2" onclick="switchPage(2);mbnActive(this)">
+    <span class="mbn-icon">$</span>Sales
+  </button>
+  <button class="mbn-btn" data-page="3" onclick="switchPage(3);mbnActive(this)">
+    <span class="mbn-icon">◎</span>Regional
+  </button>
+  <button class="mbn-btn" data-page="5" onclick="switchPage(5);mbnActive(this)">
+    <span class="mbn-icon">♟</span>Customers
+  </button>
+  <button class="mbn-btn" data-page="7" onclick="switchPage(7);mbnActive(this)">
+    <span class="mbn-icon">✦</span>AI Chat
+  </button>
+</nav>
+
+<script>
+function mbnActive(btn){
+  document.querySelectorAll('.mbn-btn').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+}
+// Sync mobile bottom nav with desktop tab clicks
+(function(){
+  var origSwitch=window.switchPage;
+  window.switchPage=function(n){
+    origSwitch(n);
+    document.querySelectorAll('.mbn-btn').forEach(function(b){
+      b.classList.toggle('active',parseInt(b.getAttribute('data-page'))===n);
+    });
+  };
+})();
+</script>
 
 </body>
 </html>
