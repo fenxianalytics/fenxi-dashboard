@@ -8,6 +8,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.5.0/docx.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/libs/pptxgen.bundle.js"></script>
 <style>
 :root{
   --bg:#f4f4f9;--bg2:#ebebf4;--bg-card:#ffffff;--bg-hover:#f0f0fb;
@@ -61,14 +63,14 @@ input,textarea{font-family:'DM Sans',sans-serif}
 .countdown-txt{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace}
 
 /* MAIN */
-#main{padding:24px 20px 80px;max-width:1320px;margin:0 auto}
+#main{padding:4px 20px 80px;max-width:1320px;margin:0 auto}
 .page{display:none}
 .page.active{display:block;animation:pageFade .15s ease forwards}
 #page-7.active{display:flex;flex-direction:column;height:calc(100vh - var(--nav-h));padding:0;animation:none}
 @keyframes pageFade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
 
 /* SECTION */
-.section{margin-bottom:36px}
+.section{margin-bottom:28px;padding-top:4px}
 .section-header{margin-bottom:16px}
 .section-title{font-size:17px;font-weight:700;margin-bottom:3px}
 .section-desc{color:var(--muted);font-size:13px;line-height:1.6;max-width:760px}
@@ -109,13 +111,14 @@ input,textarea{font-family:'DM Sans',sans-serif}
 .badge-gray{background:var(--bg2);color:var(--muted)}
 
 /* GRIDS */
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
 .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
 @media(max-width:900px){.grid-2,.grid-3{grid-template-columns:1fr}}
 
 /* CHART */
 .chart-wrap{position:relative;width:100%;overflow:hidden}
-.chart-wrap canvas{width:100%!important}
+.chart-wrap canvas{width:100%!important;display:block}
+.h240{height:240px}.h280{height:280px}.h300{height:300px}.h350{height:350px}
 .h180{height:180px}.h220{height:220px}.h260{height:260px}.h300{height:300px}.h350{height:350px}.h400{height:400px}
 
 /* CALLOUT */
@@ -167,7 +170,12 @@ input,textarea{font-family:'DM Sans',sans-serif}
 .color-bar{height:5px;background:var(--bg2);border-radius:3px;overflow:hidden}
 .color-bar-fill{height:100%;border-radius:3px;transition:width .6s}
 
-
+/* TAKEAWAYS */
+.takeaways{background:var(--bg-card);border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:var(--radius);padding:16px 18px;margin-top:22px;box-shadow:var(--shadow)}
+.takeaways-ttl{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:9px}
+.takeaways-list{display:flex;flex-direction:column;gap:7px}
+.tw-item{font-size:13px;line-height:1.55;padding-left:14px;position:relative}
+.tw-item::before{content:'→';position:absolute;left:0;color:var(--dim);font-size:12px}
 
 /* EXEC SUMMARY */
 #exec-wrap{margin-bottom:22px;border-radius:var(--radius);border:1px solid rgba(99,102,241,.22);background:linear-gradient(135deg,var(--accent-dim),rgba(99,102,241,.02));overflow:hidden}
@@ -183,11 +191,9 @@ input,textarea{font-family:'DM Sans',sans-serif}
 #exec-stale-nudge{display:none;font-size:11px;color:var(--orange);background:var(--orange-dim);border:1px solid rgba(234,88,12,.2);padding:3px 10px;border-radius:5px;cursor:pointer;transition:all .15s}
 #exec-stale-nudge:hover{background:var(--orange)}
 #exec-stale-nudge:hover{color:#fff}
-#exec-body{padding:13px 16px;font-size:13px;line-height:1.7;transition:opacity .3s}
+#exec-body{padding:13px 16px;font-size:13px;line-height:1.7}
 #exec-body p{margin-bottom:5px}
 #exec-body strong{font-weight:700}
-#exec-body ul{list-style-type:disc;padding-left:16px;margin:4px 0}
-#exec-body ol{list-style-type:decimal;padding-left:16px;margin:4px 0}
 
 /* EXPAND / EXPLORE OVERLAY */
 #expand-overlay{display:none;position:fixed;inset:0;z-index:400;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px}
@@ -213,8 +219,6 @@ input,textarea{font-family:'DM Sans',sans-serif}
 .exp-ai-block{background:var(--bg2);border:1px solid rgba(99,102,241,.18);border-radius:8px;padding:13px 15px;font-size:13px;line-height:1.65}
 .exp-ai-block p{margin-bottom:5px}
 .exp-ai-block strong{font-weight:700}
-.exp-ai-block ul{list-style-type:disc;padding-left:16px;margin:4px 0}
-.exp-ai-block ol{list-style-type:decimal;padding-left:16px;margin:4px 0}
 .exp-ai-hdr{display:flex;align-items:center;gap:7px;margin-bottom:10px}
 .exp-ai-logo{width:20px;height:20px;border-radius:5px;object-fit:cover}
 .exp-ai-lbl{font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.04em}
@@ -247,8 +251,6 @@ input,textarea{font-family:'DM Sans',sans-serif}
 #detail-ai-text{font-size:13px;line-height:1.6}
 #detail-ai-text p{margin-bottom:4px}
 #detail-ai-text strong{font-weight:700}
-#detail-ai-text ul{list-style-type:disc;padding-left:16px;margin:4px 0}
-#detail-ai-text ol{list-style-type:decimal;padding-left:16px;margin:4px 0}
 .detail-sub-tbl{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}
 .detail-sub-tbl th{padding:6px 10px;text-align:left;font-size:10.5px;font-weight:700;color:var(--muted);text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--bg2)}
 .detail-sub-tbl td{padding:7px 10px;border-bottom:1px solid var(--border);font-family:'DM Mono',monospace;font-size:11.5px}
@@ -286,7 +288,6 @@ input,textarea{font-family:'DM Sans',sans-serif}
 .pmsg-bub p{margin-bottom:4px}
 .pmsg-bub strong{font-weight:700}
 .pmsg-bub ul,.pmsg-bub ol{padding-left:16px;margin:4px 0}
-.pmsg-bub ul{list-style-type:disc}.pmsg-bub ol{list-style-type:decimal}
 .pmsg-row.user .pmsg-bub{background:var(--accent-dim);border-color:rgba(99,102,241,.2)}
 
 /* FULL CHAT PAGE */
@@ -314,7 +315,6 @@ input,textarea{font-family:'DM Sans',sans-serif}
 .cmsg-bub p{margin-bottom:5px}
 .cmsg-bub strong{font-weight:700}
 .cmsg-bub ul,.cmsg-bub ol{padding-left:18px;margin:5px 0}
-.cmsg-bub ul{list-style-type:disc}.cmsg-bub ol{list-style-type:decimal}
 .cmsg-row.user .cmsg-bub{background:var(--accent-dim);border-color:rgba(99,102,241,.2)}
 .chat-sugs{display:flex;flex-wrap:wrap;gap:7px;padding:0 0 8px}
 .chat-sug{background:var(--bg-card);border:1.5px solid var(--border2);color:var(--muted);padding:7px 14px;border-radius:20px;font-size:12.5px;font-weight:500;cursor:pointer;transition:all .18s}
@@ -389,178 +389,70 @@ input,textarea{font-family:'DM Sans',sans-serif}
 @keyframes countUp{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 .counting{animation:countUp .5s ease forwards}
 
+/* CHAT CATEGORY TABS */
+.chat-cat-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.chat-cat-tab{background:none;border:1.5px solid var(--border2);color:var(--muted);padding:4px 12px;border-radius:16px;font-size:11.5px;font-weight:600;cursor:pointer;transition:all .15s}
+.chat-cat-tab:hover{border-color:var(--accent);color:var(--accent)}
+.chat-cat-tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.chat-sugs-grid{display:flex;flex-wrap:wrap;gap:7px}
+
+/* STREAMING CURSOR */
+.stream-cursor{display:inline-block;width:2px;height:14px;background:var(--accent);margin-left:2px;animation:blink .7s infinite;vertical-align:middle}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* ANOMALY BANNER */
+#anomaly-banner{display:none;background:var(--yellow-dim);border:1px solid rgba(202,138,4,.3);border-radius:8px;padding:10px 14px;margin-bottom:14px}
+#anomaly-banner.show{display:block}
+.anomaly-item{display:flex;align-items:flex-start;gap:8px;font-size:12.5px;padding:3px 0}
+.anomaly-dot{width:6px;height:6px;border-radius:50%;background:var(--yellow);flex-shrink:0;margin-top:5px}
+
+/* SAVED PANEL TABS */
+.sp-tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0}
+.sp-tab{flex:1;padding:9px 6px;font-size:11.5px;font-weight:600;color:var(--muted);background:none;border:none;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;text-align:center}
+.sp-tab:hover{color:var(--text)}
+.sp-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.sp-body{flex:1;overflow-y:auto;padding:12px}
+
+/* SCENARIO MODAL */
+#scenario-overlay{display:none;position:fixed;inset:0;z-index:650;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px}
+#scenario-overlay.open{display:flex}
+#scenario-box{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;width:100%;max-width:640px;max-height:88vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 28px 70px rgba(0,0,0,.35)}
+
+/* COMPARISON MODE */
+.compare-table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:12px}
+.compare-table th{padding:8px 12px;text-align:left;font-size:10.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--border);background:var(--bg2)}
+.compare-table td{padding:8px 12px;border-bottom:1px solid var(--border);font-family:"DM Mono",monospace;font-size:12px}
+.compare-table td.lbl{font-family:"DM Sans",sans-serif;font-size:12.5px;font-weight:500;color:var(--text)}
+.delta-pos{color:var(--green);font-weight:700}
+.delta-neg{color:var(--red);font-weight:700}
+
+/* QUERY TEMPLATES */
+.query-item{background:var(--bg2);border:1px solid var(--border);border-radius:7px;padding:9px 12px;margin-bottom:6px;cursor:pointer;transition:all .15s}
+.query-item:hover{border-color:var(--accent);background:var(--accent-dim)}
+.query-name{font-size:12.5px;font-weight:700;color:var(--text);margin-bottom:2px}
+.query-preview{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* VOCAB COG */
+#vocab-cog-btn{background:none;border:none;color:var(--dim);font-size:14px;cursor:pointer;padding:3px;border-radius:4px;transition:color .15s}
+#vocab-cog-btn:hover{color:var(--muted)}
+
+/* AUDIT LOG */
+.log-item{font-size:11.5px;padding:6px 0;border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:flex-start}
+.log-time{color:var(--dim);white-space:nowrap;font-size:10.5px;font-family:"DM Mono",monospace;flex-shrink:0;margin-top:1px}
+.log-text{color:var(--muted);line-height:1.4}
+
 /* PRINT */
 @media print{#nav,#slide-panel,#panel-overlay,#saved-panel,#key-modal,#float-btn,#exec-wrap,#page-2,#page-3,#page-4,#page-5,#page-6,#page-7{display:none!important}body{background:#fff!important}#page-1{display:block!important}.card{box-shadow:none!important;border:1px solid #ddd!important;break-inside:avoid}@page{margin:18mm;size:A4}}
 
 @media(max-width:768px){#slide-panel,#saved-panel{width:100vw;max-width:100vw}#float-btn{display:none}}
-
-/* ══════════════════════════════════════════
-   MOBILE RESPONSIVE — full overhaul
-══════════════════════════════════════════ */
-@media(max-width:768px){
-
-  /* Nav */
-  :root{--nav-h:48px}
-  #nav{padding:0 12px;gap:8px;height:var(--nav-h)}
-  #nav-brand{font-size:12px}
-  #nav-brand span{display:none}
-  .nav-tabs{gap:2px}
-  .nav-tab{padding:5px 9px;font-size:11.5px}
-  .countdown-txt{display:none}
-  .live-pill span{display:none}
-  .live-pill{padding:4px 7px}
-  #ai-status-pill span:last-child{display:none}
-  .btn{padding:4px 8px;font-size:11px}
-
-  /* Main padding */
-  #main{padding:14px 12px 100px}
-
-  /* Section */
-  .section{margin-bottom:24px}
-  .section-title{font-size:15px}
-
-  /* Cards */
-  .card{padding:14px}
-
-  /* KPI grid — 2 cols, smaller values */
-  .kpi-grid{grid-template-columns:repeat(2,1fr);gap:8px}
-  .kpi-value{font-size:18px}
-  .kpi-card{padding:12px}
-  .kpi-label{font-size:9.5px}
-  .kpi-sub{font-size:10.5px}
-
-  /* Grids stack */
-  .grid-2,.grid-3{grid-template-columns:1fr;gap:12px}
-  .cat-grid{grid-template-columns:1fr}
-
-  /* Chart heights — shorter on mobile */
-  .h260{height:200px}
-  .h300{height:220px}
-  .h350{height:240px}
-  .h400{height:260px}
-  .h220{height:180px}
-  .h180{height:160px}
-
-  /* Exec summary */
-  .exec-topbar{flex-wrap:wrap;gap:6px;padding:8px 12px}
-  .exec-actions{flex-wrap:wrap;gap:4px}
-  #exec-body{padding:10px 12px;font-size:12.5px}
-  .exec-lbl{font-size:12px}
-  .exec-regen-btn{font-size:10.5px;padding:3px 8px}
-  #exec-stale-nudge{font-size:10px}
-
-  /* Status row */
-  #status-row{font-size:10.5px;gap:5px;margin-bottom:12px}
-
-  /* Score legend wraps nicely */
-  #score-legend{gap:8px;padding:6px 10px;font-size:10.5px}
-
-  /* Category cards */
-  .cat-big{font-size:22px}
-  .cat-name{font-size:13px}
-
-  /* Tables — horizontal scroll */
-  .tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
-  .data-tbl{min-width:520px}
-  .tbl-controls{gap:7px}
-  .tbl-search{min-width:140px}
-
-  /* Expand/Explore overlay — stack vertically */
-  #expand-overlay{padding:0;align-items:flex-end}
-  #expand-box{max-width:100%;max-height:92vh;border-radius:14px 14px 0 0}
-  #expand-body{flex-direction:column;overflow-y:auto}
-  #expand-left{flex:none;height:220px;border-right:none;border-bottom:1px solid var(--border);padding:14px}
-  #expand-right{flex:none;padding:14px 16px;overflow-y:visible}
-  #expand-hdr{padding:12px 16px}
-
-  /* Detail modal */
-  #detail-modal{padding:0;align-items:flex-end}
-  #detail-box{max-width:100%;border-radius:14px 14px 0 0;max-height:88vh}
-  #detail-hdr{padding:14px 16px}
-  #detail-body{padding:14px 16px 18px}
-  .detail-metrics{grid-template-columns:repeat(2,1fr);gap:8px}
-  .dm-val{font-size:16px}
-
-  /* Slide panel — full width */
-  #slide-panel{width:100vw;max-width:100vw;top:var(--nav-h);height:calc(100vh - var(--nav-h))}
-
-  /* Saved panel — full width */
-  #saved-panel{width:100vw;max-width:100vw;top:var(--nav-h);height:calc(100vh - var(--nav-h))}
-
-  /* Panel input */
-  #panel-input{font-size:14px}
-  #panel-msgs{padding:10px}
-
-  /* Chat page */
-  #chat-msgs-scroll{padding:14px 12px}
-  #chat-input-zone{padding:10px 12px}
-  #chat-input{font-size:14px}
-  .cmsg-bub{font-size:13px;padding:11px 13px}
-  .chat-sug{font-size:12px;padding:6px 12px}
-
-  /* FU chips wrap better */
-  .fu-chips{gap:4px}
-  .fu-chip{font-size:11px;padding:4px 9px}
-
-  /* Float button position */
-  #float-btn{display:flex;bottom:16px;right:16px;width:46px;height:46px}
-
-  /* Mobile bottom nav */
-  #mobile-bottom-nav{display:flex}
-
-  /* Toggle groups */
-  .toggle-grp{flex-wrap:wrap}
-  .tog-btn{font-size:11px;padding:5px 10px}
-
-  /* Region score cards */
-  #region-score-cards{grid-template-columns:repeat(2,1fr)!important}
-
-  /* Key modal */
-  #key-box{border-radius:14px 14px 0 0;max-width:100vw}
-  #key-modal{padding:0;align-items:flex-end}
-
-  /* Callout */
-  .callout{padding:10px 12px;font-size:12.5px}
-
-  /* Section header row */
-  .section-header .card-title-row{flex-wrap:wrap;gap:6px}
-
-  /* Chart explore btn smaller */
-  .chart-explore-btn{font-size:10.5px;padding:3px 8px}
-}
-
-/* Small phones */
-@media(max-width:380px){
-  .kpi-value{font-size:16px}
-  .nav-tab{padding:4px 7px;font-size:11px}
-  #main{padding:10px 8px 100px}
-}
-
-/* Mobile bottom nav bar */
-#mobile-bottom-nav{
-  display:none;
-  position:fixed;bottom:0;left:0;right:0;z-index:150;
-  background:var(--bg-card);border-top:1px solid var(--border);
-  height:58px;align-items:center;justify-content:space-around;
-  padding:0 4px;box-shadow:0 -4px 20px rgba(0,0,0,.08);
-}
-.mbn-btn{
-  display:flex;flex-direction:column;align-items:center;gap:2px;
-  background:none;border:none;color:var(--dim);font-size:9.5px;font-weight:600;
-  padding:6px 8px;border-radius:8px;cursor:pointer;transition:all .15s;
-  min-width:52px;text-transform:uppercase;letter-spacing:.03em;
-}
-.mbn-btn.active{color:var(--accent)}
-.mbn-btn svg,.mbn-icon{font-size:18px;line-height:1;margin-bottom:1px}
-
 </style>
 </head>
 <body>
 <!-- NAV -->
 <div id="nav">
   <div id="nav-brand">
-    <img id="nav-logo" class="fenxi-logo" src="" alt="Fenxi"/>
-    SUPERSTORE <span>/ Live Analytics</span>
+    <img id="nav-logo" src="" alt="Fenxi" style="width:28px;height:28px;border-radius:7px;object-fit:cover"/>
+    <span style="font-weight:700">Fenxi</span> <span style="color:var(--muted);font-weight:400">/ Superstore</span>
   </div>
   <div class="nav-tabs">
     <button class="nav-tab active" data-page="1">Overview</button>
@@ -579,6 +471,7 @@ input,textarea{font-family:'DM Sans',sans-serif}
     <button class="btn" id="theme-btn" onclick="toggleTheme()">🌙</button>
     <div id="ai-status-pill" style="display:flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;border:1px solid var(--border)"><span id="ai-status-dot" style="width:6px;height:6px;border-radius:50%;background:var(--dim)"></span><span id="ai-status-txt">AI connecting…</span></div>
     <button class="btn" onclick="openSavedPanel()">Saved</button>
+    <button onclick="openReportBuilder()" style="background:linear-gradient(135deg,#6366f1,#4f46e5);border:none;color:#fff;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;transition:opacity .15s" title="Generate Report">📄 Report</button>
   </div>
 </div>
 
@@ -591,8 +484,9 @@ input,textarea{font-family:'DM Sans',sans-serif}
     <span id="sr-orders">—</span><span class="sep">·</span>
     <span id="sr-fetch">fetching…</span><span class="sep">·</span>
     <span>fenxi-dashboard.vercel.app</span><span class="sep">·</span>
-    <span id="sr-key" style="display:none"></span>
+    
   </div>
+
   <div id="ticker"><div class="ticker-badge">Updated</div><span id="ticker-msg">Data refreshed</span></div>
 
   <!-- EXEC SUMMARY -->
@@ -606,8 +500,7 @@ input,textarea{font-family:'DM Sans',sans-serif}
       <div class="exec-actions">
         <span id="exec-timestamp" style="font-size:11px;color:var(--dim)"></span><span id="exec-data-ts" style="font-size:11px;color:var(--dim);margin-right:4px"></span>
         <span id="exec-stale-nudge" onclick="genExecSummary(true)">↻ New data — refresh summary</span>
-        <button class="exec-regen-btn" onclick="genExecSummary(true)"><img class="fenxi-logo" src="" alt=""/> Regenerate
-        </button>
+        <button class="exec-regen-btn" onclick="genExecSummary(true)"><img class="fenxi-logo" src="" alt=""/> Regenerate</button>
       </div>
     </div>
     <div id="exec-body"><div class="typing-dots"><div class="td"></div><div class="td"></div><div class="td"></div></div></div>
@@ -630,6 +523,7 @@ input,textarea{font-family:'DM Sans',sans-serif}
     <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:var(--yellow);display:inline-block"></span><strong>45–69</strong> Watch / At Risk</span>
     <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:var(--red);display:inline-block"></span><strong>0–44</strong> Concern / Critical</span>
     <span style="color:var(--dim);font-size:11px">· Built from margin, discount level, frequency, and revenue size</span>
+    <button onclick="openScoreMethod()" style="background:none;border:1px solid var(--border2);color:var(--muted);padding:3px 9px;border-radius:5px;font-size:11px;cursor:pointer;white-space:nowrap;transition:all .15s;flex-shrink:0" onmouseover="this.style.color='var(--accent)';this.style.borderColor='var(--accent)'" onmouseout="this.style.color='';this.style.borderColor=''">❓ How scores work</button>
   </div>
 
   <div class="section">
@@ -653,7 +547,7 @@ input,textarea{font-family:'DM Sans',sans-serif}
           <button class="chart-explore-btn" onclick="openExpand('chart-monthly')"><img class="fenxi-logo" src="" alt=""/> Explore</button>
         </div>
         <div class="card-explain">Total sales per month. Q4 spikes are typical — watch for year-over-year momentum shifts.</div>
-        <div class="chart-wrap h260"><canvas id="chart-monthly-sales"></canvas></div>
+        <div class="chart-wrap h240"><canvas id="chart-monthly-sales"></canvas></div>
       </div>
       <div class="card">
         <div class="card-title-row">
@@ -661,7 +555,7 @@ input,textarea{font-family:'DM Sans',sans-serif}
           <button class="chart-explore-btn" onclick="openExpand('chart-segment')"><img class="fenxi-logo" src="" alt=""/> Explore</button>
         </div>
         <div class="card-explain">Consumer leads volume, Corporate leads margin efficiency. Home Office is smallest but often most targeted.</div>
-        <div class="chart-wrap h260"><canvas id="chart-segment"></canvas></div>
+        <div class="chart-wrap h240"><canvas id="chart-segment"></canvas></div>
       </div>
     </div>
     <div class="grid-2">
@@ -671,7 +565,7 @@ input,textarea{font-family:'DM Sans',sans-serif}
           <button class="chart-explore-btn" onclick="openExpand('chart-discount')"><img class="fenxi-logo" src="" alt=""/> Explore</button>
         </div>
         <div class="card-explain">Profit margin by discount bucket. Orders go loss-making above ~40% discount. Below the zero line = money destroyed.</div>
-        <div class="chart-wrap h260"><canvas id="chart-discount-profit"></canvas></div>
+        <div class="chart-wrap h240"><canvas id="chart-discount-profit"></canvas></div>
       </div>
       <div class="card">
         <div class="card-title-row">
@@ -679,12 +573,10 @@ input,textarea{font-family:'DM Sans',sans-serif}
           <button class="chart-explore-btn" onclick="openExpand('chart-region')"><img class="fenxi-logo" src="" alt=""/> Explore</button>
         </div>
         <div class="card-explain">West leads volume but check margin gaps — high sales with low profit signals a discount or product mix issue.</div>
-        <div class="chart-wrap h260"><canvas id="chart-region-bar"></canvas></div>
+        <div class="chart-wrap h240"><canvas id="chart-region-bar"></canvas></div>
       </div>
     </div>
   </div>
-
-
 </div>
 
 <!-- PAGE 2: SALES & PROFIT -->
@@ -724,14 +616,14 @@ input,textarea{font-family:'DM Sans',sans-serif}
           <div class="card-title">Yearly Sales &amp; Profit Growth</div>
           <button class="chart-explore-btn" onclick="openExpand('p2-yearly')"><img class="fenxi-logo" src="" alt=""/> Explore</button>
         </div>
-        <div class="chart-wrap h260"><canvas id="chart-p2-yearly"></canvas></div>
+        <div class="chart-wrap h240"><canvas id="chart-p2-yearly"></canvas></div>
       </div>
       <div class="card">
         <div class="card-title-row">
           <div class="card-title">Profit by Customer Segment</div>
           <button class="chart-explore-btn" onclick="openExpand('p2-seg-profit')"><img class="fenxi-logo" src="" alt=""/> Explore</button>
         </div>
-        <div class="chart-wrap h260"><canvas id="chart-p2-seg-profit"></canvas></div>
+        <div class="chart-wrap h240"><canvas id="chart-p2-seg-profit"></canvas></div>
       </div>
     </div>
   </div>
@@ -742,8 +634,6 @@ input,textarea{font-family:'DM Sans',sans-serif}
     </div>
     <div class="tbl-wrap"><table class="data-tbl" id="sub-tbl"></table></div>
   </div>
-
-
 </div>
 
 <!-- PAGE 3: REGIONAL -->
@@ -753,7 +643,7 @@ input,textarea{font-family:'DM Sans',sans-serif}
       <div class="section-title">Regional Performance</div>
       <div class="section-desc">Sales, profit, and margin by US region and state. Click any state row for a full AI breakdown.</div>
     </div>
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px" id="region-score-cards"></div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;min-height:0" id="region-score-cards"></div>
 
     <div class="grid-2" style="margin-bottom:16px">
       <div class="card">
@@ -823,7 +713,7 @@ input,textarea{font-family:'DM Sans',sans-serif}
           <button class="chart-explore-btn" onclick="openExpand('p2-subcat')"><img class="fenxi-logo" src="" alt=""/> Explore</button>
         </div>
         <div class="card-explain">Every sub-category scored 0–100. <span style="color:var(--red);font-weight:600">Red</span> = Concern — these are structural problems. <span style="color:var(--yellow);font-weight:600">Yellow</span> = Watch. <span style="color:var(--green);font-weight:600">Green</span> = Strong.</div>
-        <div class="chart-wrap h260"><canvas id="chart-p4-subcat-scores"></canvas></div>
+        <div class="chart-wrap h240"><canvas id="chart-p4-subcat-scores"></canvas></div>
       </div>
       <div class="card">
         <div class="card-title-row">
@@ -831,7 +721,7 @@ input,textarea{font-family:'DM Sans',sans-serif}
           <button class="chart-explore-btn" onclick="openExpand('chart-discount')"><img class="fenxi-logo" src="" alt=""/> Explore</button>
         </div>
         <div class="card-explain">Each bar = one sub-category. Left axis = discount rate, right markers = margin. Sub-cats in the top-left quadrant (high discount, negative margin) are the priority fixes.</div>
-        <div class="chart-wrap h260"><canvas id="chart-p4-disc-margin"></canvas></div>
+        <div class="chart-wrap h240"><canvas id="chart-p4-disc-margin"></canvas></div>
       </div>
     </div>
 
@@ -867,7 +757,7 @@ input,textarea{font-family:'DM Sans',sans-serif}
     </div>
 
     <!-- Health KPIs -->
-    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px" id="ch-kpi-grid"></div>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px;min-height:0" id="ch-kpi-grid"></div>
 
     <!-- Portfolio AI output -->
     <div id="ch-portfolio-output" style="display:none;margin-bottom:16px">
@@ -888,7 +778,7 @@ input,textarea{font-family:'DM Sans',sans-serif}
           <button class="chart-explore-btn" onclick="openExpand('ch-dist')"><img class="fenxi-logo" src="" alt=""/> Explore</button>
         </div>
         <div class="card-explain">How customers spread across health score bands. A healthy portfolio concentrates in 60–80. Heavy left skew = retention problem.</div>
-        <div class="chart-wrap h220"><canvas id="chart-ch-dist"></canvas></div>
+        <div class="chart-wrap h240"><canvas id="chart-ch-dist"></canvas></div>
       </div>
       <div class="card">
         <div class="card-title-row">
@@ -896,7 +786,7 @@ input,textarea{font-family:'DM Sans',sans-serif}
           <button class="chart-explore-btn" onclick="openExpand('ch-seg')"><img class="fenxi-logo" src="" alt=""/> Explore</button>
         </div>
         <div class="card-explain">Lower Corporate scores may indicate discount dependency. Lower Consumer scores may indicate irregular purchasing patterns.</div>
-        <div class="chart-wrap h220"><canvas id="chart-ch-seg"></canvas></div>
+        <div class="chart-wrap h240"><canvas id="chart-ch-seg"></canvas></div>
       </div>
     </div>
     <div class="grid-2" style="margin-bottom:16px">
@@ -905,14 +795,14 @@ input,textarea{font-family:'DM Sans',sans-serif}
           <div class="card-title">Customer Count by Segment</div>
           <button class="chart-explore-btn" onclick="openExpand('p5-seg')"><img class="fenxi-logo" src="" alt=""/> Explore</button>
         </div>
-        <div class="chart-wrap h220"><canvas id="chart-p5-seg"></canvas></div>
+        <div class="chart-wrap h240"><canvas id="chart-p5-seg"></canvas></div>
       </div>
       <div class="card">
         <div class="card-title-row">
           <div class="card-title">Avg Order Value by Segment</div>
           <button class="chart-explore-btn" onclick="openExpand('p5-aov')"><img class="fenxi-logo" src="" alt=""/> Explore</button>
         </div>
-        <div class="chart-wrap h220"><canvas id="chart-p5-aov"></canvas></div>
+        <div class="chart-wrap h240"><canvas id="chart-p5-aov"></canvas></div>
       </div>
     </div>
 
@@ -956,14 +846,14 @@ input,textarea{font-family:'DM Sans',sans-serif}
           <div class="card-title">Orders by Ship Mode</div>
           <button class="chart-explore-btn" onclick="openExpand('p6-mode')"><img class="fenxi-logo" src="" alt=""/> Explore</button>
         </div>
-        <div class="chart-wrap h260"><canvas id="chart-p6-mode"></canvas></div>
+        <div class="chart-wrap h240"><canvas id="chart-p6-mode"></canvas></div>
       </div>
       <div class="card">
         <div class="card-title-row">
           <div class="card-title">Profit Margin by Ship Mode</div>
           <button class="chart-explore-btn" onclick="openExpand('p6-margin')"><img class="fenxi-logo" src="" alt=""/> Explore</button>
         </div>
-        <div class="chart-wrap h260"><canvas id="chart-p6-margin"></canvas></div>
+        <div class="chart-wrap h240"><canvas id="chart-p6-margin"></canvas></div>
       </div>
     </div>
     <div class="grid-2">
@@ -972,14 +862,14 @@ input,textarea{font-family:'DM Sans',sans-serif}
           <div class="card-title">Avg Days to Ship by Mode</div>
           <button class="chart-explore-btn" onclick="openExpand('p6-days')"><img class="fenxi-logo" src="" alt=""/> Explore</button>
         </div>
-        <div class="chart-wrap h220"><canvas id="chart-p6-days"></canvas></div>
+        <div class="chart-wrap h240"><canvas id="chart-p6-days"></canvas></div>
       </div>
       <div class="card">
         <div class="card-title-row">
           <div class="card-title">Ship Mode by Customer Segment</div>
           <button class="chart-explore-btn" onclick="openExpand('p6-seg-mode')"><img class="fenxi-logo" src="" alt=""/> Explore</button>
         </div>
-        <div class="chart-wrap h220"><canvas id="chart-p6-seg-mode"></canvas></div>
+        <div class="chart-wrap h240"><canvas id="chart-p6-seg-mode"></canvas></div>
       </div>
     </div>
   </div>
@@ -996,27 +886,29 @@ input,textarea{font-family:'DM Sans',sans-serif}
           <div style="font-size:11px;color:var(--muted)">Ask anything about the live dataset</div>
         </div>
       </div>
-      <div style="display:flex;gap:8px">
+      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+        <button onclick="openAutopsy()" style="background:linear-gradient(135deg,#f97316,#dc2626);border:none;color:#fff;padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;cursor:pointer">🔬 Profit Autopsy</button>
+        <button onclick="openScenario()" style="background:linear-gradient(135deg,#8b5cf6,#6366f1);border:none;color:#fff;padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;cursor:pointer">🔮 Scenario</button>
+        <button onclick="openCompare()" style="background:linear-gradient(135deg,#0ea5e9,#0d9488);border:none;color:#fff;padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;cursor:pointer">📊 Compare</button>
         <button class="btn" style="font-size:11px" onclick="clearChat()">Clear</button>
-        
       </div>
     </div>
     <div id="chat-msgs-scroll">
       <div id="chat-msgs-inner">
         <div id="chat-sugs-wrap" style="padding:8px 0 16px">
-          <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Suggested questions</div>
-          <div class="chat-sugs" id="chat-sugs"></div>
+          <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Suggested Questions</div>
+          <div class="chat-cat-tabs" id="chat-cat-tabs"></div>
+          <div class="chat-sugs-grid" id="chat-sugs"></div>
         </div>
       </div>
     </div>
     <div id="chat-input-zone">
       <div class="chat-input-inner">
         <div class="chat-inp-row">
-          <textarea id="chat-input" rows="1" placeholder="Ask anything — profit, margins, discounts, customers, trends…"></textarea>
+          <textarea id="chat-input" rows="1" placeholder="Ask anything about the Superstore data…"></textarea>
           <button id="chat-send-btn" onclick="chatSend()">↑</button>
         </div>
         <div class="chat-meta">
-          <span id="chat-key-status" style="color:var(--dim);font-size:11px">AI connected via proxy</span>
           <button onclick="clearChat()" style="background:none;border:none;color:var(--dim);font-size:11px;cursor:pointer">Clear</button>
         </div>
       </div>
@@ -1115,7 +1007,6 @@ input,textarea{font-family:'DM Sans',sans-serif}
       <button id="panel-send" onclick="panelSend()">↑</button>
     </div>
     <div class="panel-input-meta">
-      <span id="panel-key-status" style="color:var(--dim);font-size:11px">AI connected via proxy</span>
       <button onclick="clearPanel()" style="background:none;border:none;color:var(--dim);font-size:11px;cursor:pointer">Clear</button>
     </div>
   </div>
@@ -1124,13 +1015,23 @@ input,textarea{font-family:'DM Sans',sans-serif}
 <!-- SAVED PANEL -->
 <div id="saved-panel">
   <div id="saved-hdr">
-    <span style="font-size:13px;font-weight:700">Saved Insights</span>
+    <div style="display:flex;align-items:center;gap:8px">
+      <img class="fenxi-logo" src="" alt="Fenxi" style="width:20px;height:20px;border-radius:5px;object-fit:cover"/>
+      <span style="font-size:13px;font-weight:700">Saved</span>
+      <button id="vocab-cog-btn" onclick="openVocabSettings()" title="Client Settings">⚙</button>
+    </div>
     <div style="display:flex;gap:8px;align-items:center">
       <button class="btn" style="font-size:11px" onclick="exportSaved()">Export</button>
       <button onclick="closeSavedPanel()" style="background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer">✕</button>
     </div>
   </div>
-  <div id="saved-list"><div style="padding:20px;color:var(--dim);font-size:13px;text-align:center">No saved insights yet.<br>Save AI responses from the chat.</div></div>
+  <div class="sp-tabs">
+    <button class="sp-tab active" onclick="switchSavedTab('insights',this)">💡 Insights</button>
+    <button class="sp-tab" onclick="switchSavedTab('queries',this)">📌 Queries</button>
+    <button class="sp-tab" onclick="switchSavedTab('flagged',this)">🚩 Flagged</button>
+    <button class="sp-tab" onclick="switchSavedTab('log',this)">📋 Log</button>
+  </div>
+  <div class="sp-body" id="saved-list"></div>
 </div>
 
 <!-- FLOAT BTN -->
@@ -1163,10 +1064,10 @@ var _countdown=60, _timer=null;
 var _charts={};
 var _prodSort='profit', _prodData=[], _stateData=[], _custData=[], _subData=[];
 var _chData=[], _chBand='all', _chSeg='all';
-var _activePage=1;
-try{var _theme=localStorage.getItem('fenxi-theme')||'light';}catch(e){var _theme='light';}
-
+var _activePage=1, _theme='light';
 var _lastSales=0;
+var _dataChangeSummary='';
+var _prevAgg={};
 
 // ═══════════════════════════════════════════════════════
 // COLORS
@@ -1204,24 +1105,8 @@ function toggleTheme(){
   _theme=_theme==='light'?'dark':'light';
   document.documentElement.setAttribute('data-theme',_theme);
   document.getElementById('theme-btn').textContent=_theme==='dark'?'☀':'🌙';
-  try{localStorage.setItem('fenxi-theme',_theme);}catch(e){}
   rerenderCharts();
 }
-// Restore saved theme on load
-(function(){
-  try{
-    var saved=localStorage.getItem('fenxi-theme');
-    if(saved==='dark'){
-      _theme='dark';
-      document.documentElement.setAttribute('data-theme','dark');
-      // theme-btn may not exist yet - set it safely after DOM ready
-      document.addEventListener('DOMContentLoaded',function(){
-        var btn=document.getElementById('theme-btn');
-        if(btn)btn.textContent='☀';
-      },true);
-    }
-  }catch(e){}
-})();
 function getCD(){
   var dk=_theme==='dark';
   return {grid:dk?'rgba(255,255,255,.06)':'rgba(0,0,0,.07)',text:dk?'#8888aa':'#55557a',bg:dk?'#18181f':'#ffffff'};
@@ -1236,14 +1121,10 @@ function setAIStatus(ok,msg){
   var pill=document.getElementById('ai-status-pill');
   if(!dot||!txt||!pill) return;
   dot.style.background=ok?'var(--green)':'var(--red)';
-  txt.textContent=msg||(ok?'● AI Connected':'○ AI Unavailable');
+  txt.textContent=msg||(ok?'AI Connected':'AI Unavailable');
   pill.style.borderColor=ok?'var(--green-dim)':'var(--red-dim)';
   pill.style.background=ok?'var(--green-dim)':'var(--red-dim)';
   pill.style.color=ok?'var(--green)':'var(--red)';
-  var pks=document.getElementById('panel-key-status');
-  if(pks)pks.style.display=ok?'none':'inline';
-  var cks=document.getElementById('chat-key-status');
-  if(cks)cks.style.display=ok?'none':'inline';
 }
 function updateKeyUI(){}
 
@@ -1256,13 +1137,15 @@ function fetchData(){
   .then(function(rows){
     var prev=_lastSales;
     _data=rows; aggregate(); _lastSales=_agg.totalSales;
+    // Compute data change diff
+    computeDataDiff(prev);
     renderAll();
     var now=new Date();
     document.getElementById('sr-rows').textContent=fN(rows.length)+' rows';
     document.getElementById('sr-orders').textContent=fN(_agg.totalOrders)+' orders';
     document.getElementById('sr-fetch').textContent='fetched '+now.toLocaleTimeString();
     if(prev>0 && Math.abs(_agg.totalSales-prev)/prev>0.005){
-      showTicker('Data refreshed — sales: '+fS(_agg.totalSales));
+      showTicker('Data refreshed — '+(_dataChangeSummary||'data updated'));
       _exploreCache={}; _detailCache={};
       var stale=document.getElementById('exec-stale-nudge');
       if(stale&&_execLoaded) stale.style.display='inline-flex';
@@ -1459,6 +1342,29 @@ function aggregate(){
 }
 
 // ═══════════════════════════════════════════════════════
+// DATA CHANGE DETECTION
+// ═══════════════════════════════════════════════════════
+function computeDataDiff(prevSales){
+  if(!prevSales||prevSales===0){ _dataChangeSummary=''; return; }
+  var a=_agg; var parts=[];
+  var salesDiff=a.totalSales-prevSales;
+  if(Math.abs(salesDiff)>100){
+    parts.push('Total Sales: '+fS(prevSales)+' → '+fS(a.totalSales)+' ('+( salesDiff>=0?'+':'')+fS(salesDiff)+')');
+  }
+  var profDiff=a.totalProfit-(_prevAgg.totalProfit||a.totalProfit);
+  if(Math.abs(profDiff)>50){
+    parts.push('Total Profit: '+fS(_prevAgg.totalProfit||a.totalProfit)+' → '+fS(a.totalProfit)+' ('+(profDiff>=0?'+':'')+fS(profDiff)+')');
+  }
+  var ordDiff=a.totalOrders-(_prevAgg.totalOrders||a.totalOrders);
+  if(ordDiff>0){
+    parts.push('+'+ordDiff+' new orders detected');
+  }
+  _dataChangeSummary=parts.length?parts.join(' | '):'';
+  // Store current as previous
+  _prevAgg={totalSales:a.totalSales,totalProfit:a.totalProfit,totalOrders:a.totalOrders};
+}
+
+// ═══════════════════════════════════════════════════════
 // SCORE BADGE HELPERS
 // ═══════════════════════════════════════════════════════
 function scoreBadge(score, band){
@@ -1558,8 +1464,30 @@ function renderCatCards(){
   }).join('');
 }
 
-
-
+// ═══════════════════════════════════════════════════════
+// TAKEAWAYS
+// ═══════════════════════════════════════════════════════
+function renderTakeaways(){
+  var a=_agg;
+  var topCat='';var tv=-Infinity;Object.keys(a.catM).forEach(function(k){if(a.catM[k].s>tv){tv=a.catM[k].s;topCat=k;}});
+  var worstSub='';var wv=Infinity;Object.keys(a.subM).forEach(function(k){if(a.subM[k].p<wv){wv=a.subM[k].p;worstSub=k;}});
+  var topReg='';var trv=-Infinity;Object.keys(a.regM).forEach(function(k){if(a.regM[k].p>trv){trv=a.regM[k].p;topReg=k;}});
+  var lossMakers=Object.keys(a.subM).filter(function(k){return a.subM[k].p<0;}).length;
+  var tw=[
+    'Total sales <strong>'+fS(a.totalSales)+'</strong> from <strong>'+fN(a.totalOrders)+'</strong> orders — blended margin <strong>'+fP(a.margin,2)+'</strong> '+(a.margin>=0.12?'(healthy for retail)':'(below the 10–12% retail benchmark)'),
+    '<strong>'+topCat+'</strong> leads revenue. Technology and Office Supplies deliver the strongest margins — Furniture is the structural drag',
+    '<strong>'+lossMakers+' sub-categories</strong> are loss-making. <strong>'+worstSub+'</strong> is the worst, destroying <strong>'+fS(Math.abs(wv))+'</strong> through heavy discounting',
+    '<strong>'+topReg+'</strong> is the most profitable region. Regional margin gaps nearly always trace to discount policy or product mix differences'
+  ];
+  document.getElementById('tw-overview').innerHTML=tw.map(function(t){return'<div class="tw-item">'+t+'</div>';}).join('');
+  var lossTot=0;Object.keys(a.subM).forEach(function(k){if(a.subM[k].p<0)lossTot+=a.subM[k].p;});
+  var tw2=[
+    '<strong>'+lossMakers+' sub-categories</strong> are net loss-making — total destruction: <strong>'+fS(Math.abs(lossTot))+'</strong>. Review for discount caps or removal',
+    'Technology leads both sales and profit. Office Supplies has the highest margin efficiency — most profit per dollar of sales',
+    'Orders above 30% discount are loss-making on average. A discount cap policy would be the single highest-ROI margin lever'
+  ];
+  var el2=document.getElementById('tw-p2');if(el2)el2.innerHTML=tw2.map(function(t){return'<div class="tw-item">'+t+'</div>';}).join('');
+}
 
 // ═══════════════════════════════════════════════════════
 // CHART HELPERS
@@ -1911,12 +1839,6 @@ function filterCHSeg(seg,btn){
   btn.classList.add('active');renderCHTable();
 }
 
-function toggleFlag(custId){
-  if(_flaggedCusts[custId])delete _flaggedCusts[custId];
-  else _flaggedCusts[custId]=true;
-  renderCHTable();renderCustTbl();
-  renderSavedPanel();
-}
 
 function openCHDetail(custId){
   var c=_chData.find(function(x){return x.id===custId;});if(!c)return;
@@ -1940,7 +1862,7 @@ function openCHDetail(custId){
     +'• Signal two with specific number\n'
     +'• Risk or opportunity with number\n\n'
     +'**Action:** One specific action to take this week.\n\n'
-    +'FOLLOWUPS: ["<specific follow-up question with a number from the data>","<follow-up about a different dimension or action>","<question about what to do next with an estimated impact>"] — write 3 real questions specific to this analysis, not placeholders';
+    +'FOLLOWUPS: ["q1 with number","q2","q3"]';
   openDetailModal(c.name,meta,
     [['Health Score',c.score+'/100'],['Lifetime Sales',fS(c.s)],['Profit',fS(c.p),''],['Margin',fP(c.margin,1),''],['Avg Discount',(c.avgDisc*100).toFixed(0)+'%',''],['Orders/Month',c.freq.toFixed(2),'']],
     true,'Score Breakdown',subTbl,prompt,'ch-'+custId);
@@ -1972,7 +1894,7 @@ function runPortfolioAI(){
     +'• Customer name: why valuable and one retention action\n'
     +'• Customer name: why valuable and one retention action\n\n'
     +'**Strategic Recommendation:** One portfolio-level action with expected impact.\n\n'
-    +'FOLLOWUPS: ["<specific follow-up question with a number from the data>","<follow-up about a different dimension or action>","<question about what to do next with an estimated impact>"] — write 3 real questions specific to this analysis, not placeholders';
+    +'FOLLOWUPS: ["q1","q2","q3"]';
   callAI([{role:'user',content:prompt}]).then(function(r){
     var fu=extractFU(r),clean=cleanR(r);var html=fmtAI(clean);
     if(fu.length)html+=makeFuChipsStr(fu,function(q){askAI(q);});
@@ -1985,79 +1907,174 @@ function runPortfolioAI(){
 // SYSTEM PROMPT
 // ═══════════════════════════════════════════════════════
 function buildSys(){
-  var a=_agg;if(!a.totalSales)return'You are Fenxi AI. Data is loading.';
-  var s='You are Fenxi AI — a sharp, direct retail data analyst. Answer only from the LIVE DATA below. Never invent numbers.\n\n';
-  s+='RULES:\n';
-  s+='1. Always include specific numbers ($, %) from the data in every response\n';
-  s+='2. Keep responses concise — max 5 bullets unless a breakdown is explicitly requested\n';
-  s+='3. End every response with one clear recommendation that has a specific dollar or % impact\n';
-  s+='4. Last line MUST be: FOLLOWUPS: ["real question 1 with a specific number","real question 2 about a different angle","real action question with estimated impact"] — these must be genuine, distinct questions about THIS data\n';
-  s+='5. Format: **Bold headline** then bullet points then **Recommendation:**\n';
-  s+='6. CHARTS — include a CHART whenever the question involves comparing values, showing a trend, ranking items, or visualising a distribution. Format: CHART: {"type":"bar"|"line"|"doughnut","title":"...","labels":[...],"datasets":[{"label":"...","data":[...],"color":"#hex"}]} — use real numbers from the data, max 8 labels, keep it simple and readable.\n\n';
+  var a=_agg;
+  if(!a.totalSales)return'You are Fenxi AI, an analytics assistant. Data is loading.';
 
-  s+='## LIVE DATA\n';
-  s+='Sales: '+fS(a.totalSales)+' | Profit: '+fS(a.totalProfit)+' | Margin: '+fP(a.margin,2)+'\n';
-  s+='Orders: '+fN(a.totalOrders)+' | Customers: '+fN(a.totalCustomers)+' | AOV: '+fS(a.avgOV)+'\n\n';
+  var s='You are Fenxi AI, a sharp retail data analyst embedded in a live Superstore analytics dashboard.\n\n';
 
+  // ── OUTPUT FORMAT ──
+  s+='## RESPONSE FORMAT\n';
+  s+='Always respond with:\n';
+  s+='**Headline:** One sentence with the single most important number.\n\n';
+  s+='• Bullet insight with exact figure from the data below\n';
+  s+='• Bullet insight with exact figure\n';
+  s+='• Bullet insight with exact figure\n\n';
+  s+='**Recommendation:** One specific CFO-level action with estimated $ or % impact.\n\n';
+  s+='FOLLOWUPS: ["question with specific $ or %","question with specific number","question with name"]\n\n';
+  s+='## CHART FORMAT\n';
+  s+='When a chart would genuinely help understanding, include EXACTLY this on its own line:\n';
+  s+='CHART: {"type":"bar","title":"Chart Title","labels":["A","B","C"],"datasets":[{"label":"Series","data":[100,200,300],"color":"#6366f1"}]}\n';
+  s+='Use type "bar", "line", or "doughnut". Only include CHART when it adds real value. Always valid JSON.\n\n';
+
+  // ── EXACT NUMBERS — KEY VALUE FORMAT ──
+  s+='## TOTALS\n';
+  s+='TOTAL_SALES='+fS(a.totalSales)+'\n';
+  s+='TOTAL_PROFIT='+fS(a.totalProfit)+'\n';
+  s+='PROFIT_MARGIN='+fP(a.margin,2)+'\n';
+  s+='TOTAL_ORDERS='+fN(a.totalOrders)+'\n';
+  s+='TOTAL_CUSTOMERS='+fN(a.totalCustomers)+'\n';
+  s+='AVG_ORDER_VALUE='+fS(a.avgOV)+'\n';
+  s+='TOTAL_QTY='+fN(a.totalQty)+'\n\n';
+
+  // ── MONTHLY LOOKUP TABLE ──
+  s+='## MONTHLY DATA (exact lookup — use these numbers for any monthly question)\n';
+  a.sortedYears.forEach(function(yr){
+    var moKeys=Object.keys(a.monthM).filter(function(m){return m.startsWith(yr);}).sort();
+    if(moKeys.length){
+      var labels=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      s+=yr+' MONTHLY_SALES: ';
+      s+=moKeys.map(function(mk){var mo=mk.split('-')[1];return labels[+mo-1]+'='+fS(a.monthM[mk].s);}).join(', ')+'\n';
+      s+=yr+' MONTHLY_PROFIT: ';
+      s+=moKeys.map(function(mk){var mo=mk.split('-')[1];return labels[+mo-1]+'='+fS(a.monthM[mk].p);}).join(', ')+'\n';
+    }
+  });
+  s+='\n';
+
+  // ── YEARLY ──
+  s+='## YEARLY TREND\n';
+  a.sortedYears.forEach(function(yr){
+    var yd=a.yearM[yr]||{s:0,p:0};var m=yd.s>0?yd.p/yd.s:0;
+    s+=yr+': SALES='+fS(yd.s)+' PROFIT='+fS(yd.p)+' MARGIN='+fP(m,2)+'\n';
+  });
+  s+='\n';
+
+  // ── CATEGORIES ──
   s+='## CATEGORIES\n';
   ['Furniture','Office Supplies','Technology'].forEach(function(cat){
     var cv=a.catM[cat]||{s:0,p:0,ordCount:0};var m=cv.s>0?cv.p/cv.s:0;
-    s+=cat+': Sales='+fS(cv.s)+' Profit='+fS(cv.p)+' Margin='+fP(m,2)+'\n';
+    s+=cat.toUpperCase().replace(/ /g,'_')+': SALES='+fS(cv.s)+' PROFIT='+fS(cv.p)+' MARGIN='+fP(m,2)+' ORDERS='+fN(cv.ordCount)+'\n';
   });
+  s+='\n';
 
-  s+='\n## SUB-CATEGORIES (by profit, score included)\n';
+  // ── SUB-CATEGORIES ──
+  s+='## SUB-CATEGORIES (sorted by profit, score=0-100)\n';
   _subData.forEach(function(sub){
     var m=sub.s>0?sub.p/sub.s:0;
-    s+=sub.name+' ['+sub.cat+']: Profit='+fS(sub.p)+' Margin='+fP(m,2)+' Score='+sub.score+'/100 AvgDisc='+(sub.avgDisc*100).toFixed(0)+'%'+(sub.p<0?' ⚠LOSS':'')+'\n';
+    s+=sub.name+'['+sub.cat+']: PROFIT='+fS(sub.p)+' MARGIN='+fP(m,2)+' SCORE='+sub.score+'/100 DISC='+(sub.avgDisc*100).toFixed(0)+'%'+(sub.p<0?' FLAG=LOSS':'')+'\n';
   });
+  s+='\n';
 
-  s+='\n## REGIONS (with health scores)\n';
+  // ── REGIONS ──
+  s+='## REGIONS\n';
   ['West','East','Central','South'].forEach(function(reg){
     var rv=a.regM[reg]||{s:0,p:0};var m=rv.s>0?rv.p/rv.s:0;
-    var rs=a.regionScores[reg]||{score:0,band:'concern'};
-    s+=reg+': Sales='+fS(rv.s)+' Profit='+fS(rv.p)+' Margin='+fP(m,2)+' Score='+rs.score+'/100 ('+rs.band+')\n';
+    var rs=a.regionScores[reg]||{score:0,band:'concern',growth:0};
+    s+=reg.toUpperCase()+': SALES='+fS(rv.s)+' PROFIT='+fS(rv.p)+' MARGIN='+fP(m,2)+' SCORE='+rs.score+'/100 BAND='+rs.band+'\n';
   });
+  s+='\n';
 
-  s+='\n## TOP 20 STATES WITH HEALTH SCORES\n';
-  _stateData.slice(0,20).forEach(function(st){
-    s+=st.state+' ['+st.region+'] Score='+st.score+'/100 ('+st.band+'): Sales='+fS(st.s)+' Profit='+fS(st.p)+' Margin='+fP(st.margin,1)+(st.p<0?' LOSS':'')+' \n';
+  // ── ALL STATES WITH SCORES ──
+  s+='## ALL STATES (score=0-100)\n';
+  _stateData.forEach(function(st){
+    var m=st.s>0?st.p/st.s:0;
+    s+=st.state+'['+st.region+']: SCORE='+st.score+'/100 BAND='+st.band+' SALES='+fS(st.s)+' PROFIT='+fS(st.p)+' MARGIN='+fP(m,1)+(st.p<0?' FLAG=LOSS':'')+'\n';
   });
-  var cStates=_stateData.filter(function(st){return st.band==='concern';}).sort(function(a,b){return b.s-a.s;}).slice(0,5);
-  if(cStates.length){s+='Concern states: '+cStates.map(function(st){return st.state+' ('+st.score+'/100, '+fS(st.s)+' sales)';}).join(', ')+'\n';}
+  s+='\n';
 
-    s+='\n## SEGMENTS\n';
+  // ── SEGMENTS ──
+  s+='## SEGMENTS\n';
   ['Consumer','Corporate','Home Office'].forEach(function(seg){
     var sg=a.segM[seg]||{s:0,p:0,ord:new Set()};var m=sg.s>0?sg.p/sg.s:0;
     var aov=sg.ord&&sg.ord.size?sg.s/sg.ord.size:0;
-    s+=seg+': Sales='+fS(sg.s)+' Profit='+fS(sg.p)+' Margin='+fP(m,2)+' AOV='+fS(aov)+'\n';
+    s+=seg.toUpperCase().replace(/ /g,'_')+': SALES='+fS(sg.s)+' PROFIT='+fS(sg.p)+' MARGIN='+fP(m,2)+' AOV='+fS(aov)+' CUSTOMERS='+(sg.custCount||0)+'\n';
   });
+  s+='\n';
 
-  s+='\n## YEARLY TREND\n';
-  a.sortedYears.forEach(function(y){var yd=a.yearM[y]||{s:0,p:0};var m=yd.s>0?yd.p/yd.s:0;s+=y+': Sales='+fS(yd.s)+' Profit='+fS(yd.p)+' Margin='+fP(m,2)+'\n';});
-
-  s+='\n## DISCOUNT IMPACT\n';
+  // ── DISCOUNT IMPACT ──
+  s+='## DISCOUNT IMPACT\n';
   [0,.1,.2,.3,.4,.5,.6,.7,.8].forEach(function(b){
     var items=a.discBkts.filter(function(x){return Math.abs(x.disc-b)<0.05;});
-    if(items.length){var avgM=items.reduce(function(s,x){return s+x.margin;},0)/items.length;s+='Disc '+(b*100)+'%: AvgMargin='+fP(avgM,2)+' ('+items.length+' orders)'+(avgM<0?' LOSS':'')+'\n';}
+    if(items.length){var avgM=items.reduce(function(s,x){return s+x.margin;},0)/items.length;s+='DISC_'+(b*100).toFixed(0)+'PCT: AVG_MARGIN='+fP(avgM,2)+' ORDERS='+items.length+(avgM<0?' FLAG=LOSS':'')+'\n';}
   });
+  s+='\n';
 
-  s+='\n## TOP 10 PROFITABLE PRODUCTS (with scores)\n';
-  _prodData.slice().sort(function(a,b){return b.p-a.p;}).slice(0,10).forEach(function(p){s+=p.name.slice(0,45)+': Profit='+fS(p.p)+' Score='+p.score+'/100\n';});
+  // ── TOP PRODUCTS ──
+  s+='## TOP 15 PROFITABLE PRODUCTS\n';
+  _prodData.slice().sort(function(a,b){return b.p-a.p;}).slice(0,15).forEach(function(p){
+    s+='"'+p.name.slice(0,40)+'" ['+p.cat+']: PROFIT='+fS(p.p)+' MARGIN='+fP(p.s>0?p.p/p.s:0,2)+' SCORE='+p.score+'/100\n';
+  });
+  s+='\n';
 
-  s+='\n## TOP 10 LOSS-MAKING PRODUCTS\n';
-  _prodData.slice().sort(function(a,b){return a.p-b.p;}).slice(0,10).forEach(function(p){s+=p.name.slice(0,45)+': Profit='+fS(p.p)+' ⚠LOSS AvgDisc='+(p.avgDisc*100).toFixed(0)+'% Score='+p.score+'/100\n';});
+  // ── LOSS PRODUCTS ──
+  s+='## TOP 10 LOSS-MAKING PRODUCTS\n';
+  _prodData.slice().sort(function(a,b){return a.p-b.p;}).slice(0,10).forEach(function(p){
+    s+='"'+p.name.slice(0,40)+'" ['+p.cat+']: PROFIT='+fS(p.p)+' FLAG=LOSS DISC='+(p.avgDisc*100).toFixed(0)+'% SCORE='+p.score+'/100\n';
+  });
+  s+='\n';
 
-  s+='\n## TOP 10 CUSTOMERS\n';
-  _custData.slice(0,10).forEach(function(c){var m=c.s>0?c.p/c.s:0;s+=c.name+' ('+c.seg+'): Sales='+fS(c.s)+' Profit='+fS(c.p)+' Margin='+fP(m,2)+' HealthScore='+c.score+'/100\n';});
+  // ── TOP CUSTOMERS ──
+  s+='## TOP 15 CUSTOMERS\n';
+  _custData.slice(0,15).forEach(function(cu){
+    var m=cu.s>0?cu.p/cu.s:0;
+    s+='"'+cu.name+'" ['+cu.seg+']: SALES='+fS(cu.s)+' PROFIT='+fS(cu.p)+' MARGIN='+fP(m,2)+' HEALTH='+cu.score+'/100 BAND='+cu.band+'\n';
+  });
+  s+='\n';
 
-  s+='\n## CUSTOMER HEALTH SUMMARY\n';
+  // ── CUSTOMER HEALTH SUMMARY ──
   if(_chData.length){
-    var h=_chData.filter(function(c){return c.band==='healthy';}).length;
-    var r=_chData.filter(function(c){return c.band==='risk';}).length;
-    var cr=_chData.filter(function(c){return c.band==='critical';}).length;
-    var avg=Math.round(_chData.reduce(function(s,c){return s+c.score;},0)/_chData.length);
-    s+='Avg Score: '+avg+'/100 | Healthy: '+h+' | At Risk: '+r+' | Critical: '+cr+'\n';
+    var healthy=_chData.filter(function(cu){return cu.band==='healthy';}).length;
+    var risk=_chData.filter(function(cu){return cu.band==='risk';}).length;
+    var critical=_chData.filter(function(cu){return cu.band==='critical';}).length;
+    var avgSc=Math.round(_chData.reduce(function(s,cu){return s+cu.score;},0)/_chData.length);
+    s+='## CUSTOMER HEALTH PORTFOLIO\n';
+    s+='TOTAL_CUSTOMERS='+_chData.length+' AVG_SCORE='+avgSc+'/100\n';
+    s+='HEALTHY='+healthy+' AT_RISK='+risk+' CRITICAL='+critical+'\n';
+    var topRisk=_chData.filter(function(cu){return cu.band!=='healthy';}).sort(function(a,b){return b.s-a.s;}).slice(0,5);
+    if(topRisk.length){s+='TOP_AT_RISK: '+topRisk.map(function(cu){return'"'+cu.name+'"(Score='+cu.score+',Sales='+fS(cu.s)+')';}).join(', ')+'\n';}
+    s+='\n';
   }
+
+  // ── FLAGGED ACCOUNTS ──
+  var flaggedIds=Object.keys(_flaggedCusts);
+  s+='## FLAGGED ACCOUNTS FOR REVIEW\n';
+  if(flaggedIds.length){
+    s+='FLAGGED_COUNT='+flaggedIds.length+'\n';
+    var flaggedList=_chData.filter(function(cu){return _flaggedCusts[cu.id];}).sort(function(a,b){return b.s-a.s;});
+    flaggedList.forEach(function(cu){
+      var m=cu.s>0?cu.p/cu.s:0;
+      s+='FLAGGED: "'+cu.name+'" ['+cu.seg+']: SCORE='+cu.score+'/100 BAND='+cu.band+' SALES='+fS(cu.s)+' PROFIT='+fS(cu.p)+' MARGIN='+fP(m,2)+'\n';
+    });
+  } else {
+    s+='FLAGGED_COUNT=0 (no accounts flagged for review)\n';
+  }
+  s+='\n';
+
+  // ── DATA CHANGE AWARENESS ──
+  if(_dataChangeSummary){
+    s+='## RECENT DATA CHANGE (vs previous fetch)\n';
+    s+=_dataChangeSummary+'\n\n';
+  } else {
+    s+='## DATA STATUS: No changes detected since last fetch.\n\n';
+  }
+
+  // ── ACCURACY INSTRUCTION ──
+  s+='## ACCURACY RULES\n';
+  s+='1. ONLY use numbers from the data above. Never estimate or approximate.\n';
+  s+='2. If asked about a specific month, look it up in MONTHLY DATA above.\n';
+  s+='3. If asked about a specific state, look it up in ALL STATES above.\n';
+  s+='4. If you cannot find an exact figure, say so explicitly.\n';
+  s+='5. Always cite exact figures — never say "approximately" or "around".\n';
+
   return s;
 }
 
@@ -2074,11 +2091,8 @@ function callAI(msgs, sysOverride){
   .then(function(d){
     setAIStatus(true,'AI Connected');
     if(d.text)return d.text;
-    if(d.content){
-      if(Array.isArray(d.content))return d.content.map(function(b){return b.text||'';}).join('');
-      return String(d.content);
-    }
-    if(d.choices&&d.choices[0])return d.choices[0].message&&d.choices[0].message.content||'';
+    if(d.content)return d.content.map(function(b){return b.text||'';}).join('');
+    if(d.choices)return d.choices[0].message.content||'';
     return '';
   })
   .catch(function(e){setAIStatus(false,'AI Unavailable');throw e;});
@@ -2106,7 +2120,7 @@ function fmtAI(t){
   var lines=h.split('\n'),out='',inL=false,lt='';
   lines.forEach(function(l){
     var tr=l.trim();var isBul=/^[•\-] /.test(tr);var isNum=/^\d+\. /.test(tr);
-    if(isBul||isNum){var ltype=isBul?'ul':'ol';if(!inL||lt!==ltype){if(inL)out+='</'+lt+'>';out+='<'+ltype+'>';inL=true;lt=ltype;}out+='<li>'+tr.replace(/^[•\-]\s+|^\d+[.)]\s/,'')+'</li>';}
+    if(isBul||isNum){var ltype=isBul?'ul':'ol';if(!inL||lt!==ltype){if(inL)out+='</'+lt+'>';out+='<'+ltype+'>';inL=true;lt=ltype;}out+='<li>'+tr.replace(/^[•\-\d]+[.)]\s/,'')+'</li>';}
     else{if(inL){out+='</'+lt+'>';inL=false;lt='';}if(tr)out+='<p>'+l+'</p>';}
   });
   if(inL)out+='</'+lt+'>';
@@ -2142,24 +2156,9 @@ function genExecSummary(force){
   _execLoaded=true;_execTime=Date.now();
   var stale=document.getElementById('exec-stale-nudge');if(stale)stale.style.display='none';
   document.getElementById('exec-body').innerHTML='<div class="typing-dots"><div class="td"></div><div class="td"></div><div class="td"></div></div>';
-  var a=_agg;
-  var lossTot=0;Object.keys(a.subM).forEach(function(k){if(a.subM[k].p<0)lossTot+=a.subM[k].p;});
-  var worstSub='';var wv=Infinity;Object.keys(a.subM).forEach(function(k){if(a.subM[k].p<wv){wv=a.subM[k].p;worstSub=k;}});
-  var bestReg='';var brv=-Infinity;Object.keys(a.regM).forEach(function(k){var m=a.regM[k].s>0?a.regM[k].p/a.regM[k].s:0;if(m>brv){brv=m;bestReg=k;}});
-  var worstReg='';var wrv=Infinity;Object.keys(a.regM).forEach(function(k){var m=a.regM[k].s>0?a.regM[k].p/a.regM[k].s:0;if(m<wrv){wrv=m;worstReg=k;}});
-  var prompt='Write a 4-bullet executive summary for this Superstore dataset. Use the exact data below — do not invent numbers.\n\n'
-    +'DATA: Sales='+fS(a.totalSales)+' Profit='+fS(a.totalProfit)+' Margin='+fP(a.margin,2)+' Orders='+fN(a.totalOrders)+'\n'
-    +'Worst sub-cat: '+worstSub+' ('+fS(wv)+' loss) | Total loss sub-cats: '+fS(Math.abs(lossTot))+'\n'
-    +'Best region: '+bestReg+' ('+fP(brv,1)+' margin) | Worst region: '+worstReg+' ('+fP(wrv,1)+' margin)\n\n'
-    +'FORMAT — use exactly this:\n'
-    +'**Performance:** One sentence: total sales, profit, margin, and whether margin is healthy for retail.\n\n'
-    +'• Category insight: which category has the best margin and which is the drag — use exact %\n'
-    +'• Loss-maker: '+worstSub+' destroying '+fS(Math.abs(wv))+' — state the cause\n'
-    +'• Regional gap: '+bestReg+' vs '+worstReg+' — exact margin gap and likely cause\n'
-    +'• Discount: state where orders go loss-making and the total value destroyed\n\n'
-    +'**CFO Action:** One specific recommendation with a specific dollar recovery estimate.\n\n'
-    +'FOLLOWUPS: ["question about the biggest $ recovery opportunity with specific amount","question about a specific region or category with its exact margin","question about what to prioritise first and why"] — write 3 real questions from this data.';
-  callAI([{role:'user',content:prompt}])
+  var lossTot=0;Object.keys(_agg.subM).forEach(function(k){if(_agg.subM[k].p<0)lossTot+=_agg.subM[k].p;});
+  var worstSub='';var wv=Infinity;Object.keys(_agg.subM).forEach(function(k){if(_agg.subM[k].p<wv){wv=_agg.subM[k].p;worstSub=k;}});
+  callAI([{role:'user',content:'4-bullet executive summary of the live Superstore dataset.\n\nExact format:\n**Performance:** [one sentence — total sales, profit, margin, healthy or not]\n\n• [Category insight: best and worst margin with exact %]\n• [Biggest loss-maker: '+worstSub+' destroying '+fS(Math.abs(wv))+' — why]\n• [Regional standout: best margin region and the gap vs worst]\n• [Discount insight: breakeven point and total loss from over-discounting]\n\n**CFO Action:** [One specific numbered recommendation — e.g. discount cap on Tables recovers ~$X]\n\nFOLLOWUPS: ["q1 with $","q2 with %","q3 with name"]'}])
   .then(function(r){
     var fu=extractFU(r),clean=cleanR(r);var html=fmtAI(clean);
     if(fu.length)html+=makeFuChipsStr(fu,function(q){askAI(q);});
@@ -2184,31 +2183,9 @@ function buildExpPrompt(ttl, nums, specific){
     +'• Bullet insight two with specific figure\n'
     +'• Bullet insight three with specific figure\n\n'
     +'**Recommendation:** One CFO-level action with an estimated dollar or percentage impact.\n\n'
-    +'Last line: FOLLOWUPS: ["specific question about the biggest number above","specific question exploring a different angle of this data","specific action question with estimated dollar or % impact"] — write 3 real follow-up questions about THIS specific analysis, not placeholders.';
+    +'No FOLLOWUPS needed.';
 }
 
-function openExpand(key){
-  var a=_agg;
-  var def=getExpandDef(key);if(!def)return;
-  document.getElementById('expand-ttl').textContent=def.ttl+' — Explore';
-  document.getElementById('exp-what').innerHTML=fmtAI(def.what);
-  document.getElementById('exp-nums').innerHTML=def.nums.map(function(n){return'<div class="exp-num-row"><span>'+n[0]+'</span><span>'+n[1]+'</span></div>';}).join('');
-  document.getElementById('exp-qs').innerHTML=def.qs.map(function(q){return'<div class="exp-q" onclick="askAI(\''+q.replace(/'/g,"\\'")+'\')" title="Ask AI">'+q+'</div>';}).join('');
-  document.getElementById('expand-left').innerHTML='<canvas id="exp-canvas" style="max-height:70vh;width:100%"></canvas>';
-  renderExpandChart(key);
-  document.getElementById('exp-ai-text').innerHTML='<div class="typing-dots"><div class="td"></div><div class="td"></div><div class="td"></div></div>';
-  if(_exploreCache[key]){document.getElementById('exp-ai-text').innerHTML=_exploreCache[key];}
-  else{
-    callAI([{role:'user',content:buildExpPrompt(def.ttl,def.nums,def.specific||'')}]).then(function(r){
-      var fu=extractFU(r),clean=cleanR(r);
-      var html=fmtAI(clean);
-      if(fu&&fu.length)html+=makeFuChipsStr(fu,function(q){closeExpand();askAI(q);});
-      _exploreCache[key]=html;
-      document.getElementById('exp-ai-text').innerHTML=html;
-    }).catch(function(e){document.getElementById('exp-ai-text').innerHTML='<span style="color:var(--red)">'+errMsg(e)+'</span>';});
-  }
-  document.getElementById('expand-overlay').classList.add('open');
-}
 
 function getExpandDef(key){
   var a=_agg;
@@ -2402,7 +2379,7 @@ function openStateDetail(state){
     +'• Second insight with specific number\n'
     +'• Risk or opportunity with number\n\n'
     +'**Action:** One specific recommendation for this state.\n\n'
-    +'FOLLOWUPS: ["<specific follow-up question with a number from the data>","<follow-up about a different dimension or action>","<question about what to do next with an estimated impact>"] — write 3 real questions specific to this analysis, not placeholders';
+    +'FOLLOWUPS: ["q1","q2","q3"]';
   openDetailModal(state,meta,[['Sales',fS(sd.s)],['Profit',fS(sd.p),''],['Margin',fP(m,2),''],['Orders',fN(sd.ord),'']],true,'Category Breakdown',subTbl,prompt,'state-'+state);
 }
 
@@ -2432,7 +2409,7 @@ function openRegionDetail(reg){
     +'• Category or discount insight\n'
     +'• Growth trend or opportunity\n\n'
     +'**Action:** One specific recommendation for this region.\n\n'
-    +'FOLLOWUPS: ["<specific follow-up question with a number from the data>","<follow-up about a different dimension or action>","<question about what to do next with an estimated impact>"] — write 3 real questions specific to this analysis, not placeholders';
+    +'FOLLOWUPS: ["q1","q2","q3"]';
   document.getElementById('detail-title').textContent=reg+' Region';
   document.getElementById('detail-meta').innerHTML=meta;
   document.getElementById('detail-metrics').innerHTML=[['Sales',fS(rv.s)],['Profit',fS(rv.p),''],['Margin',fP(m,2),''],['Health Score',rs.score+'/100',''],['Orders',fN(rv.ordCount),''],['Avg Disc',(rs.avgDisc*100).toFixed(0)+'%','']].map(function(m){return'<div class="detail-metric"><div class="dm-label">'+m[0]+'</div><div class="dm-val '+(m[2]||'')+'">'+m[1]+'</div></div>';}).join('');
@@ -2465,7 +2442,7 @@ function openSubDetail(name, cat){
     +'• Discount impact with specific number\n'
     +'• Revenue/volume context\n\n'
     +'**Action:** Discount cap, reprice, or remove — one specific recommendation with estimated recovery.\n\n'
-    +'FOLLOWUPS: ["<specific follow-up question with a number from the data>","<follow-up about a different dimension or action>","<question about what to do next with an estimated impact>"] — write 3 real questions specific to this analysis, not placeholders';
+    +'FOLLOWUPS: ["q1","q2","q3"]';
   openDetailModal(name,meta,[['Sales',fS(sub.s)],['Profit',fS(sub.p),''],['Margin',fP(m,2),''],['Health Score',sub.score+'/100',''],['Avg Discount',(sub.avgDisc*100).toFixed(0)+'%',''],['Orders',fN(sub.ord),'']],true,'Score Breakdown',subTbl,prompt,'sub-'+name);
 }
 
@@ -2489,7 +2466,7 @@ function openProdDetail(name, cat){
     +'• Discount impact with specific number\n'
     +'• Volume/orders context\n\n'
     +'**Action:** Keep / Reprice / Discontinue — one specific reason with a number.\n\n'
-    +'FOLLOWUPS: ["<specific follow-up question with a number from the data>","<follow-up about a different dimension or action>","<question about what to do next with an estimated impact>"] — write 3 real questions specific to this analysis, not placeholders';
+    +'FOLLOWUPS: ["q1","q2","q3"]';
   openDetailModal(name.length>55?name.slice(0,55)+'…':name,meta,[['Sales',fS(prod.s)],['Profit',fS(prod.p),''],['Margin',fP(m,2),''],['Score',prod.score+'/100',''],['Avg Discount',(prod.avgDisc*100).toFixed(0)+'%',''],['Orders',fN(prod.ordCount),'']],true,'Score Breakdown',subTbl,prompt,'prod-'+name.slice(0,40));
 }
 
@@ -2510,7 +2487,7 @@ function openCustDetail(custId){
     +'• Profitability insight with number\n'
     +'• Opportunity or risk with number\n\n'
     +'**Action:** One specific account strategy recommendation.\n\n'
-    +'FOLLOWUPS: ["<specific follow-up question with a number from the data>","<follow-up about a different dimension or action>","<question about what to do next with an estimated impact>"] — write 3 real questions specific to this analysis, not placeholders';
+    +'FOLLOWUPS: ["q1","q2","q3"]';
   openDetailModal(cust.name,meta,[['Lifetime Sales',fS(cust.s)],['Lifetime Profit',fS(cust.p),''],['Margin',fP(m,1),''],['Health Score',cust.score+'/100',''],['Orders',fN(cust.ord),''],['AOV',fS(cust.s/Math.max(cust.ord,1)),'']],true,'Purchase Categories',subTbl,prompt,'cust-'+custId);
 }
 
@@ -2527,25 +2504,7 @@ function openPanel(q){
 }
 function closePanel(){document.getElementById('slide-panel').classList.remove('open');document.getElementById('panel-overlay').classList.remove('open');}
 function clearPanel(){_pHistory=[];document.getElementById('panel-msgs').innerHTML='';var b=document.getElementById('panel-ctx-badge');if(b){b.style.display='none';b.textContent='';}}
-function askAI(q){openPanel(q);}
-function panelSend(){panelAsk();}
-function panelAsk(override){
-  var inp=document.getElementById('panel-input');
-  var text=(override||(inp?inp.value:'')||'').trim();
-  if(!text||_pLoading2)return;
-  if(!override&&inp){inp.value='';inp.style.height='auto';}
-  var badge=document.getElementById('panel-ctx-badge');
-  if(badge&&!badge.textContent){badge.textContent=text.slice(0,34)+(text.length>34?'…':'');badge.style.display='inline';}
-  appendPMsg('user',text);
-  _pHistory.push({role:'user',content:text});
-  var typId=pTyping();_pLoading2=true;
-  var snd=document.getElementById('panel-send');if(snd)snd.disabled=true;
-  callAI(_pHistory).then(function(r){
-    removeEl(typId);var fu=extractFU(r),ch=extractChart(r),clean=cleanR(r);
-    _pHistory.push({role:'assistant',content:clean});appendPMsg('ai',clean,fu,ch);
-  }).catch(function(e){removeEl(typId);appendPMsg('ai',errMsg(e));})
-  .finally(function(){_pLoading2=false;if(snd)snd.disabled=false;if(inp&&!override)inp.focus();});
-}
+
 function appendPMsg(role,text,fu,chartData){
   var msgs=document.getElementById('panel-msgs');
   var row=document.createElement('div');row.className='pmsg-row '+role;
@@ -2579,48 +2538,7 @@ function clearChat(){
   var sugsDiv=document.createElement('div');sugsDiv.className='chat-sugs';sugsDiv.id='chat-sugs';
   wrap.appendChild(sugsDiv);inner.appendChild(wrap);renderChatSugs();
 }
-function renderChatSugs(){
-  var a=_agg;
-  var sugs;
-  if(a&&a.totalSales){
-    // Dynamic suggestions based on live data
-    var worstSub='Tables';var wv=Infinity;
-    Object.keys(a.subM||{}).forEach(function(k){if((a.subM[k].p||0)<wv){wv=a.subM[k].p;worstSub=k;}});
-    var worstReg='Central';var wrv=Infinity;
-    Object.keys(a.regM||{}).forEach(function(k){var m=(a.regM[k].s>0?a.regM[k].p/a.regM[k].s:0);if(m<wrv){wrv=m;worstReg=k;}});
-    var lossMakers=Object.keys(a.subM||{}).filter(function(k){return(a.subM[k].p||0)<0;}).length;
-    sugs=[
-      'What is the overall profit margin and is it healthy for retail?',
-      worstSub+' is loss-making — how much profit would a 20% discount cap recover?',
-      'Which sub-categories are loss-making and how much total value are they destroying?',
-      worstReg+' has the worst margin — what is causing it and what should we do?',
-      'Who are the 5 most valuable customers by lifetime profit?',
-      'At what discount level do orders start losing money?',
-      'How has sales growth trended year over year — is margin keeping pace?',
-      'Which single action would have the highest impact on overall profitability?'
-    ];
-  } else {
-    sugs=['What is the overall profit margin?','Which sub-categories are loss-making?','Which region has the worst margin?','Who are the top customers by profit?','At what discount level do orders lose money?','How has sales trended year over year?'];
-  }
-  var el=document.getElementById('chat-sugs');if(!el)return;
-  el.innerHTML=sugs.map(function(s){return'<button class="chat-sug" onclick="chatFromSug(\''+s.replace(/'/g,"\\'")+'\')">'+ s+'</button>';}).join('');
-}
-function chatFromSug(q){document.getElementById('chat-input').value=q;chatSend();}
-function chatSend(){
-  var inp=document.getElementById('chat-input');var text=(inp?inp.value:'').trim();
-  if(!text||_chatLoading)return;
-  var sw=document.getElementById('chat-sugs-wrap');if(sw)sw.style.display='none';
-  if(inp){inp.value='';inp.style.height='auto';}
-  appendCMsg('user',text);
-  _chatHistory.push({role:'user',content:text});
-  var typId=cTyping();_chatLoading=true;
-  var snd=document.getElementById('chat-send-btn');if(snd)snd.disabled=true;
-  callAI(_chatHistory).then(function(r){
-    removeEl(typId);var fu=extractFU(r),ch=extractChart(r),clean=cleanR(r);
-    _chatHistory.push({role:'assistant',content:clean});appendCMsg('ai',clean,fu,ch);
-  }).catch(function(e){removeEl(typId);appendCMsg('ai',errMsg(e));})
-  .finally(function(){_chatLoading=false;if(snd)snd.disabled=false;if(inp)inp.focus();});
-}
+
 function appendCMsg(role,text,fu,chartData){
   var inner=document.getElementById('chat-msgs-inner');
   var row=document.createElement('div');row.className='cmsg-row '+role;
@@ -2668,42 +2586,11 @@ function makeMsgActionsEl(text){
 // ═══════════════════════════════════════════════════════
 // SAVED INSIGHTS + FLAGGED ACCOUNTS
 // ═══════════════════════════════════════════════════════
-function saveInsight(text){_savedInsights.push({id:'s'+Date.now(),text:text});renderSavedPanel();}
+
 function openSavedPanel(){document.getElementById('saved-panel').classList.add('open');document.getElementById('panel-overlay').classList.add('open');}
 function closeSavedPanel(){document.getElementById('saved-panel').classList.remove('open');document.getElementById('panel-overlay').classList.remove('open');}
-function renderSavedPanel(){
-  var list=document.getElementById('saved-list');if(!list)return;
-  var flaggedIds=Object.keys(_flaggedCusts);
-  var flagHtml='';
-  if(flaggedIds.length){
-    var flaggedCusts=_chData.filter(function(c){return _flaggedCusts[c.id];}).sort(function(a,b){return b.s-a.s;});
-    flagHtml='<div style="font-size:11px;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px;margin-top:4px">🚩 Flagged Accounts ('+flaggedIds.length+')</div>'
-      +flaggedCusts.map(function(c){return'<div class="saved-item" style="border-left:3px solid var(--orange);cursor:pointer" onclick="openCHDetail(\''+c.id+'\')">'
-        +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'
-        +'<strong>'+c.name+'</strong>'
-        +'<button onclick="event.stopPropagation();toggleFlag(\''+c.id+'\')" style="background:none;border:none;cursor:pointer;font-size:11px;color:var(--muted)">Remove</button>'
-        +'</div>'
-        +'<div style="font-size:11.5px;color:var(--muted)">'+c.seg+' · Score: '+c.score+'/100 · '+fS(c.s)+' sales · '+fP(c.margin,1)+' margin</div>'
-        +'</div>';}).join('');
-    if(_savedInsights.length)flagHtml+='<div style="border-top:1px solid var(--border);margin:12px 0 8px"></div>';
-  }
-  if(!_savedInsights.length&&!flaggedIds.length){list.innerHTML='<div style="padding:20px;color:var(--dim);font-size:13px;text-align:center">No saved insights or flagged accounts yet.</div>';return;}
-  var insHtml=_savedInsights.length?'<div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px">Saved Insights ('+_savedInsights.length+')</div>'+_savedInsights.slice().reverse().map(function(item){return'<div class="saved-item"><button class="saved-del" onclick="delInsight(\''+item.id+'\')">✕</button>'+item.text.slice(0,240).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')+(item.text.length>240?'…':'')+'</div>';}).join(''):'';
-  list.innerHTML=flagHtml+insHtml;
-}
-function delInsight(id){_savedInsights=_savedInsights.filter(function(i){return i.id!==id;});renderSavedPanel();}
-function exportSaved(){
-  var parts=[];
-  var flaggedIds=Object.keys(_flaggedCusts);
-  if(flaggedIds.length){var fc=_chData.filter(function(c){return _flaggedCusts[c.id];});parts.push('FLAGGED ACCOUNTS\n'+fc.map(function(c){return'- '+c.name+' ('+c.seg+'): Score='+c.score+', Sales='+fS(c.s)+', Margin='+fP(c.margin,2);}).join('\n'));}
-  if(_savedInsights.length){parts.push('SAVED INSIGHTS\n'+_savedInsights.map(function(i,n){return'INSIGHT '+(n+1)+'\n\n'+i.text+'\n\n'+'─'.repeat(50);}).join('\n\n'));}
-  if(!parts.length)return;
-  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([parts.join('\n\n'+('═'.repeat(60))+'\n\n')],{type:'text/plain'}));a.download='fenxi-export.txt';a.click();
-}
 
-// ═══════════════════════════════════════════════════════
-// TICKER + COUNTDOWN
-// ═══════════════════════════════════════════════════════
+
 function showTicker(msg){document.getElementById('ticker-msg').textContent=msg;document.getElementById('ticker').classList.add('show');setTimeout(function(){document.getElementById('ticker').classList.remove('show');},5000);}
 function startCountdown(){
   _countdown=60;if(_timer)clearInterval(_timer);
@@ -2741,31 +2628,12 @@ function switchPage(n){
 // ═══════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════
-document.addEventListener('DOMContentLoaded',function(){
-  document.querySelectorAll('.nav-tab').forEach(function(btn){
-    btn.addEventListener('click',function(){var pg=btn.getAttribute('data-page');switchPage(isNaN(+pg)?pg:+pg);});
-  });
-  var pi=document.getElementById('panel-input');
-  if(pi){
-    pi.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();panelSend();}});
-    pi.addEventListener('input',function(){pi.style.height='auto';pi.style.height=Math.min(pi.scrollHeight,100)+'px';});
-  }
-  var ci=document.getElementById('chat-input');
-  if(ci){
-    ci.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();chatSend();}});
-    ci.addEventListener('input',function(){ci.style.height='auto';ci.style.height=Math.min(ci.scrollHeight,120)+'px';});
-  }
-  document.addEventListener('keydown',function(e){
-    if(e.key==='Escape'){closeExpand();closeDetail();closePanel();closeSavedPanel();}
-  });
-  setAIStatus(false,'AI connecting…');
-  fetchData();
-  startCountdown();
-});
 
 
 
 // ═══════════════════════════════════════════════════════
+// PROFIT AUTOPSY (from v6)
+
 // PROFIT AUTOPSY TOOL
 // ═══════════════════════════════════════════════════════
 function openAutopsy(){
@@ -2958,7 +2826,7 @@ function runAutopsy(){
     +'\n• Issue with specific dollar amount and root cause'
     +'\n• Issue with specific dollar amount and root cause'
     +'\n\n**Prognosis:** If nothing changes, one sentence on trajectory. If we implement the top recovery lever, expected outcome with a number.'
-    +'\n\nFOLLOWUPS: ["<specific follow-up question with a number from the data>","<follow-up about a different dimension or action>","<question about what to do next with an estimated impact>"] — write 3 real questions specific to this analysis, not placeholders';
+    +'\n\nFOLLOWUPS: ["q1 with $","q2 with %","q3 about specific action"]';
   callAI([{role:'user',content:prompt}]).then(function(r){
     var fu=extractFU(r),clean=cleanR(r);
     var html=fmtAI(clean);
@@ -2969,6 +2837,1724 @@ function runAutopsy(){
     if(aiEl)aiEl.innerHTML='<span style="color:var(--red)">'+errMsg(e)+'</span>';
     if(btn)btn.disabled=false;
   });
+}
+
+
+
+// ═══════════════════════════════════════════════════════
+// REPORT FUNCTIONS (from v6)
+
+async function generateReport(){
+  var btn=document.getElementById('report-gen-btn');
+  if(btn)btn.disabled=true;
+  if(btn)btn.textContent='Generating\u2026';
+  var period=document.getElementById('rpt-period').value;
+  var tone=document.querySelector('input[name="rpt-tone"]:checked').value;
+  var title=document.getElementById('rpt-title').value||'Superstore Business Review';
+  var forName=document.getElementById('rpt-for').value||'';
+  var byName=document.getElementById('rpt-by').value||'Fenxi Analytics';
+  var pLabels={'all':'Full Dataset','y-last':'Last Year','y-2021':'Year 2021','y-2022':'Year 2022','y-2023':'Year 2023','y-2024':'Year 2024','q1':'Q1 (Jan-Mar)','q2':'Q2 (Apr-Jun)','q3':'Q3 (Jul-Sep)','q4':'Q4 (Oct-Dec)'};
+  var periodLabel=pLabels[period]||period;
+  var secs={exec:document.getElementById('rpt-sec-exec').checked,perf:document.getElementById('rpt-sec-perf').checked,cat:document.getElementById('rpt-sec-cat').checked,reg:document.getElementById('rpt-sec-reg').checked,prod:document.getElementById('rpt-sec-prod').checked,cust:document.getElementById('rpt-sec-cust').checked,disc:document.getElementById('rpt-sec-disc').checked,ship:document.getElementById('rpt-sec-ship').checked,recs:document.getElementById('rpt-sec-recs').checked};
+  var totalSteps=Object.values(secs).filter(Boolean).length+2;
+  var step=0;
+  try{
+    setProgress(totalSteps,++step,'Computing period data\u2026');
+    var fa=getFilteredAgg(period)||_agg;
+    var cats=['Furniture','Office Supplies','Technology'];
+    var regs=['West','East','Central','South'];
+    var toneInstr=tone==='executive'?'Concise, direct, CFO-level. Every sentence has a number. No fluff.':tone==='detailed'?'Detailed analytical style with full context and explanation.':'Polished client-facing style. Professional but accessible. Avoid jargon.';
+    // Build data summary as concatenated string — no literal newlines
+    var nl='\n';
+    var ds='PERIOD: '+periodLabel+nl;
+    ds+='TOTAL_SALES='+fS(fa.totalSales)+nl;
+    ds+='TOTAL_PROFIT='+fS(fa.totalProfit)+nl;
+    ds+='PROFIT_MARGIN='+fP(fa.margin,2)+nl;
+    ds+='TOTAL_ORDERS='+fN(fa.totalOrders)+nl;
+    ds+='TOTAL_CUSTOMERS='+fN(fa.totalCustomers)+nl;
+    ds+='AVG_ORDER_VALUE='+fS(fa.avgOV)+nl+nl;
+    ds+=cats.map(function(cat){var cv=fa.catM[cat]||{s:0,p:0};var m=cv.s>0?cv.p/cv.s:0;return cat+': SALES='+fS(cv.s)+' PROFIT='+fS(cv.p)+' MARGIN='+fP(m,2);}).join(nl)+nl+nl;
+    ds+=regs.map(function(reg){var rv=fa.regM[reg]||{s:0,p:0};var m=rv.s>0?rv.p/rv.s:0;return reg+': SALES='+fS(rv.s)+' PROFIT='+fS(rv.p)+' MARGIN='+fP(m,2);}).join(nl)+nl+nl;
+    var topSubs=Object.keys(fa.subM).map(function(k){return{name:k,p:fa.subM[k].p,s:fa.subM[k].s};}).sort(function(a,b){return b.p-a.p;});
+    var lossSubs=topSubs.filter(function(s){return s.p<0;});
+    ds+='SUB-CATEGORIES:'+nl+topSubs.map(function(s){var m=s.s>0?s.p/s.s:0;return s.name+': PROFIT='+fS(s.p)+' MARGIN='+fP(m,2)+(s.p<0?' LOSS':'');}).join(nl);
+    var reportSys='You are Fenxi AI writing a professional business report section. '+toneInstr+' Use ONLY exact numbers from the data provided. Never estimate. Write flowing paragraphs, not bullet points. No markdown headers. Every paragraph must contain at least 2 exact figures.';
+    var sections=[];
+    if(secs.exec){
+      setProgress(totalSteps,++step,'Writing executive summary\u2026');
+      try{
+  try{
+              var t=await callAI([{role:'user',content:'Write a 3-paragraph executive summary for this '+periodLabel+' business report. Para 1: overall performance with sales/profit/margin. Para 2: biggest strength and biggest risk with exact figures. Para 3: key strategic implication. DATA:'+nl+ds}],reportSys);
+        sections.push({title:'Executive Summary',text:cleanR(t),chartId:null,kpis:null});
+      }catch(_aiErr){
+        sections.push({title:'Executive Summary',text:'AI unavailable — report generated with data only.',chartId:null,kpis:null});
+      }
+      }catch(aiErr){
+        sections.push({title:'Executive Summary',text:'Sales: '+fS(fa.totalSales)+' | Profit: '+fS(fa.totalProfit)+' | Margin: '+fP(fa.margin,2)+' | Orders: '+fN(fa.totalOrders)+' | Customers: '+fN(fa.totalCustomers),chartId:null,kpis:null});
+      }
+    }
+    if(secs.perf){
+      setProgress(totalSteps,++step,'Writing performance section\u2026');
+try{
+              var t=await callAI([{role:'user',content:'Write 2 paragraphs on overall performance for '+periodLabel+'. Cover: sales vs profit relationship, margin vs 10-15% retail benchmark, order volume and AOV insights. DATA:'+nl+ds}],reportSys);
+        sections.push({title:'Overall Performance',text:cleanR(t),chartId:null,kpis:[['Total Sales',fS(fa.totalSales)],['Total Profit',fS(fa.totalProfit)],['Profit Margin',fP(fa.margin,2)],['Total Orders',fN(fa.totalOrders)],['Avg Order Value',fS(fa.avgOV)],['Customers',fN(fa.totalCustomers)]]});
+      }catch(_aiErr){
+        sections.push({title:'Overall Performance',text:'AI unavailable — report generated with data only.',chartId:null,kpis:null});
+      }
+    }
+    if(secs.cat){
+      setProgress(totalSteps,++step,'Writing category analysis\u2026');
+try{
+              var t=await callAI([{role:'user',content:'Write 2 paragraphs on category performance for '+periodLabel+'. Compare Furniture, Office Supplies, Technology on sales/profit/margin. Identify strongest and weakest. DATA:'+nl+ds}],reportSys);
+        sections.push({title:'Category Analysis',text:cleanR(t),chartId:'chart-p2-cat',kpis:null});
+      }catch(_aiErr){
+        sections.push({title:'Category Analysis',text:'AI unavailable — report generated with data only.',chartId:null,kpis:null});
+      }
+    }
+    if(secs.reg){
+      setProgress(totalSteps,++step,'Writing regional analysis\u2026');
+try{
+              var t=await callAI([{role:'user',content:'Write 2 paragraphs on regional performance for '+periodLabel+'. Compare West/East/Central/South on sales/profit/margin. Identify margin gaps and likely causes. DATA:'+nl+ds}],reportSys);
+        sections.push({title:'Regional Breakdown',text:cleanR(t),chartId:'chart-p3-region',kpis:null});
+      }catch(_aiErr){
+        sections.push({title:'Regional Breakdown',text:'AI unavailable — report generated with data only.',chartId:null,kpis:null});
+      }
+    }
+    if(secs.prod){
+      setProgress(totalSteps,++step,'Writing product intelligence\u2026');
+      var bestSub=topSubs[0]||{name:'N/A',p:0};var worstSub=lossSubs[0]||{name:'none',p:0};
+try{
+              var t=await callAI([{role:'user',content:'Write 2 paragraphs on product/sub-category performance for '+periodLabel+'. Best sub-cat: '+bestSub.name+' at '+fS(bestSub.p)+'. Worst loss-maker: '+worstSub.name+' at '+fS(worstSub.p)+'. Explain discount-margin relationship. DATA:'+nl+ds}],reportSys);
+        sections.push({title:'Product Intelligence',text:cleanR(t),chartId:'chart-p2-subcat',kpis:null});
+      }catch(_aiErr){
+        sections.push({title:'Product Intelligence',text:'AI unavailable — report generated with data only.',chartId:null,kpis:null});
+      }
+    }
+    if(secs.cust){
+      setProgress(totalSteps,++step,'Writing customer health\u2026');
+      var h=_chData.filter(function(cu){return cu.band==='healthy';}).length;
+      var r=_chData.filter(function(cu){return cu.band==='risk';}).length;
+      var cr=_chData.filter(function(cu){return cu.band==='critical';}).length;
+      var avg=_chData.length?Math.round(_chData.reduce(function(s,cu){return s+cu.score;},0)/_chData.length):0;
+      var flagCount=Object.keys(_flaggedCusts).length;
+try{
+              var t=await callAI([{role:'user',content:'Write 2 paragraphs on customer health for '+periodLabel+'. Portfolio: '+_chData.length+' customers, avg score '+avg+'/100, '+h+' healthy, '+r+' at risk, '+cr+' critical, '+flagCount+' flagged for review. Discuss distribution and which segment needs most attention. DATA:'+nl+ds}],reportSys);
+        sections.push({title:'Customer Health',text:cleanR(t),chartId:'chart-ch-dist',kpis:null});
+      }catch(_aiErr){
+        sections.push({title:'Customer Health',text:'AI unavailable — report generated with data only.',chartId:null,kpis:null});
+      }
+    }
+    if(secs.disc){
+      setProgress(totalSteps,++step,'Writing discount analysis\u2026');
+      var lossOrders=_agg.discBkts.filter(function(x){return x.disc>=0.3&&x.margin<0;}).length;
+try{
+              var t=await callAI([{role:'user',content:'Write 2 paragraphs on discount impact for '+periodLabel+'. Loss-making orders with 30pct+ discount: '+lossOrders+'. Explain breakeven threshold and recommend a discount cap policy with estimated profit recovery. DATA:'+nl+ds}],reportSys);
+        sections.push({title:'Discount Analysis',text:cleanR(t),chartId:'chart-discount-profit',kpis:null});
+      }catch(_aiErr){
+        sections.push({title:'Discount Analysis',text:'AI unavailable — report generated with data only.',chartId:null,kpis:null});
+      }
+    }
+    if(secs.ship){
+      setProgress(totalSteps,++step,'Writing shipping analysis\u2026');
+      var modes=['Standard Class','Second Class','First Class','Same Day'];
+      var shipStr=modes.map(function(m){var mo=_agg.modeM[m]||{s:0,p:0,ordCount:0};return m+': orders='+mo.ordCount+' margin='+(mo.s>0?fP(mo.p/mo.s,2):'N/A');}).join(', ');
+try{
+              var t=await callAI([{role:'user',content:'Write 1 paragraph on shipping for '+periodLabel+'. Data: '+shipStr+'. Which ship mode is most profitable and what does it mean for strategy? DATA:'+nl+ds}],reportSys);
+        sections.push({title:'Shipping Analysis',text:cleanR(t),chartId:null,kpis:null});
+      }catch(_aiErr){
+        sections.push({title:'Shipping Analysis',text:'AI unavailable — report generated with data only.',chartId:null,kpis:null});
+      }
+    }
+    if(secs.recs){
+      setProgress(totalSteps,++step,'Writing recommendations\u2026');
+      var lossStr=lossSubs.slice(0,3).map(function(s){return s.name+'('+fS(s.p)+')';}).join(', ')||'none';
+try{
+              var t=await callAI([{role:'user',content:'Write exactly 3 numbered strategic recommendations for '+periodLabel+'. Each must: (1) name a specific action, (2) cite the exact problem with a number, (3) estimate the dollar or % improvement. Loss-making sub-cats: '+lossStr+'. DATA:'+nl+ds}],reportSys);
+        sections.push({title:'Strategic Recommendations',text:cleanR(t),chartId:null,kpis:null});
+      }catch(_aiErr){
+        sections.push({title:'Strategic Recommendations',text:'AI unavailable — report generated with data only.',chartId:null,kpis:null});
+      }
+    }
+    setProgress(totalSteps,++step,'Building Word document\u2026');
+    await buildWordDoc(sections,{title:title,forName:forName,byName:byName,periodLabel:periodLabel,date:new Date().toLocaleDateString('en-IN',{year:'numeric',month:'long',day:'numeric'})});
+    var prog=document.getElementById('rpt-progress');
+    if(prog)prog.innerHTML='<div style="background:var(--green-dim);border:1px solid rgba(22,163,74,.2);border-radius:8px;padding:12px 16px;font-size:13px;font-weight:600;color:var(--green)">\u2713 Report downloaded successfully!</div>';
+  }catch(e){
+    var prog=document.getElementById('rpt-progress');
+    if(prog){prog.style.display='flex';prog.innerHTML='<div style="background:var(--red-dim);border:1px solid rgba(220,38,38,.2);border-radius:8px;padding:12px 16px;font-size:13px;color:var(--red)">Error: '+errMsg(e)+'</div>';}
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent='Generate & Download';}
+  }
+}
+
+async function buildWordDoc(sections,meta){
+  var docx=window.docx;
+  if(!docx){throw new Error('Word library not loaded. Please refresh the page.');}
+  var children=[];
+  var accent='6366f1', dark='12122a', muted='555577', dim='999999', border='dcdcec';
+  // Cover
+  children.push(new docx.Paragraph({children:[new docx.TextRun({text:meta.title,bold:true,size:56,color:accent})],spacing:{after:200}}));
+  children.push(new docx.Paragraph({children:[new docx.TextRun({text:meta.periodLabel,size:28,color:muted})],spacing:{after:100}}));
+  if(meta.forName){children.push(new docx.Paragraph({children:[new docx.TextRun({text:'Prepared for: '+meta.forName,size:24,color:muted})],spacing:{after:60}}));}
+  children.push(new docx.Paragraph({children:[new docx.TextRun({text:'Prepared by: '+meta.byName,size:24,color:muted})],spacing:{after:60}}));
+  children.push(new docx.Paragraph({children:[new docx.TextRun({text:'Generated: '+meta.date,size:22,color:dim})],spacing:{after:400}}));
+  children.push(new docx.Paragraph({children:[new docx.TextRun({text:'',size:24})],border:{bottom:{style:'single',size:6,color:accent}},spacing:{after:400}}));
+  // Sections
+  sections.forEach(function(sec){
+    children.push(new docx.Paragraph({children:[new docx.TextRun({text:sec.title,bold:true,size:32,color:dark})],spacing:{before:400,after:160},border:{bottom:{style:'single',size:4,color:border}}}));
+    // KPI table
+    if(sec.kpis&&sec.kpis.length){
+      var rows=[];
+      for(var ki=0;ki<sec.kpis.length;ki+=3){
+        var rowCells=sec.kpis.slice(ki,ki+3).map(function(kpi){
+          return new docx.TableCell({children:[
+            new docx.Paragraph({children:[new docx.TextRun({text:kpi[0],size:16,color:muted,bold:true})]}),
+            new docx.Paragraph({children:[new docx.TextRun({text:kpi[1],size:26,bold:true,color:accent})]})
+          ],margins:{top:100,bottom:100,left:100,right:100},shading:{fill:'f4f4f9'}});
+        });
+        while(rowCells.length<3){rowCells.push(new docx.TableCell({children:[new docx.Paragraph({children:[new docx.TextRun({text:''})]})]}));}
+        rows.push(new docx.TableRow({children:rowCells}));
+      }
+      children.push(new docx.Table({rows:rows,width:{size:100,type:'pct'}}));
+      children.push(new docx.Paragraph({children:[new docx.TextRun({text:'',size:10})],spacing:{after:120}}));
+    }
+    // Body text
+    if(sec.text){
+      var paras=sec.text.split('\n').filter(function(p){return p.trim().length>0;});
+      paras.forEach(function(para){
+        var trimmed=para.trim();
+        if(!trimmed)return;
+        var isNum=/^[123]\./.test(trimmed);
+        children.push(new docx.Paragraph({children:[new docx.TextRun({text:trimmed,size:22,color:dark})],spacing:{after:160},indent:isNum?{left:360}:{}}));
+      });
+    }
+    // Chart image
+    if(sec.chartId){
+      var imgData=captureChartImage(sec.chartId);
+      if(imgData){
+        try{
+          var b64=imgData.replace('data:image/png;base64,','');
+          children.push(new docx.Paragraph({children:[new docx.ImageRun({data:b64,transformation:{width:560,height:220},type:'png'})],spacing:{before:100,after:180}}));
+        }catch(imgErr){console.warn('Chart image failed:',imgErr);}
+      }
+    }
+  });
+  // Footer
+  children.push(new docx.Paragraph({children:[new docx.TextRun({text:'',size:24})],border:{top:{style:'single',size:4,color:border}},spacing:{before:400,after:120}}));
+  children.push(new docx.Paragraph({children:[new docx.TextRun({text:'Generated by Fenxi Analytics  |  fenxianalytics.com  |  contact@fenxianalytics.com',size:18,color:dim,italics:true})],alignment:'center'}));
+  var doc=new docx.Document({sections:[{properties:{page:{size:{width:12240,height:15840},margin:{top:1440,right:1440,bottom:1440,left:1440}}},children:children}]});
+  var blob=await docx.Packer.toBlob(doc);
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url;
+  a.download=(meta.title||'Fenxi-Report').replace(/[^a-zA-Z0-9 ]/g,'-')+'.docx';
+  a.click();
+  setTimeout(function(){URL.revokeObjectURL(url);},3000);
+}
+
+
+// ═══════════════════════════════════════════════════════
+// NEW STATE VARIABLES
+// ═══════════════════════════════════════════════════════
+var _savedQueries = [];
+var _auditLog = [];
+var _vocabSettings = {};
+var _savedTabActive = 'insights';
+var _scenarioType = 'disc';
+var _compareA = 'q3';
+var _compareB = 'q4';
+var _anomalies = [];
+var _exploreHashes = {};
+
+// ═══════════════════════════════════════════════════════
+// LOCAL STORAGE — PERSIST EVERYTHING
+// ═══════════════════════════════════════════════════════
+var LS_KEY = 'fenxi_v7';
+
+function lsSave() {
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify({
+      flagged: _flaggedCusts,
+      insights: _savedInsights,
+      queries: _savedQueries,
+      log: _auditLog.slice(0, 50),
+      vocab: _vocabSettings,
+      theme: _theme,
+      chatHistory: _chatHistory.slice(-20),
+      pHistory: _pHistory.slice(-10)
+    }));
+  } catch(e) { console.warn('localStorage save failed', e); }
+}
+
+function lsLoad() {
+  try {
+    var raw = localStorage.getItem(LS_KEY);
+    if (!raw) return;
+    var d = JSON.parse(raw);
+    if (d.flagged) _flaggedCusts = d.flagged;
+    if (d.insights) _savedInsights = d.insights;
+    if (d.queries) _savedQueries = d.queries;
+    if (d.log) _auditLog = d.log;
+    if (d.vocab) _vocabSettings = d.vocab;
+    if (d.theme && d.theme !== _theme) {
+      _theme = d.theme;
+      document.documentElement.setAttribute('data-theme', _theme);
+      var tb = document.getElementById('theme-btn');
+      if (tb) tb.textContent = _theme === 'dark' ? '☀' : '🌙';
+    }
+    if (d.chatHistory && d.chatHistory.length) _chatHistory = d.chatHistory;
+    if (d.pHistory && d.pHistory.length) _pHistory = d.pHistory;
+  } catch(e) { console.warn('localStorage load failed', e); }
+}
+
+function logAction(text) {
+  var now = new Date();
+  var timeStr = now.toLocaleDateString('en-IN', {day:'numeric',month:'short'}) + ', ' + now.toLocaleTimeString('en-IN', {hour:'2-digit',minute:'2-digit'});
+  _auditLog.unshift({ time: timeStr, text: text });
+  if (_auditLog.length > 50) _auditLog = _auditLog.slice(0, 50);
+  lsSave();
+}
+
+// ═══════════════════════════════════════════════════════
+// STREAMING AI CALL
+// ═══════════════════════════════════════════════════════
+function streamAI(msgs, sysOverride, onChunk, onDone, onError) {
+  var sys = sysOverride || buildFocusedSys(msgs);
+  var MAX = 14;
+  var trimmed = msgs.length > MAX ? msgs.slice(0, 2).concat(msgs.slice(-(MAX-2))) : msgs;
+  var clean = [];
+  trimmed.forEach(function(m) {
+    if (!clean.length || m.role !== clean[clean.length-1].role) clean.push(m);
+  });
+
+  fetch(AI_PROXY, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ system: sys, messages: clean, stream: true })
+  }).then(function(r) {
+    if (!r.ok) return r.text().then(function(b) { throw new Error(r.status + ': ' + b.slice(0, 200)); });
+    setAIStatus(true, 'AI Connected');
+    // Try streaming first
+    if (r.body && r.body.getReader) {
+      var reader = r.body.getReader();
+      var decoder = new TextDecoder();
+      var buffer = '';
+      var full = '';
+      function pump() {
+        reader.read().then(function(result) {
+          if (result.done) { onDone(full); return; }
+          buffer += decoder.decode(result.value, { stream: true });
+          var lines = buffer.split('\n');
+          buffer = lines.pop();
+          lines.forEach(function(line) {
+            line = line.trim();
+            if (!line || line === 'data: [DONE]') return;
+            if (line.startsWith('data: ')) {
+              try {
+                var parsed = JSON.parse(line.slice(6));
+                var chunk = '';
+                if (parsed.choices && parsed.choices[0].delta && parsed.choices[0].delta.content) {
+                  chunk = parsed.choices[0].delta.content;
+                } else if (parsed.delta && parsed.delta.text) {
+                  chunk = parsed.delta.text;
+                } else if (parsed.type === 'content_block_delta' && parsed.delta && parsed.delta.text) {
+                  chunk = parsed.delta.text;
+                }
+                if (chunk) { full += chunk; onChunk(full); }
+              } catch(e) {}
+            }
+          });
+          pump();
+        }).catch(function(e) { onDone(full || ''); });
+      }
+      pump();
+    } else {
+      // Fallback: non-streaming
+      r.json().then(function(d) {
+        var text = '';
+        if (d.text) text = d.text;
+        else if (d.content) text = d.content.map(function(b){return b.text||'';}).join('');
+        else if (d.choices) text = d.choices[0].message.content || '';
+        onDone(text);
+      }).catch(onError);
+    }
+  }).catch(function(e) {
+    setAIStatus(false, 'AI Unavailable');
+    onError(e);
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// SMART QUESTION ROUTING — focused system prompts
+// ═══════════════════════════════════════════════════════
+function classifyQuery(text) {
+  var t = text.toLowerCase();
+  if (/\b(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|oct|nov|dec)\b/.test(t)) return 'monthly';
+  if (/\b(flagged|flag|review|watch list)\b/.test(t)) return 'flagged';
+  if (/\b(state|california|texas|new york|ohio|florida|illinois|pennsylvania|washington|virginia|georgia)\b/.test(t)) return 'state';
+  if (/\b(health|score|at.risk|critical|healthy|band)\b/.test(t)) return 'health';
+  if (/\b(trend|year|annual|growth|2021|2022|2023|2024|yoy|quarter)\b/.test(t)) return 'trend';
+  if (/\b(ship|shipping|mode|delivery|days)\b/.test(t)) return 'shipping';
+  if (/\b(product|item|sku|copier|printer|chair|table|phone)\b/.test(t)) return 'product';
+  return 'full';
+}
+
+function buildFocusedSys(msgs) {
+  var lastMsg = msgs.length ? msgs[msgs.length-1].content || '' : '';
+  var qtype = classifyQuery(lastMsg);
+  var a = _agg;
+  if (!a.totalSales) return buildSys();
+
+  var nl = '\n';
+  var base = 'You are Fenxi AI, a sharp retail data analyst. ' + buildVocabContext() + nl;
+  base += 'RESPONSE FORMAT: **Bold headline** with key number. Bullet points with exact figures. **Recommendation:** with $ impact. FOLLOWUPS: ["q1","q2","q3"].' + nl;
+  base += 'CHART FORMAT (only when genuinely helpful): CHART: {"type":"bar","title":"Title","labels":["A","B"],"datasets":[{"label":"Series","data":[1,2],"color":"#6366f1"}]}' + nl + nl;
+  base += 'ACCURACY: Only use exact numbers from data below. Never estimate. If unsure, say so.' + nl + nl;
+
+  if (qtype === 'monthly') {
+    base += '## MONTHLY LOOKUP DATA' + nl;
+    a.sortedYears.forEach(function(yr) {
+      var moKeys = Object.keys(a.monthM).filter(function(m){return m.startsWith(yr);}).sort();
+      if (!moKeys.length) return;
+      var lbs = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      base += yr + ' SALES: ' + moKeys.map(function(mk){var mo=mk.split('-')[1];return lbs[+mo-1]+'='+fS(a.monthM[mk].s);}).join(', ') + nl;
+      base += yr + ' PROFIT: ' + moKeys.map(function(mk){var mo=mk.split('-')[1];return lbs[+mo-1]+'='+fS(a.monthM[mk].p);}).join(', ') + nl;
+    });
+    base += nl + 'TOTALS: Sales=' + fS(a.totalSales) + ' Profit=' + fS(a.totalProfit) + ' Margin=' + fP(a.margin,2) + nl;
+    return base;
+  }
+
+  if (qtype === 'flagged') {
+    var flagIds = Object.keys(_flaggedCusts);
+    base += '## FLAGGED ACCOUNTS' + nl;
+    base += 'COUNT=' + flagIds.length + nl;
+    if (flagIds.length) {
+      _chData.filter(function(cu){return _flaggedCusts[cu.id];}).sort(function(a,b){return b.s-a.s;}).forEach(function(cu){
+        base += '"'+cu.name+'" ['+cu.seg+']: SCORE='+cu.score+'/100 BAND='+cu.band+' SALES='+fS(cu.s)+' PROFIT='+fS(cu.p)+' MARGIN='+fP(cu.margin,2)+nl;
+      });
+    } else {
+      base += 'No accounts currently flagged.' + nl;
+    }
+    base += nl + 'PORTFOLIO: ' + _chData.length + ' total customers, avg health score=' + (Math.round(_chData.reduce(function(s,c){return s+c.score;},0)/Math.max(_chData.length,1))) + '/100' + nl;
+    return base;
+  }
+
+  if (qtype === 'state') {
+    base += '## ALL STATES' + nl;
+    _stateData.forEach(function(st) {
+      base += st.state+'['+st.region+']: SCORE='+st.score+'/100 SALES='+fS(st.s)+' PROFIT='+fS(st.p)+' MARGIN='+fP(st.margin,1)+(st.p<0?' LOSS':'')+nl;
+    });
+    return base;
+  }
+
+  if (qtype === 'health') {
+    var h=_chData.filter(function(c){return c.band==='healthy';}).length;
+    var r=_chData.filter(function(c){return c.band==='risk';}).length;
+    var cr=_chData.filter(function(c){return c.band==='critical';}).length;
+    base += '## CUSTOMER HEALTH' + nl;
+    base += 'TOTAL='+_chData.length+' HEALTHY='+h+' AT_RISK='+r+' CRITICAL='+cr+nl;
+    base += 'FLAGGED='+Object.keys(_flaggedCusts).length+nl;
+    _chData.slice(0,20).forEach(function(cu){base+= '"'+cu.name+'" ['+cu.seg+']: SCORE='+cu.score+'/100 BAND='+cu.band+' SALES='+fS(cu.s)+' MARGIN='+fP(cu.margin,2)+nl;});
+    return base;
+  }
+
+  if (qtype === 'trend') {
+    base += '## YEARLY TREND' + nl;
+    a.sortedYears.forEach(function(yr){var yd=a.yearM[yr]||{s:0,p:0};var m=yd.s>0?yd.p/yd.s:0;base+=yr+': SALES='+fS(yd.s)+' PROFIT='+fS(yd.p)+' MARGIN='+fP(m,2)+nl;});
+    base += nl + '## MONTHLY DATA' + nl;
+    a.sortedYears.forEach(function(yr){
+      var moKeys=Object.keys(a.monthM).filter(function(m){return m.startsWith(yr);}).sort();
+      if(!moKeys.length)return;
+      var lbs=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      base+=yr+': '+moKeys.map(function(mk){var mo=mk.split('-')[1];return lbs[+mo-1]+'='+fS(a.monthM[mk].s);}).join(', ')+nl;
+    });
+    return base;
+  }
+
+  if (qtype === 'shipping') {
+    base += '## SHIPPING DATA' + nl;
+    Object.keys(a.modeM).forEach(function(m){var mo=a.modeM[m];base+=m+': ORDERS='+mo.ordCount+' MARGIN='+(mo.s>0?fP(mo.p/mo.s,2):'N/A')+' AVG_DAYS='+mo.avgDts.toFixed(1)+nl;});
+    return base;
+  }
+
+  if (qtype === 'product') {
+    base += '## TOP 20 PRODUCTS BY PROFIT' + nl;
+    _prodData.slice().sort(function(a,b){return b.p-a.p;}).slice(0,20).forEach(function(p){
+      base+='"'+p.name.slice(0,45)+'" ['+p.cat+']: PROFIT='+fS(p.p)+' MARGIN='+fP(p.s>0?p.p/p.s:0,2)+' SCORE='+p.score+'/100'+nl;
+    });
+    base += nl + '## TOP 10 LOSS-MAKING PRODUCTS' + nl;
+    _prodData.slice().sort(function(a,b){return a.p-b.p;}).slice(0,10).forEach(function(p){
+      base+='"'+p.name.slice(0,45)+'" ['+p.cat+']: PROFIT='+fS(p.p)+' DISC='+(p.avgDisc*100).toFixed(0)+'%'+nl;
+    });
+    return base;
+  }
+
+  // Full system prompt for analysis queries
+  return buildSys();
+}
+
+function buildVocabContext() {
+  var v = _vocabSettings;
+  var parts = [];
+  if (v.company) parts.push('Client: ' + v.company);
+  if (v.topCust) parts.push('Call top customers "' + v.topCust + '"');
+  if (v.targetMargin) parts.push('Target margin: ' + v.targetMargin + '%');
+  if (v.maxDisc) parts.push('Max acceptable discount: ' + v.maxDisc + '%');
+  return parts.length ? parts.join('. ') + '.' : '';
+}
+
+// ═══════════════════════════════════════════════════════
+// REPLACE chatSend AND panelAsk WITH STREAMING VERSIONS
+// ═══════════════════════════════════════════════════════
+function chatSend() {
+  var inp = document.getElementById('chat-input');
+  var text = (inp ? inp.value : '').trim();
+  if (!text || _chatLoading) return;
+  var sw = document.getElementById('chat-sugs-wrap');
+  if (sw) sw.style.display = 'none';
+  if (inp) { inp.value = ''; inp.style.height = 'auto'; }
+  appendCMsg('user', text);
+  _chatHistory.push({ role: 'user', content: text + '\n\nAlways use bullet format. Include FOLLOWUPS: [...] and CHART: {...} only if a visual genuinely adds value.' });
+  var snd = document.getElementById('chat-send-btn');
+  if (snd) snd.disabled = true;
+  _chatLoading = true;
+  lsSave();
+
+  // Create streaming message bubble
+  var streamId = 'cs' + Date.now();
+  appendStreamBub(streamId, 'cmsg-row ai', 'chat-msgs-inner', 'chat-msgs-scroll');
+
+  streamAI(_chatHistory, null,
+    function(partial) { updateStreamBub(streamId, partial); },
+    function(full) {
+      var fu = extractFU(full), ch = extractChart(full), clean = cleanR(full);
+      _chatHistory.push({ role: 'assistant', content: clean });
+      finaliseStreamBub(streamId, clean, fu, ch, function(q) {
+        document.getElementById('chat-input').value = q; chatSend();
+      });
+      _chatLoading = false;
+      if (snd) snd.disabled = false;
+      if (inp) inp.focus();
+      lsSave();
+    },
+    function(e) {
+      replaceStreamBub(streamId, errMsg(e));
+      _chatLoading = false;
+      if (snd) snd.disabled = false;
+    }
+  );
+}
+
+function panelAsk(override) {
+  var inp = document.getElementById('panel-input');
+  var text = (override || (inp ? inp.value : '') || '').trim();
+  if (!text || _pLoading2) return;
+  if (!override && inp) { inp.value = ''; inp.style.height = 'auto'; }
+  var badge = document.getElementById('panel-ctx-badge');
+  if (badge && !badge.textContent) {
+    badge.textContent = text.slice(0, 34) + (text.length > 34 ? '…' : '');
+    badge.style.display = 'inline';
+  }
+  appendPMsg('user', text);
+  _pHistory.push({ role: 'user', content: text + '\n\nAlways use bullet format. Include FOLLOWUPS: [...] and CHART: {...} only if genuinely adds value.' });
+  var snd = document.getElementById('panel-send');
+  if (snd) snd.disabled = true;
+  _pLoading2 = true;
+  lsSave();
+
+  var streamId = 'ps' + Date.now();
+  appendStreamBub(streamId, 'pmsg-row ai', 'panel-msgs', null);
+
+  streamAI(_pHistory, null,
+    function(partial) { updateStreamBub(streamId, partial); },
+    function(full) {
+      var fu = extractFU(full), ch = extractChart(full), clean = cleanR(full);
+      _pHistory.push({ role: 'assistant', content: clean });
+      finaliseStreamBub(streamId, clean, fu, ch, function(q) { panelAsk(q); });
+      _pLoading2 = false;
+      if (snd) snd.disabled = false;
+      if (inp && !override) inp.focus();
+      lsSave();
+    },
+    function(e) {
+      replaceStreamBub(streamId, errMsg(e));
+      _pLoading2 = false;
+      if (snd) snd.disabled = false;
+    }
+  );
+}
+
+function panelSend() { panelAsk(); }
+function askAI(q) { openPanel(q); }
+function chatFromSug(q) {
+  var el = document.getElementById('chat-input');
+  if (el) el.value = q;
+  chatSend();
+}
+
+// ═══════════════════════════════════════════════════════
+// STREAMING BUBBLE HELPERS
+// ═══════════════════════════════════════════════════════
+function appendStreamBub(id, rowCls, containerId, scrollId) {
+  var container = document.getElementById(containerId);
+  if (!container) return;
+  var row = document.createElement('div');
+  row.className = rowCls;
+  row.id = id;
+  var av = document.createElement('div');
+  av.className = rowCls.includes('cmsg') ? 'cmsg-av ai' : 'pmsg-av ai';
+  var img = document.createElement('img');
+  img.src = FENXI_LOGO; img.alt = '';
+  av.appendChild(img);
+  var bub = document.createElement('div');
+  bub.className = rowCls.includes('cmsg') ? 'cmsg-bub' : 'pmsg-bub';
+  bub.innerHTML = '<div class="typing-dots"><div class="td"></div><div class="td"></div><div class="td"></div></div>';
+  row.appendChild(av); row.appendChild(bub);
+  container.appendChild(row);
+  if (scrollId) {
+    var sc = document.getElementById(scrollId);
+    if (sc) sc.scrollTop = 99999;
+  } else {
+    container.scrollTop = container.scrollHeight;
+  }
+}
+
+function updateStreamBub(id, partial) {
+  var row = document.getElementById(id);
+  if (!row) return;
+  var bub = row.querySelector('.cmsg-bub,.pmsg-bub');
+  if (!bub) return;
+  var clean = cleanR(partial);
+  bub.innerHTML = fmtAI(clean) + '<span class="stream-cursor"></span>';
+  var container = row.parentElement;
+  if (container) container.scrollTop = container.scrollHeight;
+  var sc = row.closest('#chat-msgs-scroll');
+  if (sc) sc.scrollTop = 99999;
+}
+
+function finaliseStreamBub(id, full, fu, chartData, fuCb) {
+  var row = document.getElementById(id);
+  if (!row) return;
+  var bub = row.querySelector('.cmsg-bub,.pmsg-bub');
+  if (!bub) return;
+  bub.innerHTML = fmtAI(full);
+  if (chartData) {
+    var cw = document.createElement('div');
+    cw.className = 'msg-chart-wrap';
+    var ct = document.createElement('div');
+    ct.className = 'msg-chart-ttl';
+    ct.textContent = chartData.title || 'Chart';
+    var cv = document.createElement('canvas');
+    var cid = 'sc' + Date.now();
+    cv.id = cid;
+    cv.style.maxHeight = '200px';
+    cw.appendChild(ct); cw.appendChild(cv);
+    bub.appendChild(cw);
+    setTimeout(function() { renderAIChart(chartData, cid); }, 60);
+  }
+  if (fu && fu.length) bub.appendChild(makeFuChipsEl(fu, fuCb));
+  bub.appendChild(makeMsgActionsEl(full));
+  var container = row.parentElement;
+  if (container) container.scrollTop = container.scrollHeight;
+}
+
+function replaceStreamBub(id, errorText) {
+  var row = document.getElementById(id);
+  if (!row) return;
+  var bub = row.querySelector('.cmsg-bub,.pmsg-bub');
+  if (bub) bub.innerHTML = '<span style="color:var(--red)">' + errorText + '</span>';
+}
+
+// ═══════════════════════════════════════════════════════
+// SMART CACHE INVALIDATION
+// ═══════════════════════════════════════════════════════
+function hashAggSection(key) {
+  var a = _agg;
+  if (!a.totalSales) return '0';
+  var val = '';
+  if (key.startsWith('kpi')) val = String(a.totalSales) + String(a.totalProfit);
+  else if (key.startsWith('chart-monthly') || key.startsWith('p2-yearly')) val = a.moSales.slice(-3).join(',');
+  else if (key.startsWith('p3') || key.startsWith('chart-region')) val = ['West','East','Central','South'].map(function(r){return(a.regM[r]||{p:0}).p;}).join(',');
+  else if (key.startsWith('p4') || key.startsWith('p2-sub')) val = _subData.slice(0,5).map(function(s){return s.p;}).join(',');
+  else if (key.startsWith('p5') || key.startsWith('ch')) val = _chData.slice(0,5).map(function(c){return c.score;}).join(',');
+  else if (key.startsWith('p6')) val = Object.keys(a.modeM).map(function(m){return a.modeM[m].ordCount;}).join(',');
+  else val = String(a.totalSales) + String(a.totalProfit);
+  var h = 0;
+  for (var i = 0; i < val.length; i++) { h = ((h << 5) - h) + val.charCodeAt(i); h |= 0; }
+  return String(h);
+}
+
+function getCachedExplore(key) {
+  var stored = _exploreCache[key];
+  if (!stored) return null;
+  var currentHash = hashAggSection(key);
+  if (stored.hash !== currentHash) { delete _exploreCache[key]; return null; }
+  return stored.html;
+}
+
+function setCachedExplore(key, html) {
+  _exploreCache[key] = { html: html, hash: hashAggSection(key) };
+}
+
+// ═══════════════════════════════════════════════════════
+// ANOMALY DETECTION
+// ═══════════════════════════════════════════════════════
+function detectAnomalies() {
+  var a = _agg;
+  if (!a.totalSales) return;
+  _anomalies = [];
+
+  // Check sub-cat band regressions
+  _subData.forEach(function(sub) {
+    if (sub.band === 'concern' && sub.p < 0) {
+      _anomalies.push('⚠ ' + sub.name + ' is actively destroying value — ' + fS(Math.abs(sub.p)) + ' loss at ' + fP(sub.s>0?sub.p/sub.s:0,1) + ' margin');
+    }
+  });
+
+  // Loss-making states with high revenue
+  _stateData.filter(function(s){return s.p<0&&s.s>50000;}).slice(0,3).forEach(function(st){
+    _anomalies.push('🔴 ' + st.state + ' is loss-making despite ' + fS(st.s) + ' in sales — investigate discount policy');
+  });
+
+  // Customer health: critical customers with high revenue
+  var critHighRev = _chData.filter(function(c){return c.band==='critical'&&c.s>20000;}).slice(0,2);
+  critHighRev.forEach(function(cu){
+    _anomalies.push('🚨 ' + cu.name + ' scored ' + cu.score + '/100 (Critical) but generates ' + fS(cu.s) + ' in revenue — at risk of churn');
+  });
+
+  // Discount destruction
+  var lossOrds = a.discBkts.filter(function(x){return x.disc>=0.4&&x.margin<0;});
+  if (lossOrds.length > 50) {
+    var totalDestroyed = lossOrds.reduce(function(s,x){return s+x.margin*x.s;},0);
+    _anomalies.push('💸 ' + lossOrds.length + ' orders discounted ≥40% are loss-making — destroying ' + fS(Math.abs(totalDestroyed)) + ' in profit');
+  }
+
+  var banner = document.getElementById('anomaly-banner');
+  var list = document.getElementById('anomaly-list');
+  if (!banner || !list) return;
+  if (_anomalies.length) {
+    list.innerHTML = _anomalies.map(function(a) {
+      return '<div class="anomaly-item"><div class="anomaly-dot"></div><span>' + a + '</span></div>';
+    }).join('');
+    banner.classList.add('show');
+  } else {
+    banner.classList.remove('show');
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// CATEGORISED CHAT SUGGESTIONS
+// ═══════════════════════════════════════════════════════
+var CHAT_CATEGORIES = {
+  'Overview': [
+    'What is the overall profit margin and is it healthy for retail?',
+    'Give me a complete business health summary',
+    'What are the top 3 things I should fix immediately?',
+    'How has performance changed year over year?'
+  ],
+  'Profitability': [
+    'Which sub-categories are loss-making and how much value are they destroying?',
+    'At what discount level do orders start losing money?',
+    'What would profit look like if we capped all discounts at 20%?',
+    'Which category has the best profit margin and why?'
+  ],
+  'Regional': [
+    'Which region has the worst margin and what is causing it?',
+    'Which states are high-revenue but loss-making?',
+    'Compare West vs East region performance',
+    'Which region should we prioritise for growth?'
+  ],
+  'Customers': [
+    'Who are the 5 most valuable customers by lifetime profit?',
+    'Which at-risk customers have revenue above ₹50K?',
+    'Who is flagged for review and why should I care?',
+    'Which customer segment has the best margin efficiency?'
+  ],
+  'Products': [
+    'What are the top 10 most profitable products?',
+    'Which products are destroying the most value?',
+    'What is the discount vs margin relationship by sub-category?',
+    'Which products should be discontinued?'
+  ],
+  'Scenarios': [
+    'What would happen if we removed Tables from our catalogue?',
+    'What if we capped Furniture discounts at 15%?',
+    'What if Corporate segment grew by 20%?',
+    'What is the profit recovery potential if we fix our discount policy?'
+  ],
+  'Saved Queries': [] // populated dynamically from _savedQueries
+};
+
+var _activeChatCat = 'Overview';
+
+function renderChatSugs() {
+  // Category tabs
+  var tabsEl = document.getElementById('chat-cat-tabs');
+  if (!tabsEl) return;
+  var cats = Object.keys(CHAT_CATEGORIES);
+  // Add saved queries tab only if there are saved queries
+  if (_savedQueries.length) CHAT_CATEGORIES['Saved Queries'] = _savedQueries.map(function(q){return q.prompt;});
+  tabsEl.innerHTML = cats.map(function(cat) {
+    return '<button class="chat-cat-tab' + (cat === _activeChatCat ? ' active' : '') + '" onclick="switchChatCat(\'' + cat + '\')">' + cat + '</button>';
+  }).join('');
+
+  // Questions for active category
+  var sugsEl = document.getElementById('chat-sugs');
+  if (!sugsEl) return;
+  var qs = CHAT_CATEGORIES[_activeChatCat] || [];
+  sugsEl.innerHTML = qs.map(function(q) {
+    return '<button class="chat-sug" onclick="chatFromSug(\'' + q.replace(/'/g, "\\'") + '\')">' + q + '</button>';
+  }).join('');
+}
+
+function switchChatCat(cat) {
+  _activeChatCat = cat;
+  renderChatSugs();
+}
+
+// ═══════════════════════════════════════════════════════
+// SAVED PANEL TABS
+// ═══════════════════════════════════════════════════════
+function switchSavedTab(tab, btn) {
+  _savedTabActive = tab;
+  document.querySelectorAll('.sp-tab').forEach(function(b){b.classList.remove('active');});
+  if (btn) btn.classList.add('active');
+  renderSavedPanel();
+}
+
+function renderSavedPanel() {
+  var list = document.getElementById('saved-list');
+  if (!list) return;
+
+  if (_savedTabActive === 'insights') {
+    if (!_savedInsights.length) {
+      list.innerHTML = '<div style="padding:20px;color:var(--dim);font-size:13px;text-align:center">No saved insights yet.<br>Save any AI response from chat.</div>';
+      return;
+    }
+    list.innerHTML = _savedInsights.slice().reverse().map(function(item) {
+      return '<div class="saved-item"><button class="saved-del" onclick="delInsight(\'' + item.id + '\')">✕</button>'
+        + item.text.slice(0, 260).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>') + (item.text.length > 260 ? '…' : '') + '</div>';
+    }).join('');
+    return;
+  }
+
+  if (_savedTabActive === 'queries') {
+    var addHtml = '<div style="margin-bottom:12px">'
+      + '<input id="new-query-name" placeholder="Query name…" style="width:100%;padding:7px 10px;border-radius:6px;border:1.5px solid var(--border2);background:var(--bg);color:var(--text);font-size:12px;margin-bottom:6px;outline:none"/>'
+      + '<input id="new-query-prompt" placeholder="Question to ask the AI…" style="width:100%;padding:7px 10px;border-radius:6px;border:1.5px solid var(--border2);background:var(--bg);color:var(--text);font-size:12px;margin-bottom:6px;outline:none"/>'
+      + '<button onclick="addSavedQuery()" style="width:100%;background:var(--accent);border:none;color:#fff;padding:7px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">+ Save Query</button>'
+      + '</div>';
+    if (!_savedQueries.length) {
+      list.innerHTML = addHtml + '<div style="color:var(--dim);font-size:12px;text-align:center;padding:12px">No saved queries yet. Add one above.</div>';
+      return;
+    }
+    list.innerHTML = addHtml + _savedQueries.map(function(q, i) {
+      return '<div class="query-item" onclick="runSavedQuery(\'' + q.prompt.replace(/'/g, "\\'") + '\')">'
+        + '<div style="display:flex;justify-content:space-between;align-items:flex-start">'
+        + '<div><div class="query-name">📌 ' + q.name + '</div>'
+        + '<div class="query-preview">' + q.prompt + '</div></div>'
+        + '<button onclick="event.stopPropagation();delSavedQuery(' + i + ')" style="background:none;border:none;color:var(--dim);cursor:pointer;font-size:12px;padding:2px 4px">✕</button>'
+        + '</div></div>';
+    }).join('');
+    return;
+  }
+
+  if (_savedTabActive === 'flagged') {
+    var flagIds = Object.keys(_flaggedCusts);
+    if (!flagIds.length) {
+      list.innerHTML = '<div style="padding:20px;color:var(--dim);font-size:13px;text-align:center">No flagged accounts.<br>Click 🚩 on any customer to flag them.</div>';
+      return;
+    }
+    var flagged = _chData.filter(function(c){return _flaggedCusts[c.id];}).sort(function(a,b){return b.s-a.s;});
+    list.innerHTML = flagged.map(function(c) {
+      var m = c.s > 0 ? c.p/c.s : 0;
+      return '<div class="saved-item" style="border-left:3px solid var(--orange);cursor:pointer" onclick="openCHDetail(\'' + c.id + '\')">'
+        + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">'
+        + '<strong style="font-size:13px">' + c.name + '</strong>'
+        + '<button onclick="event.stopPropagation();toggleFlag(\'' + c.id + '\')" style="background:none;border:none;cursor:pointer;font-size:11px;color:var(--muted)">Remove</button>'
+        + '</div>'
+        + '<div style="display:flex;gap:8px;flex-wrap:wrap;font-size:11.5px;color:var(--muted)">'
+        + '<span>' + c.seg + '</span>'
+        + '<span>Score: <strong style="color:' + scoreColor(c.score) + '">' + c.score + '/100</strong></span>'
+        + '<span>' + fS(c.s) + ' sales</span>'
+        + '<span>' + fP(m, 1) + ' margin</span>'
+        + '</div></div>';
+    }).join('');
+    return;
+  }
+
+  if (_savedTabActive === 'log') {
+    if (!_auditLog.length) {
+      list.innerHTML = '<div style="padding:20px;color:var(--dim);font-size:13px;text-align:center">No activity logged yet.</div>';
+      return;
+    }
+    list.innerHTML = _auditLog.map(function(entry) {
+      return '<div class="log-item"><span class="log-time">' + entry.time + '</span><span class="log-text">' + entry.text + '</span></div>';
+    }).join('');
+    return;
+  }
+}
+
+// Saved query actions
+function addSavedQuery() {
+  var name = (document.getElementById('new-query-name').value || '').trim();
+  var prompt = (document.getElementById('new-query-prompt').value || '').trim();
+  if (!name || !prompt) return;
+  _savedQueries.push({ name: name, prompt: prompt });
+  document.getElementById('new-query-name').value = '';
+  document.getElementById('new-query-prompt').value = '';
+  logAction('Saved query: "' + name + '"');
+  lsSave();
+  renderSavedPanel();
+  renderChatSugs();
+}
+
+function delSavedQuery(i) {
+  _savedQueries.splice(i, 1);
+  lsSave();
+  renderSavedPanel();
+  renderChatSugs();
+}
+
+function runSavedQuery(prompt) {
+  closeSavedPanel();
+  openPanel(prompt);
+  logAction('Ran saved query: "' + prompt.slice(0, 50) + '"');
+}
+
+// Override saveInsight to log and persist
+function saveInsight(text) {
+  _savedInsights.push({ id: 's' + Date.now(), text: text });
+  logAction('Insight saved: "' + text.slice(0, 60) + '"');
+  lsSave();
+  renderSavedPanel();
+}
+function delInsight(id) {
+  _savedInsights = _savedInsights.filter(function(i){return i.id !== id;});
+  lsSave();
+  renderSavedPanel();
+}
+
+// Override toggleFlag to log
+function toggleFlag(custId) {
+  var cu = _chData.find(function(x){return x.id===custId;});
+  if (_flaggedCusts[custId]) {
+    delete _flaggedCusts[custId];
+    if (cu) logAction('Unflagged: ' + cu.name);
+  } else {
+    _flaggedCusts[custId] = true;
+    if (cu) logAction('Flagged for review: ' + cu.name + ' (Score=' + cu.score + '/100)');
+  }
+  lsSave();
+  renderCHTable();
+  renderCustTbl();
+  renderSavedPanel();
+}
+
+// ═══════════════════════════════════════════════════════
+// VOCAB SETTINGS
+// ═══════════════════════════════════════════════════════
+function openVocabSettings() {
+  var v = _vocabSettings;
+  document.getElementById('vocab-company').value = v.company || '';
+  document.getElementById('vocab-topcust').value = v.topCust || '';
+  document.getElementById('vocab-margin').value = v.targetMargin || '';
+  document.getElementById('vocab-disc').value = v.maxDisc || '';
+  document.getElementById('vocab-overlay').style.display = 'flex';
+}
+function closeVocabSettings() {
+  document.getElementById('vocab-overlay').style.display = 'none';
+}
+function saveVocabSettings() {
+  _vocabSettings = {
+    company: document.getElementById('vocab-company').value.trim(),
+    topCust: document.getElementById('vocab-topcust').value.trim(),
+    targetMargin: document.getElementById('vocab-margin').value,
+    maxDisc: document.getElementById('vocab-disc').value
+  };
+  logAction('Client settings updated');
+  lsSave();
+  closeVocabSettings();
+  // Clear AI cache so new settings take effect immediately
+  _exploreCache = {}; _detailCache = {};
+  showTicker('Client settings saved — AI will use your preferences from now on');
+}
+
+// ═══════════════════════════════════════════════════════
+// SCENARIO MODELLER
+// ═══════════════════════════════════════════════════════
+function openScenario() {
+  document.getElementById('scenario-overlay').classList.add('open');
+  document.querySelectorAll('.fenxi-logo').forEach(function(el){el.src=FENXI_LOGO;});
+  selectScenario('disc');
+}
+function closeScenario() {
+  document.getElementById('scenario-overlay').classList.remove('open');
+}
+function selectScenario(type) {
+  _scenarioType = type;
+  document.querySelectorAll('.scenario-card').forEach(function(card) {
+    card.style.background = 'var(--bg2)';
+    card.style.borderColor = 'var(--border)';
+  });
+  var a = _agg;
+  var inputsEl = document.getElementById('scenario-inputs');
+  var resultsEl = document.getElementById('scenario-results');
+  if (resultsEl) resultsEl.style.display = 'none';
+
+  var cards = document.querySelectorAll('.scenario-card');
+  var idx = ['disc','margin','remove','growth'].indexOf(type);
+  if (idx >= 0 && cards[idx]) {
+    cards[idx].style.background = 'var(--accent-dim)';
+    cards[idx].style.borderColor = 'var(--accent)';
+  }
+
+  if (type === 'disc') {
+    inputsEl.innerHTML = '<div style="font-size:12.5px;color:var(--muted);margin-bottom:8px">Current avg discount: ' + fP(a.avgDisc||0.15, 1) + '. Orders above 30% are typically loss-making.</div>'
+      + '<div style="display:flex;align-items:center;gap:10px">'
+      + '<label style="font-size:13px;font-weight:600;white-space:nowrap">Cap all discounts at</label>'
+      + '<input id="sc-val" type="number" value="20" min="0" max="50" style="width:80px;padding:7px 10px;border-radius:6px;border:1.5px solid var(--border2);background:var(--bg);color:var(--text);font-size:14px;font-weight:700;text-align:center;outline:none"/>'
+      + '<label style="font-size:13px;font-weight:600">%</label></div>';
+  } else if (type === 'margin') {
+    var cats = ['Furniture','Office Supplies','Technology'];
+    inputsEl.innerHTML = '<div style="font-size:12.5px;color:var(--muted);margin-bottom:8px">Simulate improving a category\'s margin to a target level.</div>'
+      + '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">'
+      + '<select id="sc-cat" style="padding:7px 10px;border-radius:6px;border:1.5px solid var(--border2);background:var(--bg);color:var(--text);font-size:13px;outline:none">'
+      + cats.map(function(cat){var m=a.catM[cat]||{s:1,p:0};return'<option value="'+cat+'">'+cat+' ('+fP(m.p/m.s,1)+' now)'+'</option>';}).join('')
+      + '</select>'
+      + '<label style="font-size:13px;font-weight:600">to</label>'
+      + '<input id="sc-val" type="number" value="15" min="1" max="40" style="width:80px;padding:7px 10px;border-radius:6px;border:1.5px solid var(--border2);background:var(--bg);color:var(--text);font-size:14px;font-weight:700;text-align:center;outline:none"/>'
+      + '<label style="font-size:13px;font-weight:600">% margin</label></div>';
+  } else if (type === 'remove') {
+    inputsEl.innerHTML = '<div style="font-size:12.5px;color:var(--muted);margin-bottom:8px">Simulate removing a loss-making sub-category from the catalogue.</div>'
+      + '<select id="sc-sub" style="width:100%;padding:8px 10px;border-radius:6px;border:1.5px solid var(--border2);background:var(--bg);color:var(--text);font-size:13px;outline:none">'
+      + _subData.map(function(s){return'<option value="'+s.name+'">'+s.name+' ['+s.cat+'] — '+fS(s.p)+(s.p<0?' ⚠ LOSS':'')+'</option>';}).join('')
+      + '</select>';
+  } else if (type === 'growth') {
+    inputsEl.innerHTML = '<div style="font-size:12.5px;color:var(--muted);margin-bottom:8px">Simulate growing a customer segment by a percentage.</div>'
+      + '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">'
+      + '<select id="sc-seg" style="padding:7px 10px;border-radius:6px;border:1.5px solid var(--border2);background:var(--bg);color:var(--text);font-size:13px;outline:none">'
+      + ['Consumer','Corporate','Home Office'].map(function(seg){var sg=a.segM[seg]||{s:0,p:0};return'<option value="'+seg+'">'+seg+' ('+fS(sg.s)+')'+'</option>';}).join('')
+      + '</select>'
+      + '<label style="font-size:13px;font-weight:600">grows by</label>'
+      + '<input id="sc-val" type="number" value="20" min="1" max="200" style="width:80px;padding:7px 10px;border-radius:6px;border:1.5px solid var(--border2);background:var(--bg);color:var(--text);font-size:14px;font-weight:700;text-align:center;outline:none"/>'
+      + '<label style="font-size:13px;font-weight:600">%</label></div>';
+  }
+}
+
+function runScenario() {
+  var a = _agg;
+  var resultsEl = document.getElementById('scenario-results');
+  var numbersEl = document.getElementById('scenario-numbers');
+  var aiEl = document.getElementById('scenario-ai');
+  var askTxt = document.getElementById('scenario-ask-text');
+  if (!resultsEl || !numbersEl || !aiEl) return;
+
+  resultsEl.style.display = 'block';
+  aiEl.innerHTML = '<div class="typing-dots"><div class="td"></div><div class="td"></div><div class="td"></div></div>';
+
+  var projection = { newProfit: a.totalProfit, delta: 0, desc: '', prompt: '' };
+
+  if (_scenarioType === 'disc') {
+    var cap = +(document.getElementById('sc-val').value) / 100;
+    var affectedOrders = a.discBkts.filter(function(x){return x.disc > cap;});
+    var currentLoss = affectedOrders.filter(function(x){return x.margin<0;}).reduce(function(s,x){return s+x.margin*x.s;},0);
+    var recovery = Math.abs(currentLoss) * 0.65;
+    projection.newProfit = a.totalProfit + recovery;
+    projection.delta = recovery;
+    projection.desc = 'Capping all discounts at ' + (cap*100).toFixed(0) + '% affects ' + affectedOrders.length + ' orders';
+    projection.prompt = 'Scenario: cap all discounts at ' + (cap*100).toFixed(0) + '%. Affected orders: ' + affectedOrders.length + '. Estimated profit recovery: ' + fS(recovery) + '. Current total loss from over-discounting: ' + fS(Math.abs(currentLoss)) + '. In 3 bullets explain the impact, which categories benefit most, and whether this is the right policy. Then one recommendation.';
+  } else if (_scenarioType === 'margin') {
+    var cat = document.getElementById('sc-cat').value;
+    var targetM = +(document.getElementById('sc-val').value) / 100;
+    var cv = a.catM[cat] || {s:0,p:0};
+    var currentM = cv.s > 0 ? cv.p/cv.s : 0;
+    var delta = (targetM - currentM) * cv.s;
+    projection.newProfit = a.totalProfit + delta;
+    projection.delta = delta;
+    projection.desc = cat + ' margin: ' + fP(currentM,1) + ' → ' + fP(targetM,1);
+    projection.prompt = 'Scenario: ' + cat + ' margin improves from ' + fP(currentM,2) + ' to ' + fP(targetM,2) + '. That would add ' + fS(delta) + ' to profit, bringing total to ' + fS(a.totalProfit+delta) + '. In 3 bullets explain feasibility, what would need to change operationally, and what the new blended margin would be. Then one recommendation.';
+  } else if (_scenarioType === 'remove') {
+    var subName = document.getElementById('sc-sub').value;
+    var sub = _subData.find(function(s){return s.name===subName;});
+    if (!sub) return;
+    projection.newProfit = a.totalProfit - sub.p;
+    projection.delta = -sub.p;
+    projection.desc = 'Remove ' + subName + ' (' + fS(sub.p) + ' current profit/loss)';
+    projection.prompt = 'Scenario: remove ' + subName + ' sub-category entirely. Current profit contribution: ' + fS(sub.p) + (sub.p<0?' (this is a LOSS)':'')+'. If removed, total profit would become ' + fS(a.totalProfit-sub.p) + '. In 3 bullets: (1) is this a good decision — what does the business lose, (2) what revenue gap would need to be filled, (3) what is the net recommendation? Be specific with numbers.';
+  } else if (_scenarioType === 'growth') {
+    var seg = document.getElementById('sc-seg').value;
+    var growthPct = +(document.getElementById('sc-val').value) / 100;
+    var sg = a.segM[seg] || {s:0,p:0};
+    var addedProfit = sg.p * growthPct;
+    projection.newProfit = a.totalProfit + addedProfit;
+    projection.delta = addedProfit;
+    projection.desc = seg + ' segment grows ' + (growthPct*100).toFixed(0) + '%';
+    projection.prompt = 'Scenario: ' + seg + ' segment grows by ' + (growthPct*100).toFixed(0) + '% from its current ' + fS(sg.s) + ' in sales. This would add approximately ' + fS(addedProfit) + ' to profit, bringing total to ' + fS(a.totalProfit+addedProfit) + '. In 3 bullets: (1) feasibility and what would drive this growth, (2) impact on overall margin (currently '+fP(a.margin,2)+'), (3) what this would require from operations/sales. Then one specific recommendation.';
+  }
+
+  var newMargin = a.totalSales > 0 ? projection.newProfit / a.totalSales : 0;
+  var isPositive = projection.delta >= 0;
+  numbersEl.innerHTML = [
+    ['Current Profit', fS(a.totalProfit)],
+    ['Projected Profit', fS(projection.newProfit)],
+    ['Profit Change', (isPositive?'+':'') + fS(projection.delta)],
+    ['New Margin', fP(newMargin, 2)],
+    ['Margin Change', (newMargin-a.margin>=0?'+':'') + fP(newMargin-a.margin, 2)]
+  ].map(function(row) {
+    var isChange = row[0].includes('Change');
+    var color = isChange ? (isPositive ? 'var(--green)' : 'var(--red)') : 'var(--text)';
+    return '<div style="display:flex;justify-content:space-between;padding:8px 12px;background:var(--bg2);border-radius:6px">'
+      + '<span style="font-size:12.5px;color:var(--muted)">' + row[0] + '</span>'
+      + '<span style="font-family:\'DM Mono\',monospace;font-size:13px;font-weight:700;color:' + color + '">' + row[1] + '</span>'
+      + '</div>';
+  }).join('');
+
+  if (askTxt) askTxt.textContent = projection.prompt;
+
+  logAction('Scenario run: ' + projection.desc + ' → projected ' + (isPositive?'+':'') + fS(projection.delta));
+  lsSave();
+
+  // Stream AI narrative
+  var streamId = 'sc_ai_' + Date.now();
+  aiEl.innerHTML = '<div class="typing-dots"><div class="td"></div><div class="td"></div><div class="td"></div></div>';
+  var scenMsg = [{ role: 'user', content: projection.prompt }];
+  streamAI(scenMsg, buildFocusedSys(scenMsg),
+    function(partial) { aiEl.innerHTML = fmtAI(cleanR(partial)) + '<span class="stream-cursor"></span>'; },
+    function(full) {
+      var fu = extractFU(full), clean = cleanR(full);
+      aiEl.innerHTML = fmtAI(clean);
+      if (fu.length) aiEl.appendChild(makeFuChipsEl(fu, function(q){closeScenario();askAI(q);}));
+    },
+    function(e) { aiEl.innerHTML = '<span style="color:var(--red)">' + errMsg(e) + '</span>'; }
+  );
+}
+
+// ═══════════════════════════════════════════════════════
+// COMPARISON MODE
+// ═══════════════════════════════════════════════════════
+function openCompare() {
+  document.getElementById('compare-overlay').style.display = 'flex';
+  document.querySelectorAll('.fenxi-logo').forEach(function(el){el.src=FENXI_LOGO;});
+  runComparison();
+}
+function closeCompare() {
+  document.getElementById('compare-overlay').style.display = 'none';
+}
+function runComparison() {
+  var selA = document.getElementById('compare-a');
+  var selB = document.getElementById('compare-b');
+  if (!selA || !selB) return;
+  var pa = selA.value, pb = selB.value;
+  var fa = getFilteredAgg(pa), fb = getFilteredAgg(pb);
+  if (!fa || !fb) {
+    document.getElementById('compare-results').innerHTML = '<div style="color:var(--muted);font-size:13px">No data for selected period.</div>';
+    return;
+  }
+  var pLabels = {'all':'Full Dataset','y-last':'Last Year','y-2021':'2021','y-2022':'2022','y-2023':'2023','y-2024':'2024','q1':'Q1','q2':'Q2','q3':'Q3','q4':'Q4'};
+  var labelA = pLabels[pa]||pa, labelB = pLabels[pb]||pb;
+
+  var rows = [
+    { metric:'Total Sales', a:fa.totalSales, b:fb.totalSales, fmt:fS },
+    { metric:'Total Profit', a:fa.totalProfit, b:fb.totalProfit, fmt:fS },
+    { metric:'Profit Margin', a:fa.margin, b:fb.margin, fmt:function(v){return fP(v,2);}, isPct:true },
+    { metric:'Total Orders', a:fa.totalOrders, b:fb.totalOrders, fmt:fN },
+    { metric:'Avg Order Value', a:fa.avgOV, b:fb.avgOV, fmt:fS },
+    { metric:'Unique Customers', a:fa.totalCustomers, b:fb.totalCustomers, fmt:fN }
+  ];
+
+  // Add category rows
+  ['Furniture','Office Supplies','Technology'].forEach(function(cat) {
+    var ca = fa.catM[cat]||{s:0,p:0}, cb = fb.catM[cat]||{s:0,p:0};
+    rows.push({ metric:cat+' Sales', a:ca.s, b:cb.s, fmt:fS });
+    rows.push({ metric:cat+' Margin', a:ca.s>0?ca.p/ca.s:0, b:cb.s>0?cb.p/cb.s:0, fmt:function(v){return fP(v,2);}, isPct:true });
+  });
+
+  var html = '<table class="compare-table">'
+    + '<thead><tr><th>Metric</th><th>' + labelA + '</th><th>' + labelB + '</th><th>Change</th><th>Trend</th></tr></thead>'
+    + '<tbody>';
+
+  rows.forEach(function(row) {
+    var delta = row.b - row.a;
+    var pctChange = row.a !== 0 ? delta/Math.abs(row.a)*100 : 0;
+    var isPos = delta >= 0;
+    var deltaStr = row.isPct
+      ? (isPos?'+':'') + fP(delta, 2) + 'pp'
+      : (isPos?'+':'') + row.fmt(delta);
+    var trend = Math.abs(pctChange) < 0.5 ? '→' : isPos ? '↑' : '↓';
+    var trendColor = Math.abs(pctChange) < 0.5 ? 'var(--muted)' : isPos ? 'var(--green)' : 'var(--red)';
+    html += '<tr>'
+      + '<td class="lbl">' + row.metric + '</td>'
+      + '<td>' + row.fmt(row.a) + '</td>'
+      + '<td>' + row.fmt(row.b) + '</td>'
+      + '<td class="' + (isPos?'delta-pos':'delta-neg') + '">' + deltaStr + '</td>'
+      + '<td style="font-size:16px;color:' + trendColor + '">' + trend + ' <span style="font-size:10px;color:var(--muted)">' + Math.abs(pctChange).toFixed(1) + '%</span></td>'
+      + '</tr>';
+  });
+
+  html += '</tbody></table>';
+
+  // Add AI insights button
+  html += '<div style="margin-top:16px">'
+    + '<button onclick="compareAskAI(\'' + labelA + '\',\'' + labelB + '\')" style="background:var(--accent-dim);border:1px solid rgba(99,102,241,.2);color:var(--accent);padding:7px 16px;border-radius:7px;font-size:12.5px;font-weight:700;cursor:pointer">Ask AI: what changed between these periods →</button>'
+    + '</div>';
+
+  document.getElementById('compare-results').innerHTML = html;
+  logAction('Comparison: ' + labelA + ' vs ' + labelB);
+}
+
+function compareAskAI(btnOrA, labelBArg) {
+  var labelA, labelB;
+  if(typeof btnOrA==='string'){labelA=btnOrA;labelB=labelBArg;}
+  else{labelA=btnOrA.getAttribute('data-a')||'Period A';labelB=btnOrA.getAttribute('data-b')||'Period B';}
+  closeCompare();
+  var q='Compare '+labelA+' vs '+labelB+' — what are the 3 most important changes and what is driving them? Use exact figures from the data.';
+  openPanel(q);
+}
+
+// ═══════════════════════════════════════════════════════
+// EXPORT UPGRADES — PDF + CSV + PPT
+// ═══════════════════════════════════════════════════════
+function exportSaved() {
+  var parts = [];
+  var flagIds = Object.keys(_flaggedCusts);
+  if (flagIds.length) {
+    var fc = _chData.filter(function(c){return _flaggedCusts[c.id];});
+    parts.push('FLAGGED ACCOUNTS\n' + fc.map(function(c){return '- ' + c.name + ' (' + c.seg + '): Score=' + c.score + ', Sales=' + fS(c.s) + ', Margin=' + fP(c.margin,2);}).join('\n'));
+  }
+  if (_savedInsights.length) {
+    parts.push('SAVED INSIGHTS\n' + _savedInsights.map(function(ins,n){return 'INSIGHT '+(n+1)+'\n\n'+ins.text+'\n\n'+'─'.repeat(50);}).join('\n\n'));
+  }
+  if (_auditLog.length) {
+    parts.push('ACTIVITY LOG\n' + _auditLog.map(function(e){return e.time+' — '+e.text;}).join('\n'));
+  }
+  if (!parts.length) return;
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([parts.join('\n\n' + '═'.repeat(60) + '\n\n')], {type:'text/plain'}));
+  a.download = 'fenxi-export.txt';
+  a.click();
+  logAction('Data exported to fenxi-export.txt');
+}
+
+function exportCSV() {
+  var a = _agg;
+  var nl = '\n';
+  var rows = ['FENXI ANALYTICS — DATA EXPORT','Generated: ' + new Date().toLocaleDateString('en-IN'),'',''];
+  // KPIs
+  rows.push('OVERVIEW'); rows.push('Metric,Value');
+  rows.push('Total Sales,' + fS(a.totalSales));
+  rows.push('Total Profit,' + fS(a.totalProfit));
+  rows.push('Profit Margin,' + fP(a.margin,2));
+  rows.push('Total Orders,' + fN(a.totalOrders));
+  rows.push('Unique Customers,' + fN(a.totalCustomers));
+  rows.push('Avg Order Value,' + fS(a.avgOV));
+  rows.push('');
+  // Categories
+  rows.push('CATEGORIES'); rows.push('Category,Sales,Profit,Margin');
+  ['Furniture','Office Supplies','Technology'].forEach(function(cat) {
+    var cv=a.catM[cat]||{s:0,p:0};var m=cv.s>0?cv.p/cv.s:0;
+    rows.push(cat+','+fS(cv.s)+','+fS(cv.p)+','+fP(m,2));
+  });
+  rows.push('');
+  // Sub-cats
+  rows.push('SUB-CATEGORIES'); rows.push('Sub-Category,Category,Sales,Profit,Margin,Score,Health Band');
+  _subData.forEach(function(s) {
+    var m=s.s>0?s.p/s.s:0;
+    rows.push('"'+s.name+'",'+s.cat+','+fS(s.s)+','+fS(s.p)+','+fP(m,2)+','+s.score+','+s.band);
+  });
+  rows.push('');
+  // Regions
+  rows.push('REGIONS'); rows.push('Region,Sales,Profit,Margin,Score,Band');
+  ['West','East','Central','South'].forEach(function(reg) {
+    var rv=a.regM[reg]||{s:0,p:0};var m=rv.s>0?rv.p/rv.s:0;var rs=a.regionScores[reg]||{score:0,band:'concern'};
+    rows.push(reg+','+fS(rv.s)+','+fS(rv.p)+','+fP(m,2)+','+rs.score+','+rs.band);
+  });
+  rows.push('');
+  // States
+  rows.push('STATES'); rows.push('State,Region,Sales,Profit,Margin,Score,Band');
+  _stateData.forEach(function(st) {
+    rows.push('"'+st.state+'",'+st.region+','+fS(st.s)+','+fS(st.p)+','+fP(st.margin,1)+','+st.score+','+st.band);
+  });
+  rows.push('');
+  // Top customers
+  rows.push('TOP CUSTOMERS'); rows.push('Name,Segment,Sales,Profit,Margin,Health Score,Band');
+  _custData.slice(0,25).forEach(function(cu) {
+    var m=cu.s>0?cu.p/cu.s:0;
+    rows.push('"'+cu.name+'",'+cu.seg+','+fS(cu.s)+','+fS(cu.p)+','+fP(m,2)+','+cu.score+','+cu.band);
+  });
+
+  var el = document.createElement('a');
+  el.href = URL.createObjectURL(new Blob([rows.join(nl)], {type:'text/csv'}));
+  el.download = 'fenxi-data-export.csv';
+  el.click();
+  logAction('CSV exported');
+}
+
+function exportPDF() {
+  // Use browser print with print-optimised CSS
+  window.print();
+  logAction('PDF export triggered via browser print');
+}
+
+function exportPPT() {
+  var pptx = new PptxGenJS();
+  var a = _agg;
+  pptx.layout = 'LAYOUT_WIDE';
+  pptx.defineLayout({ name:'WIDE', width:13.33, height:7.5 });
+
+  // Slide 1: Cover
+  var s1 = pptx.addSlide();
+  s1.addShape(pptx.ShapeType.rect, {x:0,y:0,w:'100%',h:'100%',fill:{color:'6366f1'}});
+  s1.addText('SUPERSTORE ANALYTICS', {x:0.5,y:1.5,w:12,h:1.2,color:'FFFFFF',fontSize:40,bold:true,align:'left'});
+  s1.addText('Business Performance Report', {x:0.5,y:2.8,w:12,h:0.8,color:'C7D2FE',fontSize:22,align:'left'});
+  s1.addText('Generated by Fenxi Analytics  ·  ' + new Date().toLocaleDateString('en-IN',{year:'numeric',month:'long',day:'numeric'}), {x:0.5,y:5.5,w:12,h:0.5,color:'A5B4FC',fontSize:14,align:'left'});
+
+  // Slide 2: KPIs
+  var s2 = pptx.addSlide();
+  s2.addText('Performance Overview', {x:0.5,y:0.3,w:12,h:0.7,color:'6366f1',fontSize:24,bold:true});
+  var kpiData = [
+    ['Total Sales', fS(a.totalSales)],['Total Profit', fS(a.totalProfit)],
+    ['Profit Margin', fP(a.margin,2)],['Total Orders', fN(a.totalOrders)],
+    ['Avg Order Value', fS(a.avgOV)],['Unique Customers', fN(a.totalCustomers)]
+  ];
+  kpiData.forEach(function(kpi, i) {
+    var col = i % 3, row2 = Math.floor(i/3);
+    var x = 0.3 + col*4.4, y = 1.2 + row2*2.5;
+    s2.addShape(pptx.ShapeType.roundRect, {x:x,y:y,w:4,h:2,fill:{color:'F4F4F9'},line:{color:'DCDCEC',width:1},rectRadius:0.1});
+    s2.addText(kpi[0], {x:x+0.2,y:y+0.2,w:3.6,h:0.5,color:'55557A',fontSize:11,bold:true});
+    s2.addText(kpi[1], {x:x+0.2,y:y+0.7,w:3.6,h:1,color:'6366F1',fontSize:26,bold:true});
+  });
+
+  // Slide 3: Category Analysis
+  var s3 = pptx.addSlide();
+  s3.addText('Category Analysis', {x:0.5,y:0.3,w:12,h:0.7,color:'6366f1',fontSize:24,bold:true});
+  var cats = ['Furniture','Office Supplies','Technology'];
+  var catColors = ['F97316','6366F1','0EA5E9'];
+  cats.forEach(function(cat, i) {
+    var cv = a.catM[cat]||{s:0,p:0};var m = cv.s>0?cv.p/cv.s:0;
+    var x = 0.3 + i*4.3, y = 1.2;
+    s3.addShape(pptx.ShapeType.roundRect, {x:x,y:y,w:4,h:5.5,fill:{color:'F4F4F9'},line:{color:catColors[i],width:2},rectRadius:0.1});
+    s3.addText(cat, {x:x+0.2,y:y+0.2,w:3.6,h:0.5,color:catColors[i],fontSize:13,bold:true});
+    s3.addText(fS(cv.s), {x:x+0.2,y:y+0.9,w:3.6,h:0.8,color:'12122A',fontSize:22,bold:true});
+    s3.addText('Sales', {x:x+0.2,y:y+1.6,w:3.6,h:0.4,color:'55557A',fontSize:10});
+    s3.addText(fS(cv.p), {x:x+0.2,y:y+2.2,w:3.6,h:0.8,color:cv.p>=0?'16A34A':'DC2626',fontSize:18,bold:true});
+    s3.addText('Profit', {x:x+0.2,y:y+2.9,w:3.6,h:0.4,color:'55557A',fontSize:10});
+    s3.addText(fP(m,2) + ' margin', {x:x+0.2,y:y+3.5,w:3.6,h:0.5,color:m>=0.1?'16A34A':m>=0?'CA8A04':'DC2626',fontSize:14,bold:true});
+  });
+
+  // Slide 4: Regional
+  var s4 = pptx.addSlide();
+  s4.addText('Regional Breakdown', {x:0.5,y:0.3,w:12,h:0.7,color:'6366f1',fontSize:24,bold:true});
+  var regs = ['West','East','Central','South'];
+  var regColors = ['6366F1','0EA5E9','F97316','10B981'];
+  regs.forEach(function(reg, i) {
+    var rv = a.regM[reg]||{s:0,p:0};var m=rv.s>0?rv.p/rv.s:0;var rs=a.regionScores[reg]||{score:0};
+    var x = 0.3+(i%2)*6.5, y = 1.2+Math.floor(i/2)*3;
+    s4.addShape(pptx.ShapeType.roundRect, {x:x,y:y,w:6,h:2.5,fill:{color:'F4F4F9'},line:{color:regColors[i],width:2},rectRadius:0.1});
+    s4.addText(reg, {x:x+0.2,y:y+0.15,w:4,h:0.5,color:regColors[i],fontSize:16,bold:true});
+    s4.addText('Score: '+rs.score+'/100', {x:x+4,y:y+0.15,w:1.8,h:0.5,color:'55557A',fontSize:11,align:'right'});
+    s4.addText(fS(rv.s)+' sales', {x:x+0.2,y:y+0.8,w:5.6,h:0.5,color:'12122A',fontSize:14,bold:true});
+    s4.addText(fS(rv.p)+' profit  ·  '+fP(m,2)+' margin', {x:x+0.2,y:y+1.35,w:5.6,h:0.5,color:m>=0.1?'16A34A':m>=0?'CA8A04':'DC2626',fontSize:12});
+  });
+
+  // Slide 5: Top Issues + Recommendations
+  var s5 = pptx.addSlide();
+  s5.addText('Key Actions Required', {x:0.5,y:0.3,w:12,h:0.7,color:'6366f1',fontSize:24,bold:true});
+  var lossSubs = _subData.filter(function(s){return s.p<0;}).slice(0,4);
+  var totalLoss = lossSubs.reduce(function(sum,s){return sum+s.p;},0);
+  s5.addText('Loss-Making Sub-Categories (Total: '+fS(Math.abs(totalLoss))+')', {x:0.5,y:1.1,w:12,h:0.5,color:'DC2626',fontSize:14,bold:true});
+  lossSubs.forEach(function(sub, i) {
+    s5.addText('• '+sub.name+' ['+sub.cat+']: '+fS(sub.p)+' at '+fP(sub.s>0?sub.p/sub.s:0,1)+' margin', {x:0.7,y:1.7+i*0.45,w:12,h:0.4,color:'12122A',fontSize:12});
+  });
+  var flagCount = Object.keys(_flaggedCusts).length;
+  if (flagCount) {
+    s5.addText('🚩 '+flagCount+' accounts flagged for review', {x:0.5,y:3.5,w:12,h:0.5,color:'F97316',fontSize:13,bold:true});
+  }
+  s5.addText('Generated by Fenxi Analytics  ·  fenxianalytics.com', {x:0.5,y:6.8,w:12,h:0.4,color:'9999BB',fontSize:10,align:'center'});
+
+  pptx.writeFile({ fileName: 'Fenxi-Analytics-Report.pptx' });
+  logAction('PowerPoint exported');
+}
+
+// ═══════════════════════════════════════════════════════
+// OVERRIDE openExpand FOR SMART CACHING
+// ═══════════════════════════════════════════════════════
+function openExpand(key) {
+  var def = getExpandDef(key);
+  if (!def) return;
+  document.getElementById('expand-ttl').textContent = def.ttl + ' — Explore';
+  document.getElementById('exp-what').innerHTML = fmtAI(def.what);
+  document.getElementById('exp-nums').innerHTML = def.nums.map(function(n){return'<div class="exp-num-row"><span>'+n[0]+'</span><span>'+n[1]+'</span></div>';}).join('');
+  document.getElementById('exp-qs').innerHTML = def.qs.map(function(q){return'<div class="exp-q" onclick="askAI(\''+q.replace(/'/g,"\\'")+'\')">'+q+'</div>';}).join('');
+  document.getElementById('expand-left').innerHTML = '<canvas id="exp-canvas" style="max-height:70vh;width:100%"></canvas>';
+  renderExpandChart(key);
+  document.getElementById('exp-ai-text').innerHTML = '<div class="typing-dots"><div class="td"></div><div class="td"></div><div class="td"></div></div>';
+
+  var cached = getCachedExplore(key);
+  if (cached) {
+    document.getElementById('exp-ai-text').innerHTML = cached;
+  } else {
+    callAI([{role:'user',content:buildExpPrompt(def.ttl, def.nums, def.specific||'')}]).then(function(r){
+      var html = fmtAI(cleanR(r));
+      setCachedExplore(key, html);
+      document.getElementById('exp-ai-text').innerHTML = html;
+    }).catch(function(e){
+      document.getElementById('exp-ai-text').innerHTML = '<span style="color:var(--red)">' + errMsg(e) + '</span>';
+    });
+  }
+  document.getElementById('expand-overlay').classList.add('open');
+}
+
+// ═══════════════════════════════════════════════════════
+// OVERRIDE fetchData TO ALSO RUN ANOMALY DETECTION
+// ═══════════════════════════════════════════════════════
+var _origFetchData = fetchData;
+fetchData = function() {
+  fetch(API_URL)
+  .then(function(r){ return r.json(); })
+  .then(function(rows){
+    var prev = _lastSales;
+    _data = rows; aggregate(); _lastSales = _agg.totalSales;
+    computeDataDiff(prev);
+    detectAnomalies();
+    renderAll();
+    var now = new Date();
+    document.getElementById('sr-rows').textContent = fN(rows.length)+' rows';
+    document.getElementById('sr-orders').textContent = fN(_agg.totalOrders)+' orders';
+    document.getElementById('sr-fetch').textContent = 'fetched '+now.toLocaleTimeString();
+    if (prev > 0 && Math.abs(_agg.totalSales-prev)/prev > 0.005) {
+      showTicker('Data refreshed — '+(_dataChangeSummary||'data updated'));
+      var stale = document.getElementById('exec-stale-nudge');
+      if (stale && _execLoaded) stale.style.display = 'inline-flex';
+    }
+    if (!_execLoaded) genExecSummary(false);
+  })
+  .catch(function(){ document.getElementById('sr-fetch').textContent = 'fetch error — retrying'; });
+};
+
+// ═══════════════════════════════════════════════════════
+// REPORT LOGGING OVERRIDE
+// ═══════════════════════════════════════════════════════
+var _origGenerateReport = generateReport;
+generateReport = async function() {
+  var title = document.getElementById('rpt-title').value || 'Report';
+  var period = document.getElementById('rpt-period').value || 'all';
+  logAction('Report generated: "' + title + '" (' + period + ')');
+  return _origGenerateReport();
+};
+
+// ═══════════════════════════════════════════════════════
+// ADD EXPORT BUTTONS TO REPORT MODAL AND NAV
+// ═══════════════════════════════════════════════════════
+function addExportButtons() {
+  var navActions = document.querySelector('.nav-actions');
+  if (navActions && !document.getElementById('export-btn')) {
+    var btn = document.createElement('button');
+    btn.id = 'export-btn';
+    btn.className = 'btn';
+    btn.style.fontSize = '12px';
+    btn.textContent = '⬇ Export';
+    btn.onclick = function(e) {
+      e.stopPropagation();
+      var menu = document.getElementById('export-menu');
+      if (menu) menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+    };
+    navActions.insertBefore(btn, navActions.firstChild);
+
+    var menu = document.createElement('div');
+    menu.id = 'export-menu';
+    menu.style = 'display:none;position:fixed;right:20px;top:66px;z-index:200;background:var(--bg-card);border:1px solid var(--border2);border-radius:9px;box-shadow:0 8px 30px rgba(0,0,0,.15);overflow:hidden;min-width:170px';
+    menu.innerHTML = [
+      ['📊 Export CSV', 'exportCSV()'],
+      ['📄 Export PDF', 'exportPDF()'],
+      ['📑 Export PPT', 'exportPPT()'],
+      ['💾 Export Text', 'exportSaved()']
+    ].map(function(item) {
+      return '<button onclick="' + item[1] + ';document.getElementById(\'export-menu\').style.display=\'none\'" style="display:block;width:100%;text-align:left;padding:10px 16px;background:none;border:none;color:var(--text);font-size:13px;cursor:pointer;font-family:\'DM Sans\',sans-serif;transition:background .1s" onmouseover="this.style.background=\'var(--bg-hover)\'" onmouseout="this.style.background=\'none\'">' + item[0] + '</button>';
+    }).join('');
+    document.body.appendChild(menu);
+
+    document.addEventListener('click', function() {
+      var m = document.getElementById('export-menu');
+      if (m) m.style.display = 'none';
+    });
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// UPDATED INIT — ADD localStorage, anomaly detection, chat cats
+// ═══════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', function() {
+  // Load persisted state first
+  lsLoad();
+
+  // Restore vocab settings to inputs if they exist
+  if (_vocabSettings.company) { var vc = document.getElementById('vocab-company'); if(vc) vc.value = _vocabSettings.company; }
+
+  // Nav tabs
+  document.querySelectorAll('.nav-tab').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var pg = btn.getAttribute('data-page');
+      switchPage(isNaN(+pg) ? pg : +pg);
+    });
+  });
+
+  // Inputs
+  var pi = document.getElementById('panel-input');
+  if (pi) {
+    pi.addEventListener('keydown', function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();panelSend();}});
+    pi.addEventListener('input', function(){pi.style.height='auto';pi.style.height=Math.min(pi.scrollHeight,100)+'px';});
+  }
+  var ci = document.getElementById('chat-input');
+  if (ci) {
+    ci.addEventListener('keydown', function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();chatSend();}});
+    ci.addEventListener('input', function(){ci.style.height='auto';ci.style.height=Math.min(ci.scrollHeight,120)+'px';});
+  }
+
+  // Keyboard shortcuts
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      closeExpand(); closeDetail(); closePanel(); closeSavedPanel();
+      closeScenario(); closeCompare(); closeVocabSettings();
+      document.getElementById('vocab-overlay').style.display='none';
+    }
+  });
+
+  // Restore flagged + insights in UI
+  renderSavedPanel();
+  renderChatSugs();
+
+  // Add export dropdown to nav
+  addExportButtons();
+
+  setAIStatus(false, 'AI connecting…');
+  fetchData();
+  startCountdown();
+}, false);
+
+
+
+// ═══════════════════════════════════════════════════════
+// SCORE METHODOLOGY MODAL
+// ═══════════════════════════════════════════════════════
+function openScoreMethod(){
+  document.getElementById('score-method-overlay').style.display='flex';
+  document.querySelectorAll('.fenxi-logo').forEach(function(el){el.src=FENXI_LOGO;});
+}
+function closeScoreMethod(){
+  document.getElementById('score-method-overlay').style.display='none';
+}
+
+// ═══════════════════════════════════════════════════════
+// GET FILTERED AGG (used by report builder + comparison)
+// ═══════════════════════════════════════════════════════
+function getFilteredAgg(period){
+  var rows=_data;
+  if(period!=='all'){
+    rows=rows.filter(function(r){
+      var od=r['Order Date']||''; var parts=od.split('/');
+      if(parts.length!==3)return false;
+      var yr=parts[2]; var mo=+parts[0];
+      if(period.startsWith('y-')){
+        var targetYr=period==='y-last'?String(+(_agg.sortedYears[_agg.sortedYears.length-1]||'2024')):period.slice(2);
+        return yr===targetYr;
+      }
+      if(period==='q1')return mo>=1&&mo<=3;
+      if(period==='q2')return mo>=4&&mo<=6;
+      if(period==='q3')return mo>=7&&mo<=9;
+      if(period==='q4')return mo>=10&&mo<=12;
+      return true;
+    });
+  }
+  if(!rows.length)return null;
+  var totS=0,totP=0,totQ=0; var ordSet=new Set(),custSet=new Set();
+  var catM={},regM={},segM={},subM={};
+  rows.forEach(function(r){
+    var s=+r.Sales||0,p=+r.Profit||0,q=+r.Quantity||0;
+    var cat=r.Category||'?',reg=r.Region||'?',seg=r.Segment||'?',sub=r['Sub-Category']||'?';
+    var oid=r['Order ID']||'',cid=r['Customer ID']||'';
+    totS+=s;totP+=p;totQ+=q;ordSet.add(oid);custSet.add(cid);
+    function upd(m,k){if(!m[k])m[k]={s:0,p:0};m[k].s+=s;m[k].p+=p;}
+    upd(catM,cat);upd(regM,reg);upd(segM,seg);upd(subM,sub);
+  });
+  return{totalSales:totS,totalProfit:totP,totalQty:totQ,totalOrders:ordSet.size,
+    totalCustomers:custSet.size,margin:totS>0?totP/totS:0,avgOV:ordSet.size>0?totS/ordSet.size:0,
+    catM:catM,regM:regM,segM:segM,subM:subM,rowCount:rows.length};
+}
+
+
+// ═══════════════════════════════════════════════════════
+// EXTEND getFilteredAgg TO SUPPORT MONTHS (m-01 etc)
+// ═══════════════════════════════════════════════════════
+var _origGetFilteredAgg = getFilteredAgg;
+getFilteredAgg = function(period) {
+  if (period && period.startsWith('m-')) {
+    var moNum = +period.slice(2);
+    var rows = _data.filter(function(r){
+      var od=r['Order Date']||''; var parts=od.split('/');
+      if(parts.length!==3)return false;
+      return +parts[0]===moNum;
+    });
+    if(!rows.length)return null;
+    var totS=0,totP=0,totQ=0; var ordSet=new Set(),custSet=new Set();
+    var catM={},regM={},segM={},subM={};
+    rows.forEach(function(r){
+      var s=+r.Sales||0,p=+r.Profit||0,q=+r.Quantity||0;
+      var cat=r.Category||'?',reg=r.Region||'?',seg=r.Segment||'?',sub=r['Sub-Category']||'?';
+      var oid=r['Order ID']||'',cid=r['Customer ID']||'';
+      totS+=s;totP+=p;totQ+=q;ordSet.add(oid);custSet.add(cid);
+      function upd(m,k){if(!m[k])m[k]={s:0,p:0};m[k].s+=s;m[k].p+=p;}
+      upd(catM,cat);upd(regM,reg);upd(segM,seg);upd(subM,sub);
+    });
+    return{totalSales:totS,totalProfit:totP,totalQty:totQ,totalOrders:ordSet.size,
+      totalCustomers:custSet.size,margin:totS>0?totP/totS:0,avgOV:ordSet.size>0?totS/ordSet.size:0,
+      catM:catM,regM:regM,segM:segM,subM:subM,rowCount:rows.length};
+  }
+  return _origGetFilteredAgg(period);
+};
+
+// ═══════════════════════════════════════════════════════
+// UPDATE pLabels IN runComparison TO INCLUDE MONTHS
+// ═══════════════════════════════════════════════════════
+var _origRunComparison = runComparison;
+runComparison = function() {
+  var selA=document.getElementById('compare-a');
+  var selB=document.getElementById('compare-b');
+  if(!selA||!selB)return;
+  var pa=selA.value, pb=selB.value;
+  var fa=getFilteredAgg(pa), fb=getFilteredAgg(pb);
+  if(!fa||!fb){
+    document.getElementById('compare-results').innerHTML='<div style="color:var(--muted);font-size:13px;padding:16px">No data for selected period. Try a different combination.</div>';
+    return;
+  }
+  var months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var pLabels={'all':'Full Dataset','y-last':'Last Year','y-2021':'2021','y-2022':'2022','y-2023':'2023','y-2024':'2024','q1':'Q1 (Jan-Mar)','q2':'Q2 (Apr-Jun)','q3':'Q3 (Jul-Sep)','q4':'Q4 (Oct-Dec)'};
+  for(var mi=1;mi<=12;mi++){pLabels['m-'+String(mi).padStart(2,'0')]=months[mi-1];}
+  var labelA=pLabels[pa]||pa, labelB=pLabels[pb]||pb;
+
+  var rows=[
+    {metric:'Total Sales',a:fa.totalSales,b:fb.totalSales,fmt:fS},
+    {metric:'Total Profit',a:fa.totalProfit,b:fb.totalProfit,fmt:fS},
+    {metric:'Profit Margin',a:fa.margin,b:fb.margin,fmt:function(v){return fP(v,2);},isPct:true},
+    {metric:'Total Orders',a:fa.totalOrders,b:fb.totalOrders,fmt:fN},
+    {metric:'Avg Order Value',a:fa.avgOV,b:fb.avgOV,fmt:fS},
+    {metric:'Customers',a:fa.totalCustomers,b:fb.totalCustomers,fmt:fN}
+  ];
+  ['Furniture','Office Supplies','Technology'].forEach(function(cat){
+    var ca=fa.catM[cat]||{s:0,p:0},cb=fb.catM[cat]||{s:0,p:0};
+    rows.push({metric:cat+' Sales',a:ca.s,b:cb.s,fmt:fS});
+    rows.push({metric:cat+' Margin',a:ca.s>0?ca.p/ca.s:0,b:cb.s>0?cb.p/cb.s:0,fmt:function(v){return fP(v,2);},isPct:true});
+  });
+  ['West','East','Central','South'].forEach(function(reg){
+    var ra=fa.regM[reg]||{s:0,p:0},rb=fb.regM[reg]||{s:0,p:0};
+    rows.push({metric:reg+' Profit',a:ra.p,b:rb.p,fmt:fS});
+  });
+
+  var html='<table class="compare-table">'
+    +'<thead><tr><th>Metric</th><th>'+labelA+'</th><th>'+labelB+'</th><th>Change</th><th>Trend</th></tr></thead><tbody>';
+  rows.forEach(function(row){
+    var delta=row.b-row.a;
+    var pctChange=row.a!==0?delta/Math.abs(row.a)*100:0;
+    var isPos=delta>=0;
+    var deltaStr=row.isPct?(isPos?'+':'')+fP(delta,2)+'pp':(isPos?'+':'')+row.fmt(delta);
+    var trend=Math.abs(pctChange)<0.5?'→':isPos?'↑':'↓';
+    var trendColor=Math.abs(pctChange)<0.5?'var(--muted)':isPos?'var(--green)':'var(--red)';
+    html+='<tr><td class="lbl">'+row.metric+'</td><td>'+row.fmt(row.a)+'</td><td>'+row.fmt(row.b)+'</td>'
+      +'<td class="'+(isPos?'delta-pos':'delta-neg')+'">'+deltaStr+'</td>'
+      +'<td style="font-size:16px;color:'+trendColor+'">'+trend+' <span style="font-size:10px;color:var(--muted)">'+Math.abs(pctChange).toFixed(1)+'%</span></td></tr>';
+  });
+  html+='</tbody></table>';
+  html+='<div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">'
+    +'<button onclick="compareAskAI(this)" data-a="'+labelA+'" data-b="'+labelB+'" style="background:var(--accent-dim);border:1px solid rgba(99,102,241,.2);color:var(--accent);padding:7px 14px;border-radius:7px;font-size:12.5px;font-weight:700;cursor:pointer">Ask AI: what changed? →</button>'
+    +'</div>';
+  document.getElementById('compare-results').innerHTML=html;
+  logAction('Comparison: '+labelA+' vs '+labelB);
+};
+
+// ═══════════════════════════════════════════════════════
+// CLOSE SCORE METHOD ON ESCAPE (add to existing keydown)
+// ═══════════════════════════════════════════════════════
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){
+    var sm=document.getElementById('score-method-overlay');
+    if(sm)sm.style.display='none';
+  }
+});
+
+// ═══════════════════════════════════════════════════════
+// ENSURE nav-logo gets the logo on load
+// ═══════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded',function(){
+  var nl=document.getElementById('nav-logo');
+  if(nl)nl.src=FENXI_LOGO;
+},false);
+
+
+// Update AI status in report builder on open
+var _origOpenReportBuilder = openReportBuilder;
+openReportBuilder = function(){
+  var dot=document.getElementById('ai-status-dot');
+  var statusEl=document.getElementById('rpt-ai-status');
+  if(statusEl){
+    var connected=dot&&dot.style.background&&dot.style.background.includes('green')||dot&&dot.style.background==='var(--green)';
+    // Check if AI status dot colour indicates connected
+    var aiTxt=document.getElementById('ai-status-txt');
+    var isOk=aiTxt&&(aiTxt.textContent||'').includes('Connected');
+    if(isOk){
+      statusEl.innerHTML='<span style="color:var(--green);font-weight:600">● AI Connected</span> — full narrative will be generated';
+    } else {
+      statusEl.innerHTML='<span style="color:var(--yellow);font-weight:600">● AI Unavailable</span> — data-only report will download (no narrative paragraphs)';
+    }
+  }
+  _origOpenReportBuilder();
+};
+
+
+
+// ═══════════════════════════════════════════════════════
+// REPORT BUILDER OPEN/CLOSE (restored)
+// ═══════════════════════════════════════════════════════
+function openReportBuilder(){
+  if(!_agg.totalSales){
+    showTicker('Data is still loading — please wait a moment');
+    return;
+  }
+  var el=document.getElementById('report-overlay');
+  if(el)el.style.display='flex';
+  document.querySelectorAll('.fenxi-logo').forEach(function(img){img.src=FENXI_LOGO;});
+  updateReportPreview();
+}
+function closeReportBuilder(){
+  var el=document.getElementById('report-overlay');
+  if(el)el.style.display='none';
+  var prog=document.getElementById('rpt-progress');
+  if(prog){prog.style.display='none';prog.innerHTML='';}
+}
+function updateReportPreview(){
+  var titleEl=document.getElementById('rpt-title');
+  var forEl=document.getElementById('rpt-for');
+  var byEl=document.getElementById('rpt-by');
+  var periodEl=document.getElementById('rpt-period');
+  var title=titleEl?titleEl.value||'Superstore Business Review':'Superstore Business Review';
+  var forName=forEl?forEl.value:'';
+  var byName=byEl?byEl.value||'Fenxi Analytics':'Fenxi Analytics';
+  var period=periodEl?periodEl.value:'all';
+  var pLabels={'all':'Full Dataset','y-last':'Last Year','y-2021':'2021','y-2022':'2022','y-2023':'2023','y-2024':'2024','q1':'Q1 (Jan-Mar)','q2':'Q2 (Apr-Jun)','q3':'Q3 (Jul-Sep)','q4':'Q4 (Oct-Dec)'};
+  var periodLabel=pLabels[period]||period;
+  var pt=document.getElementById('rpt-preview-title');
+  var pm=document.getElementById('rpt-preview-meta');
+  if(pt)pt.textContent=title;
+  if(pm)pm.textContent=periodLabel+(forName?' · For: '+forName:'')+' · '+byName;
+}
+function setProgress(total, current, msg){
+  var el=document.getElementById('rpt-progress');
+  if(!el)return;
+  el.style.display='flex';
+  var pct=Math.round((current/total)*100);
+  el.innerHTML='<div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Generating Report…</div>'
+    +'<div style="background:var(--bg2);border-radius:8px;overflow:hidden;height:6px;margin-bottom:10px">'
+    +'<div style="height:100%;background:linear-gradient(135deg,#6366f1,#4f46e5);border-radius:8px;transition:width .4s;width:'+pct+'%"></div></div>'
+    +'<div style="font-size:12.5px;color:var(--muted)">'+msg+'</div>';
 }
 
 </script>
@@ -3022,41 +4608,314 @@ function runAutopsy(){
   </div>
 </div>
 
-<!-- MOBILE BOTTOM NAV -->
-<nav id="mobile-bottom-nav">
-  <button class="mbn-btn active" data-page="1" onclick="switchPage(1);mbnActive(this)">
-    <span class="mbn-icon">⊞</span>Overview
-  </button>
-  <button class="mbn-btn" data-page="2" onclick="switchPage(2);mbnActive(this)">
-    <span class="mbn-icon">$</span>Sales
-  </button>
-  <button class="mbn-btn" data-page="3" onclick="switchPage(3);mbnActive(this)">
-    <span class="mbn-icon">◎</span>Regional
-  </button>
-  <button class="mbn-btn" data-page="5" onclick="switchPage(5);mbnActive(this)">
-    <span class="mbn-icon">♟</span>Customers
-  </button>
-  <button class="mbn-btn" data-page="7" onclick="switchPage(7);mbnActive(this)">
-    <span class="mbn-icon">✦</span>AI Chat
-  </button>
-</nav>
 
-<script>
-function mbnActive(btn){
-  document.querySelectorAll('.mbn-btn').forEach(function(b){b.classList.remove('active');});
-  btn.classList.add('active');
-}
-// Sync mobile bottom nav with desktop tab clicks
-(function(){
-  var origSwitch=window.switchPage;
-  window.switchPage=function(n){
-    origSwitch(n);
-    document.querySelectorAll('.mbn-btn').forEach(function(b){
-      b.classList.toggle('active',parseInt(b.getAttribute('data-page'))===n);
-    });
-  };
-})();
-</script>
+<!-- REPORT BUILDER MODAL -->
+<div id="report-overlay" onclick="if(event.target===this)closeReportBuilder()" style="display:none;position:fixed;inset:0;z-index:700;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:20px">
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;width:100%;max-width:1100px;max-height:94vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 32px 80px rgba(0,0,0,.4)">
+    <!-- Header -->
+    <div style="padding:16px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+      <div style="display:flex;align-items:center;gap:10px">
+        <img class="fenxi-logo" src="" alt="Fenxi" style="width:26px;height:26px;border-radius:7px;object-fit:cover"/>
+        <div>
+          <div style="font-size:15px;font-weight:700">📄 Report Builder</div>
+          <div style="font-size:11px;color:var(--muted)">Generate a downloadable Word document with AI narrative and charts</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span id="rpt-ai-status" style="font-size:11px;color:var(--muted)"></span>
+          <button id="report-gen-btn" onclick="generateReport()" style="background:linear-gradient(135deg,#6366f1,#4f46e5);border:none;color:#fff;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">📄 Generate &amp; Download</button>
+        </div>
+        <button onclick="closeReportBuilder()" style="background:none;border:none;color:var(--muted);font-size:19px;cursor:pointer;padding:2px 6px;border-radius:5px">✕</button>
+      </div>
+    </div>
+    <!-- Body -->
+    <div style="display:flex;overflow:hidden;flex:1;min-height:0">
+      <!-- Left: Config -->
+      <div style="width:320px;flex-shrink:0;padding:20px;border-right:1px solid var(--border);overflow-y:auto;background:var(--bg2)">
+        <!-- Period -->
+        <div style="margin-bottom:20px">
+          <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">Report Period</div>
+          <select id="rpt-period" onchange="updateReportPreview()" style="width:100%;padding:8px 10px;border-radius:7px;border:1.5px solid var(--border2);background:var(--bg-card);color:var(--text);font-size:13px;outline:none">
+            <option value="all">Full Dataset (All Time)</option>
+            <option value="y-last">Last Year</option>
+            <option value="y-2021">Year 2021</option>
+            <option value="y-2022">Year 2022</option>
+            <option value="y-2023">Year 2023</option>
+            <option value="y-2024">Year 2024</option>
+            <option value="q1">Q1 (Jan–Mar)</option>
+            <option value="q2">Q2 (Apr–Jun)</option>
+            <option value="q3">Q3 (Jul–Sep)</option>
+            <option value="q4">Q4 (Oct–Dec)</option>
+          </select>
+        </div>
+        <!-- Sections -->
+        <div style="margin-bottom:20px">
+          <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">Sections to Include</div>
+          <div style="display:flex;flex-direction:column;gap:7px">
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" id="rpt-sec-exec" checked style="accent-color:var(--accent)"/> Executive Summary</label>
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" id="rpt-sec-perf" checked style="accent-color:var(--accent)"/> Overall Performance</label>
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" id="rpt-sec-cat" checked style="accent-color:var(--accent)"/> Category Analysis</label>
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" id="rpt-sec-reg" checked style="accent-color:var(--accent)"/> Regional Breakdown</label>
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" id="rpt-sec-prod" checked style="accent-color:var(--accent)"/> Product Intelligence</label>
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" id="rpt-sec-cust" checked style="accent-color:var(--accent)"/> Customer Health</label>
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" id="rpt-sec-disc" style="accent-color:var(--accent)"/> Discount Analysis</label>
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" id="rpt-sec-ship" style="accent-color:var(--accent)"/> Shipping Analysis</label>
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" id="rpt-sec-recs" checked style="accent-color:var(--accent)"/> Recommendations</label>
+          </div>
+        </div>
+        <!-- Tone -->
+        <div style="margin-bottom:20px">
+          <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">Tone</div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="radio" name="rpt-tone" value="executive" checked style="accent-color:var(--accent)"/> Executive — concise, CFO-level</label>
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="radio" name="rpt-tone" value="detailed" style="accent-color:var(--accent)"/> Detailed — full analysis with context</label>
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="radio" name="rpt-tone" value="client" style="accent-color:var(--accent)"/> Client-facing — polished, minimal jargon</label>
+          </div>
+        </div>
+        <!-- Meta -->
+        <div style="margin-bottom:16px">
+          <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">Report Details</div>
+          <input id="rpt-title" placeholder="Report Title" value="Superstore Business Review" style="width:100%;padding:8px 10px;border-radius:7px;border:1.5px solid var(--border2);background:var(--bg-card);color:var(--text);font-size:12.5px;margin-bottom:6px;outline:none"/>
+          <input id="rpt-for" placeholder="Prepared for (client name)" style="width:100%;padding:8px 10px;border-radius:7px;border:1.5px solid var(--border2);background:var(--bg-card);color:var(--text);font-size:12.5px;margin-bottom:6px;outline:none"/>
+          <input id="rpt-by" placeholder="Prepared by" value="Fenxi Analytics" style="width:100%;padding:8px 10px;border-radius:7px;border:1.5px solid var(--border2);background:var(--bg-card);color:var(--text);font-size:12.5px;outline:none"/>
+        </div>
+      </div>
+      <!-- Right: Preview/Progress -->
+      <div style="flex:1;padding:20px;overflow-y:auto;display:flex;flex-direction:column;gap:12px">
+        <div id="rpt-preview-header">
+          <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px">Report Preview</div>
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:16px 20px">
+            <div style="font-size:18px;font-weight:700;margin-bottom:4px" id="rpt-preview-title">Superstore Business Review</div>
+            <div style="font-size:12px;color:var(--muted)" id="rpt-preview-meta">Full Dataset · Prepared by Fenxi Analytics</div>
+          </div>
+        </div>
+        <div id="rpt-progress" style="display:none;flex-direction:column;gap:8px"></div>
+        <div id="rpt-section-previews" style="display:flex;flex-direction:column;gap:10px"></div>
+      </div>
+    </div>
+  </div>
+</div>
 
+
+<!-- SCENARIO MODELLER -->
+<div id="scenario-overlay" onclick="if(event.target===this)closeScenario()">
+  <div id="scenario-box">
+    <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+      <div style="display:flex;align-items:center;gap:9px">
+        <img class="fenxi-logo" src="" alt="Fenxi" style="width:24px;height:24px;border-radius:6px;object-fit:cover"/>
+        <div>
+          <div style="font-size:14px;font-weight:700">🔮 Scenario Modeller</div>
+          <div style="font-size:11px;color:var(--muted)">Compute the profit impact of business decisions</div>
+        </div>
+      </div>
+      <button onclick="closeScenario()" style="background:none;border:none;color:var(--muted);font-size:19px;cursor:pointer;padding:2px 6px;border-radius:5px">✕</button>
+    </div>
+    <div style="padding:20px;overflow-y:auto;flex:1">
+      <!-- Scenario Selector -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px" id="scenario-cards">
+        <div class="scenario-card active" onclick="selectScenario('disc')" style="background:var(--accent-dim);border:1.5px solid var(--accent);border-radius:9px;padding:14px;cursor:pointer;transition:all .15s">
+          <div style="font-size:14px;margin-bottom:4px">✂️</div>
+          <div style="font-size:12.5px;font-weight:700">Cap Discounts</div>
+          <div style="font-size:11px;color:var(--muted)">What if max discount was X%?</div>
+        </div>
+        <div class="scenario-card" onclick="selectScenario('margin')" style="background:var(--bg2);border:1.5px solid var(--border);border-radius:9px;padding:14px;cursor:pointer;transition:all .15s">
+          <div style="font-size:14px;margin-bottom:4px">📈</div>
+          <div style="font-size:12.5px;font-weight:700">Improve Category Margin</div>
+          <div style="font-size:11px;color:var(--muted)">What if Furniture matched Tech?</div>
+        </div>
+        <div class="scenario-card" onclick="selectScenario('remove')" style="background:var(--bg2);border:1.5px solid var(--border);border-radius:9px;padding:14px;cursor:pointer;transition:all .15s">
+          <div style="font-size:14px;margin-bottom:4px">🗑️</div>
+          <div style="font-size:12.5px;font-weight:700">Remove Sub-Category</div>
+          <div style="font-size:11px;color:var(--muted)">What if we dropped Tables?</div>
+        </div>
+        <div class="scenario-card" onclick="selectScenario('growth')" style="background:var(--bg2);border:1.5px solid var(--border);border-radius:9px;padding:14px;cursor:pointer;transition:all .15s">
+          <div style="font-size:14px;margin-bottom:4px">🚀</div>
+          <div style="font-size:12.5px;font-weight:700">Grow a Segment</div>
+          <div style="font-size:11px;color:var(--muted)">What if Corporate grew by X%?</div>
+        </div>
+      </div>
+      <!-- Scenario Inputs -->
+      <div id="scenario-inputs" style="margin-bottom:16px"></div>
+      <!-- Run Button -->
+      <button onclick="runScenario()" id="scenario-run-btn" style="width:100%;background:linear-gradient(135deg,#6366f1,#4f46e5);border:none;color:#fff;padding:10px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:16px">▶ Compute Impact</button>
+      <!-- Results -->
+      <div id="scenario-results" style="display:none">
+        <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Projected Impact</div>
+        <div id="scenario-numbers" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px"></div>
+        <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">AI Analysis</div>
+        <div id="scenario-ai" style="background:var(--bg2);border:1px solid rgba(99,102,241,.2);border-radius:8px;padding:12px;font-size:13px;line-height:1.65">
+          <div class="typing-dots"><div class="td"></div><div class="td"></div><div class="td"></div></div>
+        </div>
+        <div style="margin-top:10px;display:flex;gap:8px">
+          <button onclick="askAI(document.getElementById('scenario-ask-text').textContent)" style="background:var(--accent-dim);border:1px solid rgba(99,102,241,.2);color:var(--accent);padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">Ask AI More →</button>
+          <span id="scenario-ask-text" style="display:none"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- COMPARISON MODE -->
+<div id="compare-overlay" onclick="if(event.target===this)closeCompare()" style="display:none;position:fixed;inset:0;z-index:650;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px">
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;width:100%;max-width:820px;max-height:88vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 28px 70px rgba(0,0,0,.35)">
+    <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+      <div style="display:flex;align-items:center;gap:9px">
+        <img class="fenxi-logo" src="" alt="Fenxi" style="width:24px;height:24px;border-radius:6px;object-fit:cover"/>
+        <div style="font-size:14px;font-weight:700">📊 Period Comparison</div>
+      </div>
+      <button onclick="closeCompare()" style="background:none;border:none;color:var(--muted);font-size:19px;cursor:pointer;padding:2px 6px">✕</button>
+    </div>
+    <div style="padding:20px;overflow-y:auto;flex:1">
+      <div style="display:flex;gap:12px;align-items:center;margin-bottom:20px;flex-wrap:wrap">
+        <div>
+          <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">Period A</div>
+          <select id="compare-a" onchange="runComparison()" style="padding:7px 10px;border-radius:7px;border:1.5px solid var(--border2);background:var(--bg-card);color:var(--text);font-size:13px;outline:none">
+            <option value="all">Full Dataset</option>
+            <optgroup label="── By Year ──">
+              <option value="y-2021">2021</option><option value="y-2022">2022</option><option value="y-2023">2023</option><option value="y-2024">2024</option>
+            </optgroup>
+            <optgroup label="── By Quarter ──">
+              <option value="q1">Q1 (Jan–Mar)</option><option value="q2" selected>Q2 (Apr–Jun)</option><option value="q3">Q3 (Jul–Sep)</option><option value="q4">Q4 (Oct–Dec)</option>
+            </optgroup>
+            <optgroup label="── By Month ──">
+              <option value="m-01">January</option><option value="m-02">February</option><option value="m-03">March</option>
+              <option value="m-04">April</option><option value="m-05">May</option><option value="m-06">June</option>
+              <option value="m-07">July</option><option value="m-08">August</option><option value="m-09">September</option>
+              <option value="m-10">October</option><option value="m-11">November</option><option value="m-12">December</option>
+            </optgroup>
+          </select>
+        </div>
+        <div style="font-size:20px;color:var(--dim);margin-top:16px">vs</div>
+        <div>
+          <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">Period B</div>
+          <select id="compare-b" onchange="runComparison()" style="padding:7px 10px;border-radius:7px;border:1.5px solid var(--border2);background:var(--bg-card);color:var(--text);font-size:13px;outline:none">
+            <option value="all">Full Dataset</option>
+            <optgroup label="── By Year ──">
+              <option value="y-2021">2021</option><option value="y-2022">2022</option><option value="y-2023">2023</option><option value="y-2024">2024</option>
+            </optgroup>
+            <optgroup label="── By Quarter ──">
+              <option value="q1">Q1 (Jan–Mar)</option><option value="q2">Q2 (Apr–Jun)</option><option value="q3">Q3 (Jul–Sep)</option><option value="q4" selected>Q4 (Oct–Dec)</option>
+            </optgroup>
+            <optgroup label="── By Month ──">
+              <option value="m-01">January</option><option value="m-02">February</option><option value="m-03">March</option>
+              <option value="m-04">April</option><option value="m-05">May</option><option value="m-06">June</option>
+              <option value="m-07">July</option><option value="m-08">August</option><option value="m-09">September</option>
+              <option value="m-10">October</option><option value="m-11">November</option><option value="m-12">December</option>
+            </optgroup>
+          </select>
+        </div>
+        <button onclick="runComparison()" style="margin-top:16px;background:var(--accent);border:none;color:#fff;padding:8px 16px;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer">Compare</button>
+      </div>
+      <div id="compare-results"></div>
+    </div>
+  </div>
+</div>
+
+<!-- VOCAB SETTINGS -->
+<div id="vocab-overlay" onclick="if(event.target===this)closeVocabSettings()" style="display:none;position:fixed;inset:0;z-index:700;background:rgba(0,0,0,.65);backdrop-filter:blur(5px);align-items:center;justify-content:center;padding:20px">
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;width:100%;max-width:420px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,.3)">
+    <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+      <div style="font-size:14px;font-weight:700">⚙ Client Settings</div>
+      <button onclick="closeVocabSettings()" style="background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer">✕</button>
+    </div>
+    <div style="padding:18px 20px;display:flex;flex-direction:column;gap:12px">
+      <div style="font-size:11.5px;color:var(--muted);line-height:1.5">These settings personalise how the AI talks to you. They are stored in your browser and injected into every AI call.</div>
+      <div>
+        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px">Company / Client Name</div>
+        <input id="vocab-company" placeholder="e.g. Acme Corp" style="width:100%;padding:8px 10px;border-radius:7px;border:1.5px solid var(--border2);background:var(--bg);color:var(--text);font-size:13px;outline:none"/>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px">Your term for top customers</div>
+        <input id="vocab-topcust" placeholder='e.g. "VIP accounts" or "key accounts"' style="width:100%;padding:8px 10px;border-radius:7px;border:1.5px solid var(--border2);background:var(--bg);color:var(--text);font-size:13px;outline:none"/>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px">Target profit margin (%)</div>
+        <input id="vocab-margin" type="number" placeholder="e.g. 15" style="width:100%;padding:8px 10px;border-radius:7px;border:1.5px solid var(--border2);background:var(--bg);color:var(--text);font-size:13px;outline:none"/>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px">Max acceptable discount (%)</div>
+        <input id="vocab-disc" type="number" placeholder="e.g. 20" style="width:100%;padding:8px 10px;border-radius:7px;border:1.5px solid var(--border2);background:var(--bg);color:var(--text);font-size:13px;outline:none"/>
+      </div>
+      <button onclick="saveVocabSettings()" style="width:100%;background:var(--accent);border:none;color:#fff;padding:10px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;margin-top:4px">Save Settings</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- SCORE METHODOLOGY MODAL -->
+<div id="score-method-overlay" onclick="if(event.target===this)closeScoreMethod()" style="display:none;position:fixed;inset:0;z-index:800;background:rgba(0,0,0,.65);backdrop-filter:blur(5px);align-items:center;justify-content:center;padding:20px">
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:13px;width:100%;max-width:560px;max-height:88vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.3)">
+    <div style="padding:18px 22px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--bg-card);z-index:1">
+      <div style="display:flex;align-items:center;gap:9px">
+        <img class="fenxi-logo" src="" alt="Fenxi" style="width:24px;height:24px;border-radius:6px;object-fit:cover"/>
+        <div style="font-size:14px;font-weight:700">How Scores Are Calculated</div>
+      </div>
+      <button onclick="closeScoreMethod()" style="background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:2px 6px">✕</button>
+    </div>
+    <div style="padding:18px 22px;display:flex;flex-direction:column;gap:20px">
+      <div style="font-size:13px;color:var(--muted);line-height:1.6">All health scores are <strong>0–100</strong> and built from weighted dimensions computed directly from the live dataset. <strong style="color:var(--green)">🟢 70+</strong> = Strong/Healthy · <strong style="color:var(--yellow)">🟡 45–69</strong> = Watch/At Risk · <strong style="color:var(--red)">🔴 0–44</strong> = Concern/Critical</div>
+
+      <!-- Customer Health -->
+      <div>
+        <div style="font-size:12px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Customer Health Score</div>
+        <table style="width:100%;border-collapse:collapse;font-size:12.5px">
+          <thead><tr style="border-bottom:1px solid var(--border)"><th style="text-align:left;padding:6px 8px;color:var(--muted);font-size:11px;font-weight:700;text-transform:uppercase">Dimension</th><th style="text-align:center;padding:6px 8px;color:var(--muted);font-size:11px;font-weight:700">Weight</th><th style="text-align:left;padding:6px 8px;color:var(--muted);font-size:11px;font-weight:700">What It Measures</th></tr></thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--border)"><td style="padding:7px 8px;font-weight:600">Profitability</td><td style="padding:7px 8px;text-align:center;font-family:'DM Mono',monospace;color:var(--accent);font-weight:700">35%</td><td style="padding:7px 8px;color:var(--muted)">Customer margin vs portfolio average</td></tr>
+            <tr style="border-bottom:1px solid var(--border)"><td style="padding:7px 8px;font-weight:600">Order Frequency</td><td style="padding:7px 8px;text-align:center;font-family:'DM Mono',monospace;color:var(--accent);font-weight:700">25%</td><td style="padding:7px 8px;color:var(--muted)">Orders per active month (consistency)</td></tr>
+            <tr style="border-bottom:1px solid var(--border)"><td style="padding:7px 8px;font-weight:600">Revenue Size</td><td style="padding:7px 8px;text-align:center;font-family:'DM Mono',monospace;color:var(--accent);font-weight:700">25%</td><td style="padding:7px 8px;color:var(--muted)">Lifetime sales as percentile of all customers</td></tr>
+            <tr><td style="padding:7px 8px;font-weight:600">Discount Independence</td><td style="padding:7px 8px;text-align:center;font-family:'DM Mono',monospace;color:var(--accent);font-weight:700">15%</td><td style="padding:7px 8px;color:var(--muted)">Low avg discount = higher score (less price-sensitive)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Product Health -->
+      <div>
+        <div style="font-size:12px;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Product Health Score</div>
+        <table style="width:100%;border-collapse:collapse;font-size:12.5px">
+          <thead><tr style="border-bottom:1px solid var(--border)"><th style="text-align:left;padding:6px 8px;color:var(--muted);font-size:11px;font-weight:700;text-transform:uppercase">Dimension</th><th style="text-align:center;padding:6px 8px;color:var(--muted);font-size:11px;font-weight:700">Weight</th><th style="text-align:left;padding:6px 8px;color:var(--muted);font-size:11px;font-weight:700">What It Measures</th></tr></thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--border)"><td style="padding:7px 8px;font-weight:600">Profit Margin</td><td style="padding:7px 8px;text-align:center;font-family:'DM Mono',monospace;color:var(--orange);font-weight:700">40%</td><td style="padding:7px 8px;color:var(--muted)">Product margin vs category average</td></tr>
+            <tr style="border-bottom:1px solid var(--border)"><td style="padding:7px 8px;font-weight:600">Discount Level</td><td style="padding:7px 8px;text-align:center;font-family:'DM Mono',monospace;color:var(--orange);font-weight:700">30%</td><td style="padding:7px 8px;color:var(--muted)">Lower avg discount = higher score</td></tr>
+            <tr style="border-bottom:1px solid var(--border)"><td style="padding:7px 8px;font-weight:600">Sales Velocity</td><td style="padding:7px 8px;text-align:center;font-family:'DM Mono',monospace;color:var(--orange);font-weight:700">20%</td><td style="padding:7px 8px;color:var(--muted)">Revenue as percentile across all products</td></tr>
+            <tr><td style="padding:7px 8px;font-weight:600">Order Consistency</td><td style="padding:7px 8px;text-align:center;font-family:'DM Mono',monospace;color:var(--orange);font-weight:700">10%</td><td style="padding:7px 8px;color:var(--muted)">Unique order count (not one-off)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Region Health -->
+      <div>
+        <div style="font-size:12px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Region Health Score</div>
+        <table style="width:100%;border-collapse:collapse;font-size:12.5px">
+          <thead><tr style="border-bottom:1px solid var(--border)"><th style="text-align:left;padding:6px 8px;color:var(--muted);font-size:11px;font-weight:700;text-transform:uppercase">Dimension</th><th style="text-align:center;padding:6px 8px;color:var(--muted);font-size:11px;font-weight:700">Weight</th><th style="text-align:left;padding:6px 8px;color:var(--muted);font-size:11px;font-weight:700">What It Measures</th></tr></thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--border)"><td style="padding:7px 8px;font-weight:600">Profit Margin</td><td style="padding:7px 8px;text-align:center;font-family:'DM Mono',monospace;color:var(--blue);font-weight:700">35%</td><td style="padding:7px 8px;color:var(--muted)">Region margin vs portfolio average</td></tr>
+            <tr style="border-bottom:1px solid var(--border)"><td style="padding:7px 8px;font-weight:600">Sales Volume</td><td style="padding:7px 8px;text-align:center;font-family:'DM Mono',monospace;color:var(--blue);font-weight:700">25%</td><td style="padding:7px 8px;color:var(--muted)">Revenue as percentile across regions</td></tr>
+            <tr style="border-bottom:1px solid var(--border)"><td style="padding:7px 8px;font-weight:600">YoY Profit Growth</td><td style="padding:7px 8px;text-align:center;font-family:'DM Mono',monospace;color:var(--blue);font-weight:700">25%</td><td style="padding:7px 8px;color:var(--muted)">Profit growth vs prior year (improving = higher score)</td></tr>
+            <tr><td style="padding:7px 8px;font-weight:600">Discount Discipline</td><td style="padding:7px 8px;text-align:center;font-family:'DM Mono',monospace;color:var(--blue);font-weight:700">15%</td><td style="padding:7px 8px;color:var(--muted)">Region avg discount vs portfolio avg</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Sub-Category & State -->
+      <div>
+        <div style="font-size:12px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Sub-Category Score</div>
+        <table style="width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:16px">
+          <thead><tr style="border-bottom:1px solid var(--border)"><th style="text-align:left;padding:6px 8px;color:var(--muted);font-size:11px;font-weight:700;text-transform:uppercase">Dimension</th><th style="text-align:center;padding:6px 8px;color:var(--muted);font-size:11px;font-weight:700">Weight</th><th style="text-align:left;padding:6px 8px;color:var(--muted);font-size:11px;font-weight:700">What It Measures</th></tr></thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--border)"><td style="padding:7px 8px;font-weight:600">Profit Margin</td><td style="padding:7px 8px;text-align:center;font-family:'DM Mono',monospace;color:var(--teal);font-weight:700">50%</td><td style="padding:7px 8px;color:var(--muted)">Sub-cat margin vs category average</td></tr>
+            <tr style="border-bottom:1px solid var(--border)"><td style="padding:7px 8px;font-weight:600">Discount Discipline</td><td style="padding:7px 8px;text-align:center;font-family:'DM Mono',monospace;color:var(--teal);font-weight:700">30%</td><td style="padding:7px 8px;color:var(--muted)">Avg discount vs portfolio average</td></tr>
+            <tr><td style="padding:7px 8px;font-weight:600">Sales Velocity</td><td style="padding:7px 8px;text-align:center;font-family:'DM Mono',monospace;color:var(--teal);font-weight:700">20%</td><td style="padding:7px 8px;color:var(--muted)">Revenue percentile across sub-cats</td></tr>
+          </tbody>
+        </table>
+        <div style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">State Score</div>
+        <div style="font-size:12.5px;color:var(--muted);background:var(--bg2);border-radius:7px;padding:10px 12px">Profit Margin (50%) · Sales Volume percentile (25%) · Discount Discipline (25%)</div>
+      </div>
+
+      <div style="font-size:11.5px;color:var(--dim);background:var(--bg2);border-radius:7px;padding:10px 13px;line-height:1.6">All scores are normalised relative to the current dataset — a score of 70+ means this entity performs in the top tier <em>for this specific dataset</em>. Scores update automatically on every data refresh.</div>
+    </div>
+  </div>
+</div>
 </body>
 </html>
