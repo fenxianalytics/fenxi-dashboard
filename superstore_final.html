@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.5.0/docx.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/libs/pptxgen.bundle.js"></script>
+<script src="https://unpkg.com/docx@7.8.2/build/index.js"></script>
+<script src="https://unpkg.com/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
 <style>
 :root{
   --bg:#f4f4f9;--bg2:#ebebf4;--bg-card:#ffffff;--bg-hover:#f0f0fb;
@@ -2090,9 +2090,13 @@ function callAI(msgs, sysOverride){
   .then(function(r){if(!r.ok)return r.text().then(function(b){throw new Error(r.status+': '+b.slice(0,200));});return r.json();})
   .then(function(d){
     setAIStatus(true,'AI Connected');
+    if(d.error)throw new Error(d.error.message||JSON.stringify(d.error));
     if(d.text)return d.text;
-    if(d.content)return d.content.map(function(b){return b.text||'';}).join('');
-    if(d.choices)return d.choices[0].message.content||'';
+    if(d.content){
+      if(typeof d.content==='string')return d.content;
+      if(Array.isArray(d.content))return d.content.map(function(b){return b.text||'';}).join('');
+    }
+    if(d.choices&&d.choices[0])return d.choices[0].message&&d.choices[0].message.content||'';
     return '';
   })
   .catch(function(e){setAIStatus(false,'AI Unavailable');throw e;});
@@ -2120,7 +2124,7 @@ function fmtAI(t){
   var lines=h.split('\n'),out='',inL=false,lt='';
   lines.forEach(function(l){
     var tr=l.trim();var isBul=/^[•\-] /.test(tr);var isNum=/^\d+\. /.test(tr);
-    if(isBul||isNum){var ltype=isBul?'ul':'ol';if(!inL||lt!==ltype){if(inL)out+='</'+lt+'>';out+='<'+ltype+'>';inL=true;lt=ltype;}out+='<li>'+tr.replace(/^[•\-\d]+[.)]\s/,'')+'</li>';}
+    if(isBul||isNum){var ltype=isBul?'ul':'ol';if(!inL||lt!==ltype){if(inL)out+='</'+lt+'>';out+='<'+ltype+'>';inL=true;lt=ltype;}out+='<li>'+tr.replace(/^[•\-]\s+/,'').replace(/^\d+[.)]\s+/,'')+'</li>';}
     else{if(inL){out+='</'+lt+'>';inL=false;lt='';}if(tr)out+='<p>'+l+'</p>';}
   });
   if(inL)out+='</'+lt+'>';
@@ -2885,39 +2889,39 @@ async function generateReport(){
       try{
   try{
               var t=await callAI([{role:'user',content:'Write a 3-paragraph executive summary for this '+periodLabel+' business report. Para 1: overall performance with sales/profit/margin. Para 2: biggest strength and biggest risk with exact figures. Para 3: key strategic implication. DATA:'+nl+ds}],reportSys);
-        sections.push({title:'Executive Summary',text:cleanR(t),chartId:null,kpis:null});
+        sections.push({title:'Executive Summary',text:cleanR(t),chartIds:['chart-monthly-sales','chart-region-bar'],kpis:null});
       }catch(_aiErr){
-        sections.push({title:'Executive Summary',text:'AI unavailable — report generated with data only.',chartId:null,kpis:null});
+        sections.push({title:'Executive Summary',text:'AI unavailable — report generated with data only.',chartIds:['chart-monthly-sales','chart-region-bar'],kpis:null});
       }
       }catch(aiErr){
-        sections.push({title:'Executive Summary',text:'Sales: '+fS(fa.totalSales)+' | Profit: '+fS(fa.totalProfit)+' | Margin: '+fP(fa.margin,2)+' | Orders: '+fN(fa.totalOrders)+' | Customers: '+fN(fa.totalCustomers),chartId:null,kpis:null});
+        sections.push({title:'Executive Summary',text:'Sales: '+fS(fa.totalSales)+' | Profit: '+fS(fa.totalProfit)+' | Margin: '+fP(fa.margin,2)+' | Orders: '+fN(fa.totalOrders)+' | Customers: '+fN(fa.totalCustomers),chartIds:[],kpis:null});
       }
     }
     if(secs.perf){
       setProgress(totalSteps,++step,'Writing performance section\u2026');
 try{
               var t=await callAI([{role:'user',content:'Write 2 paragraphs on overall performance for '+periodLabel+'. Cover: sales vs profit relationship, margin vs 10-15% retail benchmark, order volume and AOV insights. DATA:'+nl+ds}],reportSys);
-        sections.push({title:'Overall Performance',text:cleanR(t),chartId:null,kpis:[['Total Sales',fS(fa.totalSales)],['Total Profit',fS(fa.totalProfit)],['Profit Margin',fP(fa.margin,2)],['Total Orders',fN(fa.totalOrders)],['Avg Order Value',fS(fa.avgOV)],['Customers',fN(fa.totalCustomers)]]});
+        sections.push({title:'Overall Performance',text:cleanR(t),chartIds:['chart-p2-yearly','chart-segment'],kpis:[['Total Sales',fS(fa.totalSales)],['Total Profit',fS(fa.totalProfit)],['Profit Margin',fP(fa.margin,2)],['Total Orders',fN(fa.totalOrders)],['Avg Order Value',fS(fa.avgOV)],['Customers',fN(fa.totalCustomers)]]});
       }catch(_aiErr){
-        sections.push({title:'Overall Performance',text:'AI unavailable — report generated with data only.',chartId:null,kpis:null});
+        sections.push({title:'Overall Performance',text:'AI unavailable — report generated with data only.',chartIds:[],kpis:null});
       }
     }
     if(secs.cat){
       setProgress(totalSteps,++step,'Writing category analysis\u2026');
 try{
               var t=await callAI([{role:'user',content:'Write 2 paragraphs on category performance for '+periodLabel+'. Compare Furniture, Office Supplies, Technology on sales/profit/margin. Identify strongest and weakest. DATA:'+nl+ds}],reportSys);
-        sections.push({title:'Category Analysis',text:cleanR(t),chartId:'chart-p2-cat',kpis:null});
+        sections.push({title:'Category Analysis',text:cleanR(t),chartIds:['chart-p2-cat','chart-p2-margin'],kpis:null});
       }catch(_aiErr){
-        sections.push({title:'Category Analysis',text:'AI unavailable — report generated with data only.',chartId:null,kpis:null});
+        sections.push({title:'Category Analysis',text:'AI unavailable — report generated with data only.',chartIds:[],kpis:null});
       }
     }
     if(secs.reg){
       setProgress(totalSteps,++step,'Writing regional analysis\u2026');
 try{
               var t=await callAI([{role:'user',content:'Write 2 paragraphs on regional performance for '+periodLabel+'. Compare West/East/Central/South on sales/profit/margin. Identify margin gaps and likely causes. DATA:'+nl+ds}],reportSys);
-        sections.push({title:'Regional Breakdown',text:cleanR(t),chartId:'chart-p3-region',kpis:null});
+        sections.push({title:'Regional Breakdown',text:cleanR(t),chartIds:['chart-p3-region','chart-p3-margin'],kpis:null});
       }catch(_aiErr){
-        sections.push({title:'Regional Breakdown',text:'AI unavailable — report generated with data only.',chartId:null,kpis:null});
+        sections.push({title:'Regional Breakdown',text:'AI unavailable — report generated with data only.',chartIds:[],kpis:null});
       }
     }
     if(secs.prod){
@@ -2925,9 +2929,9 @@ try{
       var bestSub=topSubs[0]||{name:'N/A',p:0};var worstSub=lossSubs[0]||{name:'none',p:0};
 try{
               var t=await callAI([{role:'user',content:'Write 2 paragraphs on product/sub-category performance for '+periodLabel+'. Best sub-cat: '+bestSub.name+' at '+fS(bestSub.p)+'. Worst loss-maker: '+worstSub.name+' at '+fS(worstSub.p)+'. Explain discount-margin relationship. DATA:'+nl+ds}],reportSys);
-        sections.push({title:'Product Intelligence',text:cleanR(t),chartId:'chart-p2-subcat',kpis:null});
+        sections.push({title:'Product Intelligence',text:cleanR(t),chartIds:['chart-p2-subcat','chart-p4-top'],kpis:null});
       }catch(_aiErr){
-        sections.push({title:'Product Intelligence',text:'AI unavailable — report generated with data only.',chartId:null,kpis:null});
+        sections.push({title:'Product Intelligence',text:'AI unavailable — report generated with data only.',chartIds:[],kpis:null});
       }
     }
     if(secs.cust){
@@ -2939,9 +2943,9 @@ try{
       var flagCount=Object.keys(_flaggedCusts).length;
 try{
               var t=await callAI([{role:'user',content:'Write 2 paragraphs on customer health for '+periodLabel+'. Portfolio: '+_chData.length+' customers, avg score '+avg+'/100, '+h+' healthy, '+r+' at risk, '+cr+' critical, '+flagCount+' flagged for review. Discuss distribution and which segment needs most attention. DATA:'+nl+ds}],reportSys);
-        sections.push({title:'Customer Health',text:cleanR(t),chartId:'chart-ch-dist',kpis:null});
+        sections.push({title:'Customer Health',text:cleanR(t),chartIds:['chart-ch-dist','chart-ch-seg'],kpis:null});
       }catch(_aiErr){
-        sections.push({title:'Customer Health',text:'AI unavailable — report generated with data only.',chartId:null,kpis:null});
+        sections.push({title:'Customer Health',text:'AI unavailable — report generated with data only.',chartIds:[],kpis:null});
       }
     }
     if(secs.disc){
@@ -2949,9 +2953,9 @@ try{
       var lossOrders=_agg.discBkts.filter(function(x){return x.disc>=0.3&&x.margin<0;}).length;
 try{
               var t=await callAI([{role:'user',content:'Write 2 paragraphs on discount impact for '+periodLabel+'. Loss-making orders with 30pct+ discount: '+lossOrders+'. Explain breakeven threshold and recommend a discount cap policy with estimated profit recovery. DATA:'+nl+ds}],reportSys);
-        sections.push({title:'Discount Analysis',text:cleanR(t),chartId:'chart-discount-profit',kpis:null});
+        sections.push({title:'Discount Analysis',text:cleanR(t),chartIds:['chart-discount-profit'],kpis:null});
       }catch(_aiErr){
-        sections.push({title:'Discount Analysis',text:'AI unavailable — report generated with data only.',chartId:null,kpis:null});
+        sections.push({title:'Discount Analysis',text:'AI unavailable — report generated with data only.',chartIds:[],kpis:null});
       }
     }
     if(secs.ship){
@@ -2960,9 +2964,9 @@ try{
       var shipStr=modes.map(function(m){var mo=_agg.modeM[m]||{s:0,p:0,ordCount:0};return m+': orders='+mo.ordCount+' margin='+(mo.s>0?fP(mo.p/mo.s,2):'N/A');}).join(', ');
 try{
               var t=await callAI([{role:'user',content:'Write 1 paragraph on shipping for '+periodLabel+'. Data: '+shipStr+'. Which ship mode is most profitable and what does it mean for strategy? DATA:'+nl+ds}],reportSys);
-        sections.push({title:'Shipping Analysis',text:cleanR(t),chartId:null,kpis:null});
+        sections.push({title:'Shipping Analysis',text:cleanR(t),chartIds:['chart-p6-mode','chart-p6-days'],kpis:null});
       }catch(_aiErr){
-        sections.push({title:'Shipping Analysis',text:'AI unavailable — report generated with data only.',chartId:null,kpis:null});
+        sections.push({title:'Shipping Analysis',text:'AI unavailable — report generated with data only.',chartIds:[],kpis:null});
       }
     }
     if(secs.recs){
@@ -2970,13 +2974,41 @@ try{
       var lossStr=lossSubs.slice(0,3).map(function(s){return s.name+'('+fS(s.p)+')';}).join(', ')||'none';
 try{
               var t=await callAI([{role:'user',content:'Write exactly 3 numbered strategic recommendations for '+periodLabel+'. Each must: (1) name a specific action, (2) cite the exact problem with a number, (3) estimate the dollar or % improvement. Loss-making sub-cats: '+lossStr+'. DATA:'+nl+ds}],reportSys);
-        sections.push({title:'Strategic Recommendations',text:cleanR(t),chartId:null,kpis:null});
+        sections.push({title:'Strategic Recommendations',text:cleanR(t),chartIds:[],kpis:null});
       }catch(_aiErr){
-        sections.push({title:'Strategic Recommendations',text:'AI unavailable — report generated with data only.',chartId:null,kpis:null});
+        sections.push({title:'Strategic Recommendations',text:'AI unavailable — report generated with data only.',chartIds:[],kpis:null});
       }
     }
     setProgress(totalSteps,++step,'Building Word document\u2026');
+    // ── PRE-RENDER: silently visit every page so all Chart.js canvases are drawn ──
+    var _origPage=_activePage||1;
+    var _pageRenderList=[2,3,4,5,6];
+    for(var _pi=0;_pi<_pageRenderList.length;_pi++){
+      var _pn=_pageRenderList[_pi];
+      // Show the page briefly so canvases get dimensions
+      var _pgEl=document.getElementById('page-'+_pn);
+      if(_pgEl){
+        _pgEl.style.display='block';
+        _pgEl.style.visibility='hidden';
+        _pgEl.style.position='absolute';
+        _pgEl.style.zIndex='-999';
+        if(_pn===2&&_agg.totalSales){try{renderCharts_p2();}catch(e){}}
+        if(_pn===3&&_agg.totalSales){try{renderCharts_p3();}catch(e){}}
+        if(_pn===4&&_agg.totalSales){try{renderCharts_p4();}catch(e){}}
+        if(_pn===5&&_agg.totalSales){try{renderCharts_p5();}catch(e){}}
+        if(_pn===6&&_agg.totalSales){try{renderCharts_p6();}catch(e){}}
+      }
+    }
+    // Small wait for Chart.js to actually paint
+    setProgress(totalSteps,step,'Rendering charts for export\u2026');
+    await new Promise(function(res){setTimeout(res,1500);});
     await buildWordDoc(sections,{title:title,forName:forName,byName:byName,periodLabel:periodLabel,date:new Date().toLocaleDateString('en-IN',{year:'numeric',month:'long',day:'numeric'})});
+    // Restore hidden pages
+    _pageRenderList.forEach(function(_pn){
+      var _pgEl=document.getElementById('page-'+_pn);
+      if(_pgEl){_pgEl.style.display='';_pgEl.style.visibility='';_pgEl.style.position='';_pgEl.style.zIndex='';}
+    });
+    switchPage(_origPage);
     var prog=document.getElementById('rpt-progress');
     if(prog)prog.innerHTML='<div style="background:var(--green-dim);border:1px solid rgba(22,163,74,.2);border-radius:8px;padding:12px 16px;font-size:13px;font-weight:600;color:var(--green)">\u2713 Report downloaded successfully!</div>';
   }catch(e){
@@ -2987,66 +3019,357 @@ try{
   }
 }
 
+// ── CHART TITLES MAP ─────────────────────────────────────────────────────────
+var CHART_TITLES={
+  'chart-monthly-sales':'Monthly Sales Trend',
+  'chart-region-bar':'Sales & Profit by Region',
+  'chart-segment':'Sales & Profit by Segment',
+  'chart-discount-profit':'Discount Rate vs Profit Margin',
+  'chart-p2-cat':'Sales & Profit by Category',
+  'chart-p2-margin':'Profit Margin by Category',
+  'chart-p2-subcat':'Sub-Category Profit Ranking',
+  'chart-p2-yearly':'Year-over-Year Sales & Profit',
+  'chart-p2-seg-profit':'Profit by Customer Segment',
+  'chart-p3-region':'Sales & Profit by Region',
+  'chart-p3-margin':'Profit Margin by Region',
+  'chart-p3-states':'Top 15 States by Sales',
+  'chart-p4-top':'Top 10 Products by Profit',
+  'chart-p4-bot':'Bottom 10 Products by Profit',
+  'chart-p4-disc-margin':'Discount vs Margin by Sub-Category',
+  'chart-p4-subcat-scores':'Sub-Category Health Scores',
+  'chart-ch-dist':'Customer Health Score Distribution',
+  'chart-ch-seg':'Avg Health Score by Segment',
+  'chart-p5-aov':'Average Order Value Trend',
+  'chart-p5-seg':'Sales by Segment',
+  'chart-p6-mode':'Revenue by Ship Mode',
+  'chart-p6-days':'Avg Delivery Days by Ship Mode',
+  'chart-p6-margin':'Margin by Ship Mode',
+  'chart-p6-seg-mode':'Ship Mode by Segment'
+};
+
+function captureChartImage(chartId){
+  try{
+    var canvas=document.getElementById(chartId);
+    if(!canvas)return null;
+    if(_charts&&_charts[chartId]){
+      try{_charts[chartId].resize();_charts[chartId].update('none');}catch(e){}
+    }
+    if(canvas.width<50||canvas.height<50)return null;
+    var off=document.createElement('canvas');
+    off.width=canvas.width; off.height=canvas.height;
+    var ctx=off.getContext('2d');
+    ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,off.width,off.height);
+    ctx.drawImage(canvas,0,0);
+    return off.toDataURL('image/png');
+  }catch(e){console.warn('captureChartImage failed:',chartId,e);return null;}
+}
+
 async function buildWordDoc(sections,meta){
   var docx=window.docx;
-  if(!docx){throw new Error('Word library not loaded. Please refresh the page.');}
-  var children=[];
-  var accent='6366f1', dark='12122a', muted='555577', dim='999999', border='dcdcec';
-  // Cover
-  children.push(new docx.Paragraph({children:[new docx.TextRun({text:meta.title,bold:true,size:56,color:accent})],spacing:{after:200}}));
-  children.push(new docx.Paragraph({children:[new docx.TextRun({text:meta.periodLabel,size:28,color:muted})],spacing:{after:100}}));
-  if(meta.forName){children.push(new docx.Paragraph({children:[new docx.TextRun({text:'Prepared for: '+meta.forName,size:24,color:muted})],spacing:{after:60}}));}
-  children.push(new docx.Paragraph({children:[new docx.TextRun({text:'Prepared by: '+meta.byName,size:24,color:muted})],spacing:{after:60}}));
-  children.push(new docx.Paragraph({children:[new docx.TextRun({text:'Generated: '+meta.date,size:22,color:dim})],spacing:{after:400}}));
-  children.push(new docx.Paragraph({children:[new docx.TextRun({text:'',size:24})],border:{bottom:{style:'single',size:6,color:accent}},spacing:{after:400}}));
-  // Sections
-  sections.forEach(function(sec){
-    children.push(new docx.Paragraph({children:[new docx.TextRun({text:sec.title,bold:true,size:32,color:dark})],spacing:{before:400,after:160},border:{bottom:{style:'single',size:4,color:border}}}));
-    // KPI table
-    if(sec.kpis&&sec.kpis.length){
-      var rows=[];
-      for(var ki=0;ki<sec.kpis.length;ki+=3){
-        var rowCells=sec.kpis.slice(ki,ki+3).map(function(kpi){
-          return new docx.TableCell({children:[
-            new docx.Paragraph({children:[new docx.TextRun({text:kpi[0],size:16,color:muted,bold:true})]}),
-            new docx.Paragraph({children:[new docx.TextRun({text:kpi[1],size:26,bold:true,color:accent})]})
-          ],margins:{top:100,bottom:100,left:100,right:100},shading:{fill:'f4f4f9'}});
+  if(!docx||!docx.Document||!docx.Paragraph||!docx.TextRun){
+    throw new Error('Word library not loaded. Please refresh the page.');
+  }
+
+  var ACC='6366f1', DARK='1a1a2e', MUT='55557a', DIM='9999bb', BRD='dcdcec';
+  var nb={style:'none',size:0,color:'ffffff'};
+  var NB={top:nb,bottom:nb,left:nb,right:nb,insideH:nb,insideV:nb};
+  var sb={style:'single',size:1,color:'e0e0f0'};
+  var SB={top:sb,bottom:sb,left:sb,right:sb};
+
+  // ── HELPER: paragraph ──────────────────────────────────────────────────────
+  function P(runs,opts){
+    return new docx.Paragraph(Object.assign({children:Array.isArray(runs)?runs:[runs]},opts||{}));
+  }
+  function T(text,opts){
+    return new docx.TextRun(Object.assign({text:text,font:'Arial'},opts||{}));
+  }
+  function spacer(pts){
+    return P([T('')],{spacing:{after:pts||120}});
+  }
+
+  // ── HELPER: KPI grid ───────────────────────────────────────────────────────
+  function kpiGrid(kpis){
+    var COLS=3, W=9360, CW=Math.floor(W/COLS)-20;
+    var GAP=20, rows=[];
+    for(var i=0;i<kpis.length;i+=COLS){
+      var cells=kpis.slice(i,i+COLS).map(function(k){
+        return new docx.TableCell({
+          width:{size:CW,type:docx.WidthType.DXA},
+          borders:SB,
+          margins:{top:160,bottom:160,left:200,right:200},
+          shading:{fill:'f5f5fc',type:'clear'},
+          children:[
+            P([T(k[0],{size:16,bold:true,color:MUT,allCaps:true})],{spacing:{after:50}}),
+            P([T(k[1],{size:34,bold:true,color:ACC})],{spacing:{after:0}})
+          ]
         });
-        while(rowCells.length<3){rowCells.push(new docx.TableCell({children:[new docx.Paragraph({children:[new docx.TextRun({text:''})]})]}));}
-        rows.push(new docx.TableRow({children:rowCells}));
+      });
+      // Fill short rows
+      while(cells.length<COLS){
+        cells.push(new docx.TableCell({width:{size:CW,type:docx.WidthType.DXA},borders:NB,children:[P([T('')])]}));
       }
-      children.push(new docx.Table({rows:rows,width:{size:100,type:'pct'}}));
-      children.push(new docx.Paragraph({children:[new docx.TextRun({text:'',size:10})],spacing:{after:120}}));
+      rows.push(new docx.TableRow({children:cells}));
     }
+    return new docx.Table({width:{size:9360,type:docx.WidthType.DXA},columnWidths:Array(COLS).fill(CW),rows:rows});
+  }
+
+  // ── HELPER: embed single chart full-width ──────────────────────────────────
+  function embedChart(chartId){
+    var data=captureChartImage(chartId);
+    if(!data)return null;
+    try{
+      var b64=data.replace(/^data:image\/\w+;base64,/,'');
+      var title=CHART_TITLES[chartId]||chartId;
+      return [
+        P([new docx.ImageRun({data:b64,transformation:{width:560,height:240},type:'png'})],
+          {alignment:docx.AlignmentType.CENTER,spacing:{before:160,after:60}}),
+        P([T('Figure: '+title,{size:17,italics:true,color:MUT})],
+          {alignment:docx.AlignmentType.CENTER,spacing:{after:240}})
+      ];
+    }catch(e){return null;}
+  }
+
+  // ── HELPER: two charts side-by-side ───────────────────────────────────────
+  function embedChartPair(id1,id2){
+    var d1=captureChartImage(id1), d2=captureChartImage(id2);
+    function makeCell(data,chartId){
+      if(!data)return new docx.TableCell({width:{size:4560,type:docx.WidthType.DXA},borders:NB,children:[P([T('')])]});
+      try{
+        var b64=data.replace(/^data:image\/\w+;base64,/,'');
+        var title=CHART_TITLES[chartId]||chartId;
+        return new docx.TableCell({
+          width:{size:4560,type:docx.WidthType.DXA},
+          borders:{top:sb,bottom:sb,left:sb,right:sb},
+          margins:{top:80,bottom:80,left:80,right:80},
+          shading:{fill:'fafafa',type:'clear'},
+          children:[
+            P([new docx.ImageRun({data:b64,transformation:{width:248,height:165},type:'png'})],
+              {alignment:docx.AlignmentType.CENTER,spacing:{after:60}}),
+            P([T(title,{size:16,italics:true,color:MUT,bold:true})],
+              {alignment:docx.AlignmentType.CENTER,spacing:{after:0}})
+          ]
+        });
+      }catch(e){return new docx.TableCell({width:{size:4560,type:docx.WidthType.DXA},borders:NB,children:[P([T('')])]});}
+    }
+    var gap=new docx.TableCell({width:{size:240,type:docx.WidthType.DXA},borders:NB,children:[P([T('')])]});
+    return [
+      new docx.Table({
+        width:{size:9360,type:docx.WidthType.DXA},
+        columnWidths:[4560,240,4560],
+        rows:[new docx.TableRow({children:[makeCell(d1,id1),gap,makeCell(d2,id2)]})]
+      }),
+      spacer(240)
+    ];
+  }
+
+  // ── HELPER: meta table row ─────────────────────────────────────────────────
+  function metaRow(label,value){
+    return [new docx.Table({
+      width:{size:9360,type:docx.WidthType.DXA},
+      columnWidths:[2640,6720],
+      rows:[new docx.TableRow({children:[
+        new docx.TableCell({
+          width:{size:2640,type:docx.WidthType.DXA},borders:SB,
+          shading:{fill:'f4f4fb',type:'clear'},
+          margins:{top:100,bottom:100,left:180,right:180},
+          children:[P([T(label,{size:19,bold:true,color:MUT,allCaps:true})])]
+        }),
+        new docx.TableCell({
+          width:{size:6720,type:docx.WidthType.DXA},borders:SB,
+          margins:{top:100,bottom:100,left:180,right:180},
+          children:[P([T(value,{size:19,color:DARK})])]
+        })
+      ]})]
+    }), spacer(40)];
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  // COVER PAGE (own section, no footer, different margins)
+  // ══════════════════════════════════════════════════════════════
+  var coverChildren=[];
+
+  // Full-width colour banner
+  coverChildren.push(new docx.Table({
+    width:{size:10080,type:docx.WidthType.DXA},
+    columnWidths:[10080],
+    rows:[new docx.TableRow({children:[
+      new docx.TableCell({
+        width:{size:10080,type:docx.WidthType.DXA},
+        borders:NB,
+        shading:{fill:'5254d4',type:'clear'},
+        margins:{top:440,bottom:440,left:560,right:560},
+        children:[
+          P([T('FENXI ANALYTICS',{size:18,bold:true,color:'a5b4fc',allCaps:true})],{spacing:{after:120}}),
+          P([T(meta.title||'Business Performance Report',{size:58,bold:true,color:'ffffff'})],{spacing:{after:160}}),
+          P([T(meta.periodLabel||'',{size:26,color:'c7d2fe'})],{spacing:{after:0}})
+        ]
+      })
+    ]})]
+  }));
+
+  coverChildren.push(spacer(500));
+
+  // Meta rows
+  if(meta.forName){metaRow('Prepared For',meta.forName).forEach(function(x){coverChildren.push(x);});}
+  metaRow('Prepared By',meta.byName||'Fenxi Analytics').forEach(function(x){coverChildren.push(x);});
+  metaRow('Report Date',meta.date).forEach(function(x){coverChildren.push(x);});
+  metaRow('Period',meta.periodLabel||'Full Dataset').forEach(function(x){coverChildren.push(x);});
+  metaRow('Classification','Confidential').forEach(function(x){coverChildren.push(x);});
+
+  coverChildren.push(spacer(400));
+
+  // Table of contents preview
+  coverChildren.push(new docx.Table({
+    width:{size:9360,type:docx.WidthType.DXA},
+    columnWidths:[9360],
+    rows:[new docx.TableRow({children:[
+      new docx.TableCell({
+        width:{size:9360,type:docx.WidthType.DXA},
+        borders:SB,
+        shading:{fill:'f8f8fd',type:'clear'},
+        margins:{top:180,bottom:180,left:280,right:280},
+        children:[
+          P([T('Contents',{size:20,bold:true,color:ACC,allCaps:true})],{spacing:{after:120}})
+        ].concat(sections.map(function(s,i){
+          return P([
+            T((i+1)+'.  ',{size:20,bold:true,color:ACC}),
+            T(s.title,{size:20,color:DARK})
+          ],{spacing:{after:60}});
+        }))
+      })
+    ]})]
+  }));
+
+  coverChildren.push(spacer(360));
+  coverChildren.push(P([T('This report was generated by Fenxi AI using live data from the connected dataset. All figures are computed directly from source data. AI narrative sections should be reviewed before external distribution.',{size:17,italics:true,color:DIM})],
+    {border:{top:{style:'single',size:4,color:BRD,space:6}},spacing:{before:160}}));
+
+  // ══════════════════════════════════════════════════════════════
+  // CONTENT PAGES
+  // ══════════════════════════════════════════════════════════════
+  var contentChildren=[];
+
+  sections.forEach(function(sec,idx){
+
+    // Section number + title heading
+    contentChildren.push(P([
+      T(String(idx+1).padStart(2,'0')+'  ',{size:11,bold:true,color:'a5b4fc',font:'Arial'}),
+      T(sec.title.toUpperCase(),{size:11,bold:true,color:ACC,font:'Arial',allCaps:true})
+    ],{
+      border:{bottom:{style:'single',size:12,color:ACC,space:4}},
+      spacing:{before:idx===0?0:100,after:200},
+      shading:{fill:'f8f8fd',type:'clear'}
+    }));
+
+    // Large section title
+    contentChildren.push(P([T(sec.title,{size:38,bold:true,color:DARK})],{spacing:{before:80,after:200}}));
+
+    // KPI grid
+    if(sec.kpis&&sec.kpis.length){
+      contentChildren.push(kpiGrid(sec.kpis));
+      contentChildren.push(spacer(240));
+    }
+
     // Body text
-    if(sec.text){
-      var paras=sec.text.split('\n').filter(function(p){return p.trim().length>0;});
-      paras.forEach(function(para){
-        var trimmed=para.trim();
-        if(!trimmed)return;
-        var isNum=/^[123]\./.test(trimmed);
-        children.push(new docx.Paragraph({children:[new docx.TextRun({text:trimmed,size:22,color:dark})],spacing:{after:160},indent:isNum?{left:360}:{}}));
+    if(sec.text&&sec.text.trim()){
+      sec.text.split('\n').filter(function(l){return l.trim();}).forEach(function(line){
+        var trimmed=line.trim();
+        var numMatch=trimmed.match(/^(\d+)\.\s*(.*)/s);
+        if(numMatch){
+          // Numbered rec — shaded callout box
+          contentChildren.push(new docx.Table({
+            width:{size:9360,type:docx.WidthType.DXA},
+            columnWidths:[360,8760],  // colour strip + content
+            rows:[new docx.TableRow({children:[
+              new docx.TableCell({
+                width:{size:360,type:docx.WidthType.DXA},
+                borders:NB,
+                shading:{fill:'6366f1',type:'clear'},
+                margins:{top:120,bottom:120,left:120,right:120},
+                children:[P([T(numMatch[1],{size:22,bold:true,color:'ffffff'})])]
+              }),
+              new docx.TableCell({
+                width:{size:8760,type:docx.WidthType.DXA},
+                borders:{top:sb,bottom:sb,left:nb,right:sb},
+                shading:{fill:'f5f5fc',type:'clear'},
+                margins:{top:120,bottom:120,left:220,right:220},
+                children:[P([T(numMatch[2],{size:22,color:DARK})],{alignment:docx.AlignmentType.BOTH})]
+              })
+            ]})]
+          }));
+          contentChildren.push(spacer(120));
+        } else {
+          contentChildren.push(P([T(trimmed,{size:22,color:DARK})],
+            {spacing:{after:180},alignment:docx.AlignmentType.BOTH}));
+        }
       });
     }
-    // Chart image
-    if(sec.chartId){
-      var imgData=captureChartImage(sec.chartId);
-      if(imgData){
-        try{
-          var b64=imgData.replace('data:image/png;base64,','');
-          children.push(new docx.Paragraph({children:[new docx.ImageRun({data:b64,transformation:{width:560,height:220},type:'png'})],spacing:{before:100,after:180}}));
-        }catch(imgErr){console.warn('Chart image failed:',imgErr);}
-      }
+
+    // Charts
+    var ids=sec.chartIds||(sec.chartId?[sec.chartId]:[]);
+    if(ids.length===1){
+      var res=embedChart(ids[0]);
+      if(res)res.forEach(function(x){contentChildren.push(x);});
+    } else if(ids.length>=2){
+      embedChartPair(ids[0],ids[1]).forEach(function(x){contentChildren.push(x);});
+    }
+
+    // Page break between sections (not after last)
+    if(idx<sections.length-1){
+      contentChildren.push(P([new docx.PageBreak()]));
     }
   });
-  // Footer
-  children.push(new docx.Paragraph({children:[new docx.TextRun({text:'',size:24})],border:{top:{style:'single',size:4,color:border}},spacing:{before:400,after:120}}));
-  children.push(new docx.Paragraph({children:[new docx.TextRun({text:'Generated by Fenxi Analytics  |  fenxianalytics.com  |  contact@fenxianalytics.com',size:18,color:dim,italics:true})],alignment:'center'}));
-  var doc=new docx.Document({sections:[{properties:{page:{size:{width:12240,height:15840},margin:{top:1440,right:1440,bottom:1440,left:1440}}},children:children}]});
+
+  // End matter
+  contentChildren.push(spacer(600));
+  contentChildren.push(P([T('')],{border:{bottom:{style:'single',size:6,color:ACC,space:1}},spacing:{before:0,after:0}}));
+  contentChildren.push(spacer(160));
+  contentChildren.push(P([T('Generated by Fenxi Analytics',{size:20,bold:true,color:ACC})],{alignment:docx.AlignmentType.CENTER,spacing:{after:60}}));
+  contentChildren.push(P([T('fenxianalytics.com  ·  contact@fenxianalytics.com',{size:18,color:MUT})],{alignment:docx.AlignmentType.CENTER,spacing:{after:60}}));
+  contentChildren.push(P([T('Confidential — '+meta.date,{size:17,italics:true,color:DIM})],{alignment:docx.AlignmentType.CENTER}));
+
+  // ══════════════════════════════════════════════════════════════
+  // BUILD DOCUMENT — two sections (cover + content)
+  // ══════════════════════════════════════════════════════════════
+  var footerPara=new docx.Paragraph({
+    alignment:docx.AlignmentType.CENTER,
+    border:{top:{style:'single',size:4,color:BRD,space:4}},
+    spacing:{before:60},
+    children:[
+      T('Fenxi Analytics  ·  Confidential  ·  Page ',{size:16,color:DIM}),
+      new docx.TextRun({children:[docx.PageNumber.CURRENT],size:16,color:DIM,font:'Arial'}),
+      T(' of ',{size:16,color:DIM}),
+      new docx.TextRun({children:[docx.PageNumber.TOTAL_PAGES],size:16,color:DIM,font:'Arial'})
+    ]
+  });
+
+  var doc=new docx.Document({
+    creator:'Fenxi Analytics',
+    title:meta.title||'Fenxi Report',
+    numbering:{config:[]},
+    sections:[
+      // Cover — no footer, generous margins
+      {
+        properties:{
+          page:{size:{width:12240,height:15840},margin:{top:720,right:1080,bottom:720,left:1080}},
+          type:docx.SectionType?docx.SectionType.NEXT_PAGE:'nextPage'
+        },
+        children:coverChildren
+      },
+      // Content — with footer
+      {
+        properties:{
+          page:{size:{width:12240,height:15840},margin:{top:1080,right:1080,bottom:1080,left:1080}}
+        },
+        footers:{default:new docx.Footer({children:[footerPara]})},
+        children:contentChildren
+      }
+    ]
+  });
+
   var blob=await docx.Packer.toBlob(doc);
   var url=URL.createObjectURL(blob);
-  var a=document.createElement('a');
-  a.href=url;
+  var a=document.createElement('a');a.href=url;
   a.download=(meta.title||'Fenxi-Report').replace(/[^a-zA-Z0-9 ]/g,'-')+'.docx';
   a.click();
   setTimeout(function(){URL.revokeObjectURL(url);},3000);
@@ -3172,9 +3495,13 @@ function streamAI(msgs, sysOverride, onChunk, onDone, onError) {
       // Fallback: non-streaming
       r.json().then(function(d) {
         var text = '';
+        if (d.error) { onError(new Error(d.error.message||JSON.stringify(d.error))); return; }
         if (d.text) text = d.text;
-        else if (d.content) text = d.content.map(function(b){return b.text||'';}).join('');
-        else if (d.choices) text = d.choices[0].message.content || '';
+        else if (d.content) {
+          if (typeof d.content === 'string') text = d.content;
+          else if (Array.isArray(d.content)) text = d.content.map(function(b){return b.text||'';}).join('');
+        }
+        else if (d.choices && d.choices[0]) text = d.choices[0].message && d.choices[0].message.content || '';
         onDone(text);
       }).catch(onError);
     }
@@ -4097,6 +4424,8 @@ function exportPDF() {
 }
 
 function exportPPT() {
+  if(typeof PptxGenJS==='undefined'){alert('PPT library not loaded yet — please wait a moment and try again.');return;}
+  try{
   var pptx = new PptxGenJS();
   var a = _agg;
   pptx.layout = 'LAYOUT_WIDE';
@@ -4174,6 +4503,7 @@ function exportPPT() {
 
   pptx.writeFile({ fileName: 'Fenxi-Analytics-Report.pptx' });
   logAction('PowerPoint exported');
+  }catch(e){alert('PPT export failed: '+e.message);console.error('PPT export error',e);}
 }
 
 // ═══════════════════════════════════════════════════════
@@ -4285,6 +4615,12 @@ function addExportButtons() {
 // UPDATED INIT — ADD localStorage, anomaly detection, chat cats
 // ═══════════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', function() {
+  // Check libraries loaded
+  if(window.docx&&window.docx.Document)console.log('✅ docx library loaded');
+  else console.warn('⚠️ docx library not loaded — Word export will fail');
+  if(typeof PptxGenJS!=='undefined')console.log('✅ pptxgenjs loaded');
+  else console.warn('⚠️ PptxGenJS not loaded — PPT export will fail');
+
   // Load persisted state first
   lsLoad();
 
