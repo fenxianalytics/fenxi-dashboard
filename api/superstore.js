@@ -9,7 +9,7 @@ export default async function handler(req, res) {
 
     const token = await getAccessToken(clientEmail, privateKey);
 
-    const range = encodeURIComponent('Sample - Superstore.csv');
+    const range = encodeURIComponent('Sample - Superstore.csv!A1:Z10000');
     const dataRes = await fetch(
       `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}`,
       { headers: { Authorization: `Bearer ${token}` } }
