@@ -3,13 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Superstore Analytics · Fenxi</title>
+<title>Superstore Analytics · Fenxi v13</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<script src="https://unpkg.com/docx@7.8.2/build/index.js"></script>
-<script src="https://unpkg.com/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<!-- docx library loaded on demand when report export is needed -->
 <style>
 :root{
   --bg:#f4f4f9;--bg2:#ebebf4;--bg-card:#ffffff;--bg-hover:#f0f0fb;
@@ -66,7 +67,7 @@ input,textarea{font-family:'DM Sans',sans-serif}
 #main{padding:4px 20px 80px;max-width:1320px;margin:0 auto}
 .page{display:none}
 .page.active{display:block;animation:pageFade .15s ease forwards}
-#page-7.active{display:flex;flex-direction:column;height:calc(100vh - var(--nav-h));padding:0;animation:none}
+#page-7.active{display:flex;flex-direction:column;height:calc(100vh - var(--nav-h));height:calc(100dvh - var(--nav-h));padding:0;animation:none}
 @keyframes pageFade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
 
 /* SECTION */
@@ -91,6 +92,9 @@ input,textarea{font-family:'DM Sans',sans-serif}
 .kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
 @media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:640px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+/* Region score cards + customer health KPI responsive */
+@media(max-width:900px){#region-score-cards{grid-template-columns:repeat(2,1fr)!important}#ch-kpi-grid{grid-template-columns:repeat(3,1fr)!important}}
+@media(max-width:640px){#region-score-cards{grid-template-columns:1fr!important}#ch-kpi-grid{grid-template-columns:repeat(2,1fr)!important}}
 .kpi-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:2px;border-top:3px solid transparent;cursor:pointer;transition:all .18s}
 .kpi-card:hover{border-color:var(--accent);transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,0,0,.1)}
 .kpi-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
@@ -153,6 +157,29 @@ input,textarea{font-family:'DM Sans',sans-serif}
 .tog-btn{background:none;border:none;color:var(--muted);padding:5px 13px;font-size:12px;font-weight:500;transition:all .15s}
 .tog-btn.active{background:var(--border2);color:var(--text);font-weight:600}
 
+/* SCORE FILTER */
+.score-filter{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.score-filter-btn{background:none;border:1.5px solid var(--border2);color:var(--muted);padding:4px 12px;border-radius:16px;font-size:11.5px;font-weight:600;cursor:pointer;transition:all .15s}
+.score-filter-btn:hover{border-color:var(--accent);color:var(--accent)}
+.score-filter-btn.active{background:var(--text);color:var(--bg);border-color:var(--text)}
+.score-filter-btn.active-green{background:var(--green-dim);color:var(--green);border-color:var(--green)}
+.score-filter-btn.active-yellow{background:var(--yellow-dim);color:var(--yellow);border-color:var(--yellow)}
+.score-filter-btn.active-red{background:var(--red-dim);color:var(--red);border-color:var(--red)}
+.score-info-btn{background:none;border:1px solid var(--border2);color:var(--muted);padding:3px 9px;border-radius:5px;font-size:11px;cursor:pointer;white-space:nowrap;transition:all .15s}
+.score-info-btn:hover{color:var(--accent);border-color:var(--accent)}
+
+/* TOAST NOTIFICATIONS */
+#toast-container{position:fixed;bottom:20px;right:20px;z-index:900;display:flex;flex-direction:column-reverse;gap:8px;pointer-events:none;max-width:380px}
+.toast{pointer-events:auto;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:12px 16px;box-shadow:0 8px 30px rgba(0,0,0,.15);display:flex;align-items:flex-start;gap:10px;animation:toastIn .3s ease;font-size:13px;line-height:1.5;color:var(--text)}
+.toast.removing{animation:toastOut .25s ease forwards}
+.toast-icon{flex-shrink:0;font-size:16px;margin-top:1px}
+.toast-body{flex:1}
+.toast-close{background:none;border:none;color:var(--dim);cursor:pointer;font-size:14px;padding:0 2px;flex-shrink:0}
+.toast-close:hover{color:var(--text)}
+.toast.success{border-left:4px solid var(--green)}.toast.info{border-left:4px solid var(--blue)}.toast.warning{border-left:4px solid var(--yellow)}.toast.error{border-left:4px solid var(--red)}
+@keyframes toastIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+@keyframes toastOut{to{opacity:0;transform:translateX(40px)}}
+
 /* CAT CARDS */
 .cat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
 @media(max-width:900px){.cat-grid{grid-template-columns:1fr}}
@@ -191,9 +218,9 @@ input,textarea{font-family:'DM Sans',sans-serif}
 #exec-stale-nudge{display:none;font-size:11px;color:var(--orange);background:var(--orange-dim);border:1px solid rgba(234,88,12,.2);padding:3px 10px;border-radius:5px;cursor:pointer;transition:all .15s}
 #exec-stale-nudge:hover{background:var(--orange)}
 #exec-stale-nudge:hover{color:#fff}
-#exec-body{padding:13px 16px;font-size:13px;line-height:1.7}
-#exec-body p{margin-bottom:5px}
-#exec-body strong{font-weight:700}
+#exec-body{padding:13px 16px;font-size:13px;line-height:1.7;color:var(--text)}
+#exec-body p{margin-bottom:5px;color:var(--text)}
+#exec-body strong{font-weight:700;color:var(--text)}
 
 /* EXPAND / EXPLORE OVERLAY */
 #expand-overlay{display:none;position:fixed;inset:0;z-index:400;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px}
@@ -284,14 +311,14 @@ input,textarea{font-family:'DM Sans',sans-serif}
 .pmsg-av.ai{background:none}
 .pmsg-av.ai img{width:26px;height:26px;border-radius:7px;object-fit:cover}
 .pmsg-av.usr{background:var(--bg2);color:var(--muted);font-size:11px;font-weight:700}
-.pmsg-bub{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:11px 13px;font-size:13px;line-height:1.6;flex:1}
-.pmsg-bub p{margin-bottom:4px}
-.pmsg-bub strong{font-weight:700}
-.pmsg-bub ul,.pmsg-bub ol{padding-left:16px;margin:4px 0}
-.pmsg-row.user .pmsg-bub{background:var(--accent-dim);border-color:rgba(99,102,241,.2)}
+.pmsg-bub{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:11px 13px;font-size:13px;line-height:1.6;flex:1;color:var(--text)}
+.pmsg-bub p{margin-bottom:4px;color:var(--text)}
+.pmsg-bub strong{font-weight:700;color:var(--text)}
+.pmsg-bub ul,.pmsg-bub ol{padding-left:16px;margin:4px 0;color:var(--text)}
+.pmsg-bub li,.cmsg-bub li{color:var(--text)}
 
 /* FULL CHAT PAGE */
-#chat-page{display:flex;flex-direction:column;height:calc(100vh - var(--nav-h));overflow:hidden}
+#chat-page{display:flex;flex-direction:column;height:calc(100vh - var(--nav-h));height:calc(100dvh - var(--nav-h));overflow:hidden}
 #chat-hdr{padding:14px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg-card);flex-shrink:0}
 .chat-brand{display:flex;align-items:center;gap:10px}
 .chat-logo{width:28px;height:28px;border-radius:8px;object-fit:cover}
@@ -311,11 +338,11 @@ input,textarea{font-family:'DM Sans',sans-serif}
 .cmsg-av{width:30px;height:30px;border-radius:9px;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center}
 .cmsg-av.ai img{width:30px;height:30px;border-radius:9px;object-fit:cover}
 .cmsg-av.usr{background:var(--bg2);color:var(--muted);font-size:11px;font-weight:700}
-.cmsg-bub{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:13px 16px;font-size:14px;line-height:1.65;flex:1;box-shadow:var(--shadow)}
-.cmsg-bub p{margin-bottom:5px}
-.cmsg-bub strong{font-weight:700}
-.cmsg-bub ul,.cmsg-bub ol{padding-left:18px;margin:5px 0}
-.cmsg-row.user .cmsg-bub{background:var(--accent-dim);border-color:rgba(99,102,241,.2)}
+.cmsg-bub{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:13px 16px;font-size:14px;line-height:1.65;flex:1;box-shadow:var(--shadow);color:var(--text)}
+.cmsg-bub p{margin-bottom:5px;color:var(--text)}
+.cmsg-bub strong{font-weight:700;color:var(--text)}
+.cmsg-bub ul,.cmsg-bub ol{padding-left:18px;margin:5px 0;color:var(--text)}
+.cmsg-row.user .cmsg-bub{background:var(--accent-dim);border-color:rgba(99,102,241,.2);color:var(--text)}
 .chat-sugs{display:flex;flex-wrap:wrap;gap:7px;padding:0 0 8px}
 .chat-sug{background:var(--bg-card);border:1.5px solid var(--border2);color:var(--muted);padding:7px 14px;border-radius:20px;font-size:12.5px;font-weight:500;cursor:pointer;transition:all .18s}
 .chat-sug:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
@@ -442,7 +469,14 @@ input,textarea{font-family:'DM Sans',sans-serif}
 .log-text{color:var(--muted);line-height:1.4}
 
 /* PRINT */
-@media print{#nav,#slide-panel,#panel-overlay,#saved-panel,#key-modal,#float-btn,#exec-wrap,#page-2,#page-3,#page-4,#page-5,#page-6,#page-7{display:none!important}body{background:#fff!important}#page-1{display:block!important}.card{box-shadow:none!important;border:1px solid #ddd!important;break-inside:avoid}@page{margin:18mm;size:A4}}
+@media print{#nav,#slide-panel,#panel-overlay,#saved-panel,#key-modal,#float-btn,#exec-wrap,#page-2,#page-3,#page-4,#page-5,#page-6,#page-7{display:none!important}body{background:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}#page-1{display:block!important}.card{box-shadow:none!important;border:1px solid #ddd!important;break-inside:avoid}@page{margin:18mm;size:A4}}
+
+/* LOADING SKELETON */
+.skeleton{background:linear-gradient(90deg,var(--bg2) 25%,var(--bg-hover) 50%,var(--bg2) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:var(--radius);min-height:60px}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.data-loading-msg{text-align:center;padding:40px 20px;color:var(--muted);font-size:14px}
+.data-loading-msg .fenxi-loader{display:inline-block;width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:12px}
+@keyframes spin{to{transform:rotate(360deg)}}
 
 @media(max-width:768px){#slide-panel,#saved-panel{width:100vw;max-width:100vw}#float-btn{display:none}}
 </style>
@@ -607,7 +641,7 @@ input,textarea{font-family:'DM Sans',sans-serif}
         <div class="card-title">Sub-Category Profit Ranking (Best → Worst)</div>
         <button class="chart-explore-btn" onclick="openExpand('p2-subcat')"><img class="fenxi-logo" src="" alt=""/> Explore</button>
       </div>
-      <div class="card-explain"><strong>Red bars</strong> = net loss sub-categories actively destroying profit. Tables and Bookcases are typically the worst due to heavy discounting on bulk orders.</div>
+      <div class="card-explain" id="subcat-explain"><strong>Red bars</strong> = net loss sub-categories actively destroying profit.</div>
       <div class="chart-wrap h300"><canvas id="chart-p2-subcat"></canvas></div>
     </div>
     <div class="grid-2">
@@ -631,6 +665,9 @@ input,textarea{font-family:'DM Sans',sans-serif}
     <div class="card-title-row">
       <div class="card-title">All Sub-Categories — click any row for AI analysis</div>
       <span class="tbl-count" id="sub-count"></span>
+    </div>
+    <div class="tbl-controls">
+      <input class="tbl-search" id="sub-search" placeholder="Search sub-category…" oninput="renderSubTbl()"/>
     </div>
     <div class="tbl-wrap"><table class="data-tbl" id="sub-tbl"></table></div>
   </div>
@@ -762,9 +799,12 @@ input,textarea{font-family:'DM Sans',sans-serif}
     <!-- Portfolio AI output -->
     <div id="ch-portfolio-output" style="display:none;margin-bottom:16px">
       <div class="card" style="border:1px solid rgba(99,102,241,.22);background:linear-gradient(135deg,var(--accent-dim),rgba(99,102,241,.02))">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-          <img class="fenxi-logo" src="" alt="Fenxi" style="width:20px;height:20px;border-radius:5px;object-fit:cover"/>
-          <span style="font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.04em">Fenxi AI — Portfolio Health Analysis</span>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <img class="fenxi-logo" src="" alt="Fenxi" style="width:20px;height:20px;border-radius:5px;object-fit:cover"/>
+            <span style="font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.04em">Fenxi AI — Portfolio Health Analysis</span>
+          </div>
+          <button onclick="document.getElementById('ch-portfolio-output').style.display='none'" style="background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:2px 6px">✕</button>
         </div>
         <div id="ch-portfolio-text" style="font-size:13px;line-height:1.65"></div>
       </div>
@@ -1132,13 +1172,15 @@ function updateKeyUI(){}
 // FETCH & AGGREGATE
 // ═══════════════════════════════════════════════════════
 function fetchData(){
+  var srFetch=document.getElementById('sr-fetch');
+  if(srFetch)srFetch.textContent='fetching…';
   fetch(API_URL)
   .then(function(r){ return r.json(); })
   .then(function(rows){
     var prev=_lastSales;
     _data=rows; aggregate(); _lastSales=_agg.totalSales;
-    // Compute data change diff
     computeDataDiff(prev);
+    try{detectAnomalies();}catch(e){console.warn('anomaly detection error',e);}
     renderAll();
     var now=new Date();
     document.getElementById('sr-rows').textContent=fN(rows.length)+' rows';
@@ -1152,7 +1194,11 @@ function fetchData(){
     }
     if(!_execLoaded) genExecSummary(false);
   })
-  .catch(function(){ document.getElementById('sr-fetch').textContent='fetch error — retrying'; });
+  .catch(function(e){
+    console.warn('fetchData error',e);
+    var el=document.getElementById('sr-fetch');
+    if(el)el.textContent='fetch error — retrying';
+  });
 }
 
 function aggregate(){
@@ -1389,14 +1435,25 @@ function scoreDimRow(label, score, weight, detail){
 // RENDER ALL
 // ═══════════════════════════════════════════════════════
 function renderAll(){
-  renderKPIs(); renderCatCards();
-  renderCharts_p1(); renderChatSugs();
-  renderRegionScoreCards(); // always update region score cards
-  if(_activePage===2){renderCharts_p2();renderSubTbl();}
-  if(_activePage===3){renderCharts_p3();renderStateTbl();}
-  if(_activePage===4){renderCharts_p4();renderProdTbl();}
-  if(_activePage===5)renderCharts_p5();
-  if(_activePage===6)renderCharts_p6();
+  try{renderKPIs();}catch(e){console.warn('renderKPIs error',e);}
+  try{renderCatCards();}catch(e){console.warn('renderCatCards error',e);}
+  try{renderCharts_p1();}catch(e){console.warn('renderCharts_p1 error',e);}
+  try{renderChatSugs();}catch(e){console.warn('renderChatSugs error',e);}
+  try{renderRegionScoreCards();}catch(e){console.warn('renderRegionScoreCards error',e);}
+  if(_activePage===2){try{renderCharts_p2();renderSubTbl();}catch(e){console.warn('p2 error',e);}}
+  if(_activePage===3){try{renderCharts_p3();renderStateTbl();}catch(e){console.warn('p3 error',e);}}
+  if(_activePage===4){try{renderCharts_p4();renderProdTbl();}catch(e){console.warn('p4 error',e);}}
+  if(_activePage===5){try{renderCharts_p5();}catch(e){console.warn('p5 error',e);}}
+  if(_activePage===6){try{renderCharts_p6();}catch(e){console.warn('p6 error',e);}}
+  // Dynamic card-explain texts
+  try{
+    var a=_agg;if(a.totalSales){
+      var worstSub='';var wv=Infinity;Object.keys(a.subM).forEach(function(k){if(a.subM[k].p<wv){wv=a.subM[k].p;worstSub=k;}});
+      var lossSubs=Object.keys(a.subM).filter(function(k){return a.subM[k].p<0;});
+      var el=document.getElementById('subcat-explain');
+      if(el)el.innerHTML='<strong>Red bars</strong> = net loss sub-categories. <strong>'+lossSubs.length+'</strong> sub-categories are loss-making'+(worstSub?', worst is <strong>'+worstSub+'</strong> at '+fS(wv):'')+'.';
+    }
+  }catch(e){}
 }
 function rerenderCharts(){
   renderCharts_p1();
@@ -1414,19 +1471,59 @@ function rerenderCharts(){
 function renderKPIs(){
   var a=_agg;
   document.getElementById('kpi-subtitle').textContent=fN(a.rowCount)+' line items · '+fN(a.totalOrders)+' orders · '+fN(a.totalCustomers)+' customers';
+  // Compute YoY trends if we have 2+ years
+  var trend={};
+  if(a.sortedYears&&a.sortedYears.length>=2){
+    // Filter out years that are data errors (future dates, etc)
+    var curYr=new Date().getFullYear();
+    var validYears=a.sortedYears.filter(function(yr){var n=parseInt(yr,10);return n>=2000&&n<=curYr&&(a.yearM[yr]||{s:0}).s>1000;});
+    if(validYears.length>=2){
+    var ly=validYears[validYears.length-1];
+    var py=validYears[validYears.length-2];
+    var lyd=a.yearM[ly]||{s:0,p:0};var pyd=a.yearM[py]||{s:0,p:0};
+    if(pyd.s>0)trend.sales=((lyd.s-pyd.s)/pyd.s*100).toFixed(1);
+    if(pyd.p!==0)trend.profit=((lyd.p-pyd.p)/Math.abs(pyd.p)*100).toFixed(1);
+    var lym=lyd.s>0?lyd.p/lyd.s:0;var pym=pyd.s>0?pyd.p/pyd.s:0;
+    trend.margin=((lym-pym)*100).toFixed(1);
+    var lyOrdSet=new Set(),pyOrdSet=new Set(),lyCustSet=new Set(),pyCustSet=new Set();
+    _data.forEach(function(r){
+      var od=r['Order Date']||'';var parts=od.split('/');
+      if(parts.length===3){
+        var yr=parts[2];if(yr.length===2)yr='20'+yr;
+        if(yr===ly){lyOrdSet.add(r['Order ID']||'');lyCustSet.add(r['Customer ID']||'');}
+        if(yr===py){pyOrdSet.add(r['Order ID']||'');pyCustSet.add(r['Customer ID']||'');}
+      }
+    });
+    var lyOrd=lyOrdSet.size,pyOrd=pyOrdSet.size;
+    if(pyOrd>0)trend.orders=((lyOrd-pyOrd)/pyOrd*100).toFixed(1);
+    if(pyCustSet.size>0)trend.customers=((lyCustSet.size-pyCustSet.size)/pyCustSet.size*100).toFixed(1);
+    var lyAov=lyOrd>0?lyd.s/lyOrd:0;var pyAov=pyOrd>0?pyd.s/pyOrd:0;
+    if(pyAov>0)trend.aov=((lyAov-pyAov)/pyAov*100).toFixed(1);
+    trend.label=ly+' vs '+py;
+    }
+  }
+  function trendBadge(val,label){
+    if(val===undefined)return'';
+    var n=parseFloat(val);var isPos=n>=0;
+    var color=isPos?'var(--green)':'var(--red)';
+    var arrow=isPos?'↑':'↓';
+    return '<span style="font-size:10px;color:'+color+';font-weight:600">'+arrow+' '+Math.abs(n).toFixed(1)+'% <span style="color:var(--dim);font-weight:400">'+label+'</span></span>';
+  }
+  var tl=trend.label||'';
   var kpis=[
-    {id:'kpi-sales',lbl:'Total Sales',val:fS(a.totalSales),sub:fN(a.totalOrders)+' orders',color:'#6366f1'},
-    {id:'kpi-profit',lbl:'Total Profit',val:fS(a.totalProfit),sub:fP(a.margin,2)+' margin',color:'#10b981'},
-    {id:'kpi-margin',lbl:'Profit Margin',val:fP(a.margin,2),sub:a.margin>=0.12?'↑ Healthy':a.margin>=0.06?'Moderate':'↓ Below target',color:a.margin>=0.12?'#10b981':a.margin>=0.06?'#ca8a04':'#dc2626'},
-    {id:'kpi-orders',lbl:'Total Orders',val:fN(a.totalOrders),sub:fN(a.totalCustomers)+' customers',color:'#0ea5e9'},
-    {id:'kpi-aov',lbl:'Avg Order Value',val:fS(a.avgOV),sub:'per order',color:'#f97316'},
-    {id:'kpi-customers',lbl:'Unique Customers',val:fN(a.totalCustomers),sub:(a.totalOrders/a.totalCustomers).toFixed(1)+'x orders avg',color:'#8b5cf6'}
+    {id:'kpi-sales',lbl:'Total Sales',val:fS(a.totalSales),sub:fN(a.totalOrders)+' orders',trend:trendBadge(trend.sales,tl),color:'#6366f1'},
+    {id:'kpi-profit',lbl:'Total Profit',val:fS(a.totalProfit),sub:fP(a.margin,2)+' margin',trend:trendBadge(trend.profit,tl),color:'#10b981'},
+    {id:'kpi-margin',lbl:'Profit Margin',val:fP(a.margin,2),sub:a.margin>=0.12?'↑ Healthy':a.margin>=0.06?'Moderate':'↓ Below target',trend:trendBadge(trend.margin,tl+'pp'),color:a.margin>=0.12?'#10b981':a.margin>=0.06?'#ca8a04':'#dc2626'},
+    {id:'kpi-orders',lbl:'Total Orders',val:fN(a.totalOrders),sub:fN(a.totalCustomers)+' customers',trend:trendBadge(trend.orders,tl),color:'#0ea5e9'},
+    {id:'kpi-aov',lbl:'Avg Order Value',val:fS(a.avgOV),sub:'per order',trend:trendBadge(trend.aov,tl),color:'#f97316'},
+    {id:'kpi-customers',lbl:'Unique Customers',val:fN(a.totalCustomers),sub:(a.totalOrders/a.totalCustomers).toFixed(1)+'x orders avg',trend:trendBadge(trend.customers,tl),color:'#8b5cf6'}
   ];
   document.getElementById('kpi-grid').innerHTML=kpis.map(function(k){
     return '<div class="kpi-card" style="border-top-color:'+k.color+'" onclick="openExpand(\''+k.id+'\')">'
       +'<div class="kpi-label">'+k.lbl+'</div>'
       +'<div class="kpi-value counting">'+k.val+'</div>'
       +'<div class="kpi-sub">'+k.sub+'</div>'
+      +(k.trend?'<div style="margin-top:4px">'+k.trend+'</div>':'')
       +'<div class="kpi-explore-row">'
       +'<button class="kpi-explore-btn" onclick="event.stopPropagation();openExpand(\''+k.id+'\')">Explore ↗</button>'
       +'<span class="kpi-ai-badge"><img src="'+FENXI_LOGO+'" style="width:12px;height:12px;border-radius:3px;object-fit:cover" alt=""/> AI</span>'
@@ -1557,8 +1654,11 @@ function renderCharts_p2(){
 
 function renderSubTbl(){
   var tbl=document.getElementById('sub-tbl');if(!tbl)return;
+  var q=(document.getElementById('sub-search')||{}).value||'';
+  var filtered=_subData;
+  if(q)filtered=_subData.filter(function(s){return s.name.toLowerCase().includes(q.toLowerCase())||s.cat.toLowerCase().includes(q.toLowerCase());});
   tbl.innerHTML='<thead><tr><th>Sub-Category</th><th>Category</th><th>Score</th><th>Sales</th><th>Profit</th><th>Margin</th><th>Avg Disc</th><th>Orders</th></tr></thead>'
-  +'<tbody>'+_subData.map(function(s){
+  +'<tbody>'+filtered.map(function(s){
     var m=s.s>0?s.p/s.s:0;
     return'<tr onclick="openSubDetail(\''+s.name.replace(/'/g,"\\'")+'\',\''+s.cat+'\')">'
     +'<td class="lbl clickable">'+s.name+'</td>'
@@ -1570,6 +1670,7 @@ function renderSubTbl(){
     +'<td>'+(s.avgDisc*100).toFixed(0)+'%</td>'
     +'<td>'+fN(s.ord)+'</td></tr>';
   }).join('')+'</tbody>';
+  var ct=document.getElementById('sub-count');if(ct)ct.textContent=filtered.length+' sub-categories';
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1615,40 +1716,49 @@ function renderRegionScoreCards(){
   }).join('');
 }
 
+var _stateSortKey='s';var _stateSortAsc=false;
+function sortStateBy(key){
+  if(_stateSortKey===key)_stateSortAsc=!_stateSortAsc;
+  else{_stateSortKey=key;_stateSortAsc=false;}
+  renderStateTbl();
+}
+function stSortArrow(key){return _stateSortKey===key?(_stateSortAsc?' ↑':' ↓'):'';}
 function renderStateTbl(){
+  var sorted=_stateData.slice().sort(function(a,b){
+    var va,vb;
+    if(_stateSortKey==='state'){va=a.state;vb=b.state;return _stateSortAsc?va.localeCompare(vb):vb.localeCompare(va);}
+    if(_stateSortKey==='margin'){va=a.s>0?a.p/a.s:0;vb=b.s>0?b.p/b.s:0;}
+    else{va=a[_stateSortKey]||0;vb=b[_stateSortKey]||0;}
+    return _stateSortAsc?va-vb:vb-va;
+  });
+  var q=(document.getElementById('state-search')||{}).value||'';
+  if(q)sorted=sorted.filter(function(s){return s.state.toLowerCase().includes(q.toLowerCase());});
   var tbl=document.getElementById('state-tbl');if(!tbl)return;
-  tbl.innerHTML='<thead><tr><th>State</th><th>Region</th><th>Sales</th><th>Profit</th><th>Margin</th><th>Orders</th></tr></thead>'
-  +'<tbody>'+_stateData.map(function(s){
+  tbl.innerHTML='<thead><tr>'
+    +'<th onclick="sortStateBy(\'state\')">State'+stSortArrow('state')+'</th>'
+    +'<th>Region</th>'
+    +'<th onclick="sortStateBy(\'score\')">Score'+stSortArrow('score')+'</th>'
+    +'<th onclick="sortStateBy(\'s\')">Sales'+stSortArrow('s')+'</th>'
+    +'<th onclick="sortStateBy(\'p\')">Profit'+stSortArrow('p')+'</th>'
+    +'<th onclick="sortStateBy(\'margin\')">Margin'+stSortArrow('margin')+'</th>'
+    +'<th onclick="sortStateBy(\'ord\')">Orders'+stSortArrow('ord')+'</th>'
+    +'</tr></thead>'
+  +'<tbody>'+sorted.map(function(s){
     var m=s.s>0?s.p/s.s:0;
     var row=_data.find(function(r){return r.State===s.state;});
     var reg=row?row.Region||'':'';
     return'<tr onclick="openStateDetail(\''+s.state+'\')">'
     +'<td class="lbl clickable">'+s.state+'</td>'
     +'<td style="color:'+(REG_C[reg]||'var(--muted)')+';font-family:\'DM Sans\',sans-serif;font-size:12px">'+reg+'</td>'
+    +'<td>'+scoreBadge(s.score,s.band)+'</td>'
     +'<td>'+fS(s.s)+'</td>'
     +'<td class="'+(s.p>=0?'profit-pos':'profit-neg')+'">'+fS(s.p)+'</td>'
     +'<td class="'+(m>=0.1?'profit-pos':m>=0?'':'profit-neg')+'">'+fP(m,1)+'</td>'
     +'<td>'+fN(s.ord)+'</td></tr>';
   }).join('')+'</tbody>';
-  document.getElementById('state-count').textContent=_stateData.length+' states';
+  document.getElementById('state-count').textContent=sorted.length+' states';
 }
-function filterStateTable(){
-  var q=(document.getElementById('state-search').value||'').toLowerCase();
-  var filtered=_stateData.filter(function(s){return s.state.toLowerCase().includes(q);});
-  var tbl=document.getElementById('state-tbl');if(!tbl)return;
-  tbl.innerHTML='<thead><tr><th>State</th><th>Region</th><th>Sales</th><th>Profit</th><th>Margin</th><th>Orders</th></tr></thead>'
-  +'<tbody>'+filtered.map(function(s){
-    var m=s.s>0?s.p/s.s:0;
-    var row=_data.find(function(r){return r.State===s.state;});var reg=row?row.Region||'':'';
-    return'<tr onclick="openStateDetail(\''+s.state+'\')">'
-    +'<td class="lbl clickable">'+s.state+'</td>'
-    +'<td style="color:'+(REG_C[reg]||'var(--muted)')+';font-family:\'DM Sans\',sans-serif;font-size:12px">'+reg+'</td>'
-    +'<td>'+fS(s.s)+'</td><td class="'+(s.p>=0?'profit-pos':'profit-neg')+'">'+fS(s.p)+'</td>'
-    +'<td class="'+(m>=0.1?'profit-pos':m>=0?'':'profit-neg')+'">'+fP(m,1)+'</td>'
-    +'<td>'+fN(s.ord)+'</td></tr>';
-  }).join('')+'</tbody>';
-  document.getElementById('state-count').textContent=filtered.length+' states';
-}
+function filterStateTable(){renderStateTbl();}
 
 // ═══════════════════════════════════════════════════════
 // PAGE 4 CHARTS + PRODUCT TABLE
@@ -1670,13 +1780,18 @@ function renderCharts_p4(){
   renderProdTbl();
 }
 
+var _prodPageSize=50;var _prodShowCount=50;
+var _prodSortKeyMap={'profit':'p','sales':'s','qty':'q'};
 function renderProdTbl(){
-  var sorted=_prodData.slice().sort(function(a,b){return b[_prodSort]-a[_prodSort];});
+  var sk=_prodSortKeyMap[_prodSort]||'p';
+  var sorted=_prodData.slice().sort(function(a,b){return b[sk]-a[sk];});
   var q=(document.getElementById('prod-search')||{}).value||'';
-  if(q)sorted=sorted.filter(function(p){return p.name.toLowerCase().includes(q.toLowerCase());});
+  if(q){sorted=sorted.filter(function(p){return p.name.toLowerCase().includes(q.toLowerCase());});_prodShowCount=50;}
   var tbl=document.getElementById('prod-tbl');if(!tbl)return;
+  var showing=sorted.slice(0,_prodShowCount);
+  var hasMore=sorted.length>_prodShowCount;
   tbl.innerHTML='<thead><tr><th>Product</th><th>Category</th><th>Score</th><th>Sales</th><th>Profit</th><th>Margin</th><th>Qty</th><th>Avg Disc</th></tr></thead>'
-  +'<tbody>'+sorted.slice(0,80).map(function(p){
+  +'<tbody>'+showing.map(function(p){
     var m=p.s>0?p.p/p.s:0;
     return'<tr onclick="openProdDetail(\''+p.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'")+'\',\''+p.cat+'\')">'
     +'<td class="lbl clickable" style="max-width:200px;overflow:hidden;text-overflow:ellipsis" title="'+p.name.replace(/"/g,'&quot;')+'">'+p.name+'</td>'
@@ -1687,11 +1802,13 @@ function renderProdTbl(){
     +'<td class="'+(m>=0.1?'profit-pos':m>=0?'':'profit-neg')+'">'+fP(m,1)+'</td>'
     +'<td>'+fN(p.q)+'</td>'
     +'<td>'+(p.avgDisc*100).toFixed(0)+'%</td></tr>';
-  }).join('')+'</tbody>';
-  document.getElementById('prod-count').textContent=sorted.length+' products';
+  }).join('')
+  +(hasMore?'<tr><td colspan="8" style="text-align:center;padding:14px"><button onclick="_prodShowCount+='+_prodPageSize+';renderProdTbl()" style="background:var(--accent-dim);border:1px solid rgba(99,102,241,.25);color:var(--accent);padding:6px 20px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">Show more ('+(sorted.length-_prodShowCount)+' remaining)</button></td></tr>':'')
+  +'</tbody>';
+  document.getElementById('prod-count').textContent=showing.length+' of '+sorted.length+' products';
 }
-function filterProdTable(){renderProdTbl();}
-function sortProds(k,btn){_prodSort=k;document.querySelectorAll('#page-4 .tog-btn').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');renderProdTbl();}
+function filterProdTable(){_prodShowCount=50;renderProdTbl();}
+function sortProds(k,btn){_prodSort=k;_prodShowCount=50;document.querySelectorAll('#page-4 .tog-btn').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');renderProdTbl();}
 
 // ═══════════════════════════════════════════════════════
 // PAGE 5 CHARTS + CUSTOMER TABLE
@@ -1701,21 +1818,15 @@ function renderCharts_p5(){
   mkChart('chart-p5-seg',{type:'doughnut',data:{labels:segs,datasets:[{data:segs.map(function(s){return(a.segM[s]||{custCount:0}).custCount||0;}),backgroundColor:segs.map(function(s){return SEG_C[s]+'cc';}),borderColor:segs.map(function(s){return SEG_C[s];}),borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:bLg()}}});
   var aovs=segs.map(function(s){var sg=a.segM[s]||{s:0,ord:new Set()};return sg.ord&&sg.ord.size?sg.s/sg.ord.size:0;});
   mkChart('chart-p5-aov',{type:'bar',data:{labels:segs,datasets:[{label:'Avg Order Value',data:aovs,backgroundColor:segs.map(function(s){return SEG_C[s]+'88';}),borderColor:segs.map(function(s){return SEG_C[s];}),borderWidth:1.5,borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:bSc()}});
-  // Health charts
-  renderCustomerHealthCharts();
-  renderCHKPIs();
-  renderCHTable();
+  // Health charts — delegate to single renderCustomerHealth
+  renderCustomerHealth();
 }
 function renderCustomerHealthCharts(){
-  if(!_chData.length)return;
-  var buckets=[];for(var i=0;i<10;i++){var lo=i*10,hi=(i+1)*10;buckets.push(_chData.filter(function(c){return c.score>=lo&&c.score<hi;}).length);}
-  var d=getCD();
-  mkChart('chart-ch-dist',{type:'bar',data:{labels:['0-10','10-20','20-30','30-40','40-50','50-60','60-70','70-80','80-90','90-100'],datasets:[{label:'Customers',data:buckets,backgroundColor:buckets.map(function(b,i){return i>=7?'rgba(16,185,129,.7)':i>=4?'rgba(234,179,8,.7)':'rgba(220,38,38,.7)';}),borderColor:buckets.map(function(b,i){return i>=7?'#10b981':i>=4?'#ca8a04':'#dc2626';}),borderWidth:1.5,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:d.text,font:{size:10}},grid:{color:d.grid}},y:{ticks:{color:d.text},grid:{color:d.grid}}}}});
-  var segs=['Consumer','Corporate','Home Office'];
-  var segScores=segs.map(function(seg){var custs=_chData.filter(function(c){return c.seg===seg;});return custs.length?Math.round(custs.reduce(function(s,c){return s+c.score;},0)/custs.length):0;});
-  mkChart('chart-ch-seg',{type:'bar',data:{labels:segs,datasets:[{label:'Avg Health Score',data:segScores,backgroundColor:segScores.map(function(s){return s>=70?'rgba(16,185,129,.65)':s>=45?'rgba(234,179,8,.65)':'rgba(220,38,38,.65)';}),borderColor:segScores.map(function(s){return s>=70?'#10b981':s>=45?'#ca8a04':'#dc2626';}),borderWidth:1.5,borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:d.text},grid:{color:d.grid}},y:{min:0,max:100,ticks:{color:d.text},grid:{color:d.grid}}}}});
+  // Delegated to renderCustomerHealth to avoid duplication
+  renderCustomerHealth();
 }
 function renderCHKPIs(){
+  // KPI rendering is handled inside renderCustomerHealth
   if(!_chData.length)return;
   var healthy=_chData.filter(function(c){return c.band==='healthy';}).length;
   var risk=_chData.filter(function(c){return c.band==='risk';}).length;
@@ -1862,7 +1973,7 @@ function openCHDetail(custId){
     +'• Signal two with specific number\n'
     +'• Risk or opportunity with number\n\n'
     +'**Action:** One specific action to take this week.\n\n'
-    +'FOLLOWUPS: ["q1 with number","q2","q3"]';
+    +'FOLLOWUPS: ["What is the discount impact on this customer?","How does this compare to similar customers?","What retention action should we take?"]';
   openDetailModal(c.name,meta,
     [['Health Score',c.score+'/100'],['Lifetime Sales',fS(c.s)],['Profit',fS(c.p),''],['Margin',fP(c.margin,1),''],['Avg Discount',(c.avgDisc*100).toFixed(0)+'%',''],['Orders/Month',c.freq.toFixed(2),'']],
     true,'Score Breakdown',subTbl,prompt,'ch-'+custId);
@@ -1894,7 +2005,7 @@ function runPortfolioAI(){
     +'• Customer name: why valuable and one retention action\n'
     +'• Customer name: why valuable and one retention action\n\n'
     +'**Strategic Recommendation:** One portfolio-level action with expected impact.\n\n'
-    +'FOLLOWUPS: ["q1","q2","q3"]';
+    +'FOLLOWUPS: ["What is the trend for this over time?","How does this compare to the portfolio average?","What action would improve this metric?"]';
   callAI([{role:'user',content:prompt}]).then(function(r){
     var fu=extractFU(r),clean=cleanR(r);var html=fmtAI(clean);
     if(fu.length)html+=makeFuChipsStr(fu,function(q){askAI(q);});
@@ -1920,7 +2031,7 @@ function buildSys(){
   s+='• Bullet insight with exact figure\n';
   s+='• Bullet insight with exact figure\n\n';
   s+='**Recommendation:** One specific CFO-level action with estimated $ or % impact.\n\n';
-  s+='FOLLOWUPS: ["question with specific $ or %","question with specific number","question with name"]\n\n';
+  s+='FOLLOWUPS: ["What is the margin impact of this?","Which segment is most affected?","What specific action would improve results?"]\n\n';
   s+='## CHART FORMAT\n';
   s+='When a chart would genuinely help understanding, include EXACTLY this on its own line:\n';
   s+='CHART: {"type":"bar","title":"Chart Title","labels":["A","B","C"],"datasets":[{"label":"Series","data":[100,200,300],"color":"#6366f1"}]}\n';
@@ -2073,7 +2184,15 @@ function buildSys(){
   s+='2. If asked about a specific month, look it up in MONTHLY DATA above.\n';
   s+='3. If asked about a specific state, look it up in ALL STATES above.\n';
   s+='4. If you cannot find an exact figure, say so explicitly.\n';
-  s+='5. Always cite exact figures — never say "approximately" or "around".\n';
+  s+='5. Always cite exact figures — never say "approximately" or "around".\n\n';
+  s+='## RESPONSE FORMAT\n';
+  s+='Always use bullet format. **Bold headline** with key number. Bullet points with exact figures from data above.\n';
+  s+='**Recommendation:** with $ impact.\n';
+  s+='Include CHART: {"type":"bar","title":"Title","labels":["A","B"],"datasets":[{"label":"Series","data":[1,2],"color":"#6366f1"}]} only if a visual genuinely adds value.\n';
+  s+='\n## REQUIRED — END EVERY RESPONSE WITH FOLLOW-UP QUESTIONS:\n';
+  s+='At the very end of your response, add this line with 3 specific follow-up questions based on your answer:\n';
+  s+='FOLLOWUPS: ["What is the margin breakdown by category?","Which region has the worst profitability?","How has this trend changed year over year?"]\n';
+  s+='Replace those example questions with ones relevant to what you just discussed. This line is MANDATORY.\n';
 
   return s;
 }
@@ -2162,14 +2281,27 @@ function genExecSummary(force){
   document.getElementById('exec-body').innerHTML='<div class="typing-dots"><div class="td"></div><div class="td"></div><div class="td"></div></div>';
   var lossTot=0;Object.keys(_agg.subM).forEach(function(k){if(_agg.subM[k].p<0)lossTot+=_agg.subM[k].p;});
   var worstSub='';var wv=Infinity;Object.keys(_agg.subM).forEach(function(k){if(_agg.subM[k].p<wv){wv=_agg.subM[k].p;worstSub=k;}});
-  callAI([{role:'user',content:'4-bullet executive summary of the live Superstore dataset.\n\nExact format:\n**Performance:** [one sentence — total sales, profit, margin, healthy or not]\n\n• [Category insight: best and worst margin with exact %]\n• [Biggest loss-maker: '+worstSub+' destroying '+fS(Math.abs(wv))+' — why]\n• [Regional standout: best margin region and the gap vs worst]\n• [Discount insight: breakeven point and total loss from over-discounting]\n\n**CFO Action:** [One specific numbered recommendation — e.g. discount cap on Tables recovers ~$X]\n\nFOLLOWUPS: ["q1 with $","q2 with %","q3 with name"]'}])
+  var _execTimedOut=false;
+  var _execTimer=setTimeout(function(){
+    _execTimedOut=true;
+    var el=document.getElementById('exec-body');
+    if(el&&el.querySelector('.typing-dots')){
+      el.innerHTML='<div style="font-size:13px;color:var(--muted);line-height:1.6"><strong style="color:var(--text)">AI summary taking longer than expected.</strong> Dashboard data is fully loaded — all charts and tables are live. <button onclick="genExecSummary(true)" style="background:var(--accent-dim);border:1px solid rgba(99,102,241,.25);color:var(--accent);padding:3px 10px;border-radius:5px;font-size:12px;font-weight:700;cursor:pointer;margin-left:6px">Retry</button></div>';
+      _execLoaded=false;
+    }
+  },15000);
+  callAI([{role:'user',content:'4-bullet executive summary of the live Superstore dataset.\n\nExact format:\n**Performance:** [one sentence — total sales, profit, margin, healthy or not]\n\n• [Category insight: best and worst margin with exact %]\n• [Biggest loss-maker: '+worstSub+' destroying '+fS(Math.abs(wv))+' — why]\n• [Regional standout: best margin region and the gap vs worst]\n• [Discount insight: breakeven point and total loss from over-discounting]\n\n**CFO Action:** [One specific numbered recommendation — e.g. discount cap on Tables recovers ~$X]\n\nFOLLOWUPS: ["What would profit be if we capped discounts at 20%?","Which category should we prioritize for growth?","What are the top 5 loss-making products?"]'}])
   .then(function(r){
+    clearTimeout(_execTimer);
+    if(_execTimedOut)return;
     var fu=extractFU(r),clean=cleanR(r);var html=fmtAI(clean);
     if(fu.length)html+=makeFuChipsStr(fu,function(q){askAI(q);});
     document.getElementById('exec-body').innerHTML=html;
     document.getElementById('exec-live-badge').style.display='inline-flex';
     var ts=document.getElementById('exec-timestamp');if(ts)ts.textContent='Generated just now';
   }).catch(function(e){
+    clearTimeout(_execTimer);
+    if(_execTimedOut)return;
     document.getElementById('exec-body').innerHTML='<div style="color:var(--muted);font-size:12.5px">AI summary unavailable — '+errMsg(e)+'</div>';
     _execLoaded=false;
   });
@@ -2383,7 +2515,7 @@ function openStateDetail(state){
     +'• Second insight with specific number\n'
     +'• Risk or opportunity with number\n\n'
     +'**Action:** One specific recommendation for this state.\n\n'
-    +'FOLLOWUPS: ["q1","q2","q3"]';
+    +'FOLLOWUPS: ["What is the trend for this over time?","How does this compare to the portfolio average?","What action would improve this metric?"]';
   openDetailModal(state,meta,[['Sales',fS(sd.s)],['Profit',fS(sd.p),''],['Margin',fP(m,2),''],['Orders',fN(sd.ord),'']],true,'Category Breakdown',subTbl,prompt,'state-'+state);
 }
 
@@ -2413,7 +2545,7 @@ function openRegionDetail(reg){
     +'• Category or discount insight\n'
     +'• Growth trend or opportunity\n\n'
     +'**Action:** One specific recommendation for this region.\n\n'
-    +'FOLLOWUPS: ["q1","q2","q3"]';
+    +'FOLLOWUPS: ["What is the trend for this over time?","How does this compare to the portfolio average?","What action would improve this metric?"]';
   document.getElementById('detail-title').textContent=reg+' Region';
   document.getElementById('detail-meta').innerHTML=meta;
   document.getElementById('detail-metrics').innerHTML=[['Sales',fS(rv.s)],['Profit',fS(rv.p),''],['Margin',fP(m,2),''],['Health Score',rs.score+'/100',''],['Orders',fN(rv.ordCount),''],['Avg Disc',(rs.avgDisc*100).toFixed(0)+'%','']].map(function(m){return'<div class="detail-metric"><div class="dm-label">'+m[0]+'</div><div class="dm-val '+(m[2]||'')+'">'+m[1]+'</div></div>';}).join('');
@@ -2446,7 +2578,7 @@ function openSubDetail(name, cat){
     +'• Discount impact with specific number\n'
     +'• Revenue/volume context\n\n'
     +'**Action:** Discount cap, reprice, or remove — one specific recommendation with estimated recovery.\n\n'
-    +'FOLLOWUPS: ["q1","q2","q3"]';
+    +'FOLLOWUPS: ["What is the trend for this over time?","How does this compare to the portfolio average?","What action would improve this metric?"]';
   openDetailModal(name,meta,[['Sales',fS(sub.s)],['Profit',fS(sub.p),''],['Margin',fP(m,2),''],['Health Score',sub.score+'/100',''],['Avg Discount',(sub.avgDisc*100).toFixed(0)+'%',''],['Orders',fN(sub.ord),'']],true,'Score Breakdown',subTbl,prompt,'sub-'+name);
 }
 
@@ -2470,7 +2602,7 @@ function openProdDetail(name, cat){
     +'• Discount impact with specific number\n'
     +'• Volume/orders context\n\n'
     +'**Action:** Keep / Reprice / Discontinue — one specific reason with a number.\n\n'
-    +'FOLLOWUPS: ["q1","q2","q3"]';
+    +'FOLLOWUPS: ["What is the trend for this over time?","How does this compare to the portfolio average?","What action would improve this metric?"]';
   openDetailModal(name.length>55?name.slice(0,55)+'…':name,meta,[['Sales',fS(prod.s)],['Profit',fS(prod.p),''],['Margin',fP(m,2),''],['Score',prod.score+'/100',''],['Avg Discount',(prod.avgDisc*100).toFixed(0)+'%',''],['Orders',fN(prod.ordCount),'']],true,'Score Breakdown',subTbl,prompt,'prod-'+name.slice(0,40));
 }
 
@@ -2491,7 +2623,7 @@ function openCustDetail(custId){
     +'• Profitability insight with number\n'
     +'• Opportunity or risk with number\n\n'
     +'**Action:** One specific account strategy recommendation.\n\n'
-    +'FOLLOWUPS: ["q1","q2","q3"]';
+    +'FOLLOWUPS: ["What is the trend for this over time?","How does this compare to the portfolio average?","What action would improve this metric?"]';
   openDetailModal(cust.name,meta,[['Lifetime Sales',fS(cust.s)],['Lifetime Profit',fS(cust.p),''],['Margin',fP(m,1),''],['Health Score',cust.score+'/100',''],['Orders',fN(cust.ord),''],['AOV',fS(cust.s/Math.max(cust.ord,1)),'']],true,'Purchase Categories',subTbl,prompt,'cust-'+custId);
 }
 
@@ -2830,7 +2962,7 @@ function runAutopsy(){
     +'\n• Issue with specific dollar amount and root cause'
     +'\n• Issue with specific dollar amount and root cause'
     +'\n\n**Prognosis:** If nothing changes, one sentence on trajectory. If we implement the top recovery lever, expected outcome with a number.'
-    +'\n\nFOLLOWUPS: ["q1 with $","q2 with %","q3 about specific action"]';
+    +'\n\nFOLLOWUPS: ["What is the total profit destruction from loss-making sub-categories?","How would a 20% discount cap impact margins?","Which region needs the most urgent attention?"]';
   callAI([{role:'user',content:prompt}]).then(function(r){
     var fu=extractFU(r),clean=cleanR(r);
     var html=fmtAI(clean);
@@ -2846,534 +2978,919 @@ function runAutopsy(){
 
 
 // ═══════════════════════════════════════════════════════
-// REPORT FUNCTIONS (from v6)
+// ═══════════════════════════════════════════════════════════════════════
+// REPORT ENGINE v12 — clean build, no layered overrides
+// ═══════════════════════════════════════════════════════════════════════
 
-async function generateReport(){
-  var btn=document.getElementById('report-gen-btn');
-  if(btn)btn.disabled=true;
-  if(btn)btn.textContent='Generating\u2026';
-  var period=document.getElementById('rpt-period').value;
-  var tone=document.querySelector('input[name="rpt-tone"]:checked').value;
-  var title=document.getElementById('rpt-title').value||'Superstore Business Review';
-  var forName=document.getElementById('rpt-for').value||'';
-  var byName=document.getElementById('rpt-by').value||'Fenxi Analytics';
-  var pLabels={'all':'Full Dataset','y-last':'Last Year','y-2021':'Year 2021','y-2022':'Year 2022','y-2023':'Year 2023','y-2024':'Year 2024','q1':'Q1 (Jan-Mar)','q2':'Q2 (Apr-Jun)','q3':'Q3 (Jul-Sep)','q4':'Q4 (Oct-Dec)'};
-  var periodLabel=pLabels[period]||period;
-  var secs={exec:document.getElementById('rpt-sec-exec').checked,perf:document.getElementById('rpt-sec-perf').checked,cat:document.getElementById('rpt-sec-cat').checked,reg:document.getElementById('rpt-sec-reg').checked,prod:document.getElementById('rpt-sec-prod').checked,cust:document.getElementById('rpt-sec-cust').checked,disc:document.getElementById('rpt-sec-disc').checked,ship:document.getElementById('rpt-sec-ship').checked,recs:document.getElementById('rpt-sec-recs').checked};
-  var totalSteps=Object.values(secs).filter(Boolean).length+2;
-  var step=0;
-  try{
-    setProgress(totalSteps,++step,'Computing period data\u2026');
-    var fa=getFilteredAgg(period)||_agg;
-    var cats=['Furniture','Office Supplies','Technology'];
-    var regs=['West','East','Central','South'];
-    var toneInstr=tone==='executive'?'Concise, direct, CFO-level. Every sentence has a number. No fluff.':tone==='detailed'?'Detailed analytical style with full context and explanation.':'Polished client-facing style. Professional but accessible. Avoid jargon.';
-    // Build data summary as concatenated string — no literal newlines
-    var nl='\n';
-    var ds='PERIOD: '+periodLabel+nl;
-    ds+='TOTAL_SALES='+fS(fa.totalSales)+nl;
-    ds+='TOTAL_PROFIT='+fS(fa.totalProfit)+nl;
-    ds+='PROFIT_MARGIN='+fP(fa.margin,2)+nl;
-    ds+='TOTAL_ORDERS='+fN(fa.totalOrders)+nl;
-    ds+='TOTAL_CUSTOMERS='+fN(fa.totalCustomers)+nl;
-    ds+='AVG_ORDER_VALUE='+fS(fa.avgOV)+nl+nl;
-    ds+=cats.map(function(cat){var cv=fa.catM[cat]||{s:0,p:0};var m=cv.s>0?cv.p/cv.s:0;return cat+': SALES='+fS(cv.s)+' PROFIT='+fS(cv.p)+' MARGIN='+fP(m,2);}).join(nl)+nl+nl;
-    ds+=regs.map(function(reg){var rv=fa.regM[reg]||{s:0,p:0};var m=rv.s>0?rv.p/rv.s:0;return reg+': SALES='+fS(rv.s)+' PROFIT='+fS(rv.p)+' MARGIN='+fP(m,2);}).join(nl)+nl+nl;
-    var topSubs=Object.keys(fa.subM).map(function(k){return{name:k,p:fa.subM[k].p,s:fa.subM[k].s};}).sort(function(a,b){return b.p-a.p;});
-    var lossSubs=topSubs.filter(function(s){return s.p<0;});
-    ds+='SUB-CATEGORIES:'+nl+topSubs.map(function(s){var m=s.s>0?s.p/s.s:0;return s.name+': PROFIT='+fS(s.p)+' MARGIN='+fP(m,2)+(s.p<0?' LOSS':'');}).join(nl);
-    var reportSys='You are Fenxi AI writing a professional business report section. '+toneInstr+' Use ONLY exact numbers from the data provided. Never estimate. Write flowing paragraphs, not bullet points. No markdown headers. Every paragraph must contain at least 2 exact figures.';
-    var sections=[];
-    if(secs.exec){
-      setProgress(totalSteps,++step,'Writing executive summary\u2026');
-      try{
-  try{
-              var t=await callAI([{role:'user',content:'Write a 3-paragraph executive summary for this '+periodLabel+' business report. Para 1: overall performance with sales/profit/margin. Para 2: biggest strength and biggest risk with exact figures. Para 3: key strategic implication. DATA:'+nl+ds}],reportSys);
-        sections.push({title:'Executive Summary',text:cleanR(t),chartIds:['chart-monthly-sales','chart-region-bar'],kpis:null});
-      }catch(_aiErr){
-        sections.push({title:'Executive Summary',text:'AI unavailable — report generated with data only.',chartIds:['chart-monthly-sales','chart-region-bar'],kpis:null});
-      }
-      }catch(aiErr){
-        sections.push({title:'Executive Summary',text:'Sales: '+fS(fa.totalSales)+' | Profit: '+fS(fa.totalProfit)+' | Margin: '+fP(fa.margin,2)+' | Orders: '+fN(fa.totalOrders)+' | Customers: '+fN(fa.totalCustomers),chartIds:[],kpis:null});
-      }
-    }
-    if(secs.perf){
-      setProgress(totalSteps,++step,'Writing performance section\u2026');
-try{
-              var t=await callAI([{role:'user',content:'Write 2 paragraphs on overall performance for '+periodLabel+'. Cover: sales vs profit relationship, margin vs 10-15% retail benchmark, order volume and AOV insights. DATA:'+nl+ds}],reportSys);
-        sections.push({title:'Overall Performance',text:cleanR(t),chartIds:['chart-p2-yearly','chart-segment'],kpis:[['Total Sales',fS(fa.totalSales)],['Total Profit',fS(fa.totalProfit)],['Profit Margin',fP(fa.margin,2)],['Total Orders',fN(fa.totalOrders)],['Avg Order Value',fS(fa.avgOV)],['Customers',fN(fa.totalCustomers)]]});
-      }catch(_aiErr){
-        sections.push({title:'Overall Performance',text:'AI unavailable — report generated with data only.',chartIds:[],kpis:null});
-      }
-    }
-    if(secs.cat){
-      setProgress(totalSteps,++step,'Writing category analysis\u2026');
-try{
-              var t=await callAI([{role:'user',content:'Write 2 paragraphs on category performance for '+periodLabel+'. Compare Furniture, Office Supplies, Technology on sales/profit/margin. Identify strongest and weakest. DATA:'+nl+ds}],reportSys);
-        sections.push({title:'Category Analysis',text:cleanR(t),chartIds:['chart-p2-cat','chart-p2-margin'],kpis:null});
-      }catch(_aiErr){
-        sections.push({title:'Category Analysis',text:'AI unavailable — report generated with data only.',chartIds:[],kpis:null});
-      }
-    }
-    if(secs.reg){
-      setProgress(totalSteps,++step,'Writing regional analysis\u2026');
-try{
-              var t=await callAI([{role:'user',content:'Write 2 paragraphs on regional performance for '+periodLabel+'. Compare West/East/Central/South on sales/profit/margin. Identify margin gaps and likely causes. DATA:'+nl+ds}],reportSys);
-        sections.push({title:'Regional Breakdown',text:cleanR(t),chartIds:['chart-p3-region','chart-p3-margin'],kpis:null});
-      }catch(_aiErr){
-        sections.push({title:'Regional Breakdown',text:'AI unavailable — report generated with data only.',chartIds:[],kpis:null});
-      }
-    }
-    if(secs.prod){
-      setProgress(totalSteps,++step,'Writing product intelligence\u2026');
-      var bestSub=topSubs[0]||{name:'N/A',p:0};var worstSub=lossSubs[0]||{name:'none',p:0};
-try{
-              var t=await callAI([{role:'user',content:'Write 2 paragraphs on product/sub-category performance for '+periodLabel+'. Best sub-cat: '+bestSub.name+' at '+fS(bestSub.p)+'. Worst loss-maker: '+worstSub.name+' at '+fS(worstSub.p)+'. Explain discount-margin relationship. DATA:'+nl+ds}],reportSys);
-        sections.push({title:'Product Intelligence',text:cleanR(t),chartIds:['chart-p2-subcat','chart-p4-top'],kpis:null});
-      }catch(_aiErr){
-        sections.push({title:'Product Intelligence',text:'AI unavailable — report generated with data only.',chartIds:[],kpis:null});
-      }
-    }
-    if(secs.cust){
-      setProgress(totalSteps,++step,'Writing customer health\u2026');
-      var h=_chData.filter(function(cu){return cu.band==='healthy';}).length;
-      var r=_chData.filter(function(cu){return cu.band==='risk';}).length;
-      var cr=_chData.filter(function(cu){return cu.band==='critical';}).length;
-      var avg=_chData.length?Math.round(_chData.reduce(function(s,cu){return s+cu.score;},0)/_chData.length):0;
-      var flagCount=Object.keys(_flaggedCusts).length;
-try{
-              var t=await callAI([{role:'user',content:'Write 2 paragraphs on customer health for '+periodLabel+'. Portfolio: '+_chData.length+' customers, avg score '+avg+'/100, '+h+' healthy, '+r+' at risk, '+cr+' critical, '+flagCount+' flagged for review. Discuss distribution and which segment needs most attention. DATA:'+nl+ds}],reportSys);
-        sections.push({title:'Customer Health',text:cleanR(t),chartIds:['chart-ch-dist','chart-ch-seg'],kpis:null});
-      }catch(_aiErr){
-        sections.push({title:'Customer Health',text:'AI unavailable — report generated with data only.',chartIds:[],kpis:null});
-      }
-    }
-    if(secs.disc){
-      setProgress(totalSteps,++step,'Writing discount analysis\u2026');
-      var lossOrders=_agg.discBkts.filter(function(x){return x.disc>=0.3&&x.margin<0;}).length;
-try{
-              var t=await callAI([{role:'user',content:'Write 2 paragraphs on discount impact for '+periodLabel+'. Loss-making orders with 30pct+ discount: '+lossOrders+'. Explain breakeven threshold and recommend a discount cap policy with estimated profit recovery. DATA:'+nl+ds}],reportSys);
-        sections.push({title:'Discount Analysis',text:cleanR(t),chartIds:['chart-discount-profit'],kpis:null});
-      }catch(_aiErr){
-        sections.push({title:'Discount Analysis',text:'AI unavailable — report generated with data only.',chartIds:[],kpis:null});
-      }
-    }
-    if(secs.ship){
-      setProgress(totalSteps,++step,'Writing shipping analysis\u2026');
-      var modes=['Standard Class','Second Class','First Class','Same Day'];
-      var shipStr=modes.map(function(m){var mo=_agg.modeM[m]||{s:0,p:0,ordCount:0};return m+': orders='+mo.ordCount+' margin='+(mo.s>0?fP(mo.p/mo.s,2):'N/A');}).join(', ');
-try{
-              var t=await callAI([{role:'user',content:'Write 1 paragraph on shipping for '+periodLabel+'. Data: '+shipStr+'. Which ship mode is most profitable and what does it mean for strategy? DATA:'+nl+ds}],reportSys);
-        sections.push({title:'Shipping Analysis',text:cleanR(t),chartIds:['chart-p6-mode','chart-p6-days'],kpis:null});
-      }catch(_aiErr){
-        sections.push({title:'Shipping Analysis',text:'AI unavailable — report generated with data only.',chartIds:[],kpis:null});
-      }
-    }
-    if(secs.recs){
-      setProgress(totalSteps,++step,'Writing recommendations\u2026');
-      var lossStr=lossSubs.slice(0,3).map(function(s){return s.name+'('+fS(s.p)+')';}).join(', ')||'none';
-try{
-              var t=await callAI([{role:'user',content:'Write exactly 3 numbered strategic recommendations for '+periodLabel+'. Each must: (1) name a specific action, (2) cite the exact problem with a number, (3) estimate the dollar or % improvement. Loss-making sub-cats: '+lossStr+'. DATA:'+nl+ds}],reportSys);
-        sections.push({title:'Strategic Recommendations',text:cleanR(t),chartIds:[],kpis:null});
-      }catch(_aiErr){
-        sections.push({title:'Strategic Recommendations',text:'AI unavailable — report generated with data only.',chartIds:[],kpis:null});
-      }
-    }
-    setProgress(totalSteps,++step,'Building Word document\u2026');
-    // ── PRE-RENDER: silently visit every page so all Chart.js canvases are drawn ──
-    var _origPage=_activePage||1;
-    var _pageRenderList=[2,3,4,5,6];
-    for(var _pi=0;_pi<_pageRenderList.length;_pi++){
-      var _pn=_pageRenderList[_pi];
-      // Show the page briefly so canvases get dimensions
-      var _pgEl=document.getElementById('page-'+_pn);
-      if(_pgEl){
-        _pgEl.style.display='block';
-        _pgEl.style.visibility='hidden';
-        _pgEl.style.position='absolute';
-        _pgEl.style.zIndex='-999';
-        if(_pn===2&&_agg.totalSales){try{renderCharts_p2();}catch(e){}}
-        if(_pn===3&&_agg.totalSales){try{renderCharts_p3();}catch(e){}}
-        if(_pn===4&&_agg.totalSales){try{renderCharts_p4();}catch(e){}}
-        if(_pn===5&&_agg.totalSales){try{renderCharts_p5();}catch(e){}}
-        if(_pn===6&&_agg.totalSales){try{renderCharts_p6();}catch(e){}}
-      }
-    }
-    // Small wait for Chart.js to actually paint
-    setProgress(totalSteps,step,'Rendering charts for export\u2026');
-    await new Promise(function(res){setTimeout(res,1500);});
-    await buildWordDoc(sections,{title:title,forName:forName,byName:byName,periodLabel:periodLabel,date:new Date().toLocaleDateString('en-IN',{year:'numeric',month:'long',day:'numeric'})});
-    // Restore hidden pages
-    _pageRenderList.forEach(function(_pn){
-      var _pgEl=document.getElementById('page-'+_pn);
-      if(_pgEl){_pgEl.style.display='';_pgEl.style.visibility='';_pgEl.style.position='';_pgEl.style.zIndex='';}
-    });
-    switchPage(_origPage);
-    var prog=document.getElementById('rpt-progress');
-    if(prog)prog.innerHTML='<div style="background:var(--green-dim);border:1px solid rgba(22,163,74,.2);border-radius:8px;padding:12px 16px;font-size:13px;font-weight:600;color:var(--green)">\u2713 Report downloaded successfully!</div>';
-  }catch(e){
-    var prog=document.getElementById('rpt-progress');
-    if(prog){prog.style.display='flex';prog.innerHTML='<div style="background:var(--red-dim);border:1px solid rgba(220,38,38,.2);border-radius:8px;padding:12px 16px;font-size:13px;color:var(--red)">Error: '+errMsg(e)+'</div>';}
-  }finally{
-    if(btn){btn.disabled=false;btn.textContent='Generate & Download';}
-  }
-}
-
-// ── CHART TITLES MAP ─────────────────────────────────────────────────────────
-var CHART_TITLES={
-  'chart-monthly-sales':'Monthly Sales Trend',
-  'chart-region-bar':'Sales & Profit by Region',
-  'chart-segment':'Sales & Profit by Segment',
-  'chart-discount-profit':'Discount Rate vs Profit Margin',
-  'chart-p2-cat':'Sales & Profit by Category',
-  'chart-p2-margin':'Profit Margin by Category',
-  'chart-p2-subcat':'Sub-Category Profit Ranking',
-  'chart-p2-yearly':'Year-over-Year Sales & Profit',
-  'chart-p2-seg-profit':'Profit by Customer Segment',
-  'chart-p3-region':'Sales & Profit by Region',
-  'chart-p3-margin':'Profit Margin by Region',
-  'chart-p3-states':'Top 15 States by Sales',
-  'chart-p4-top':'Top 10 Products by Profit',
-  'chart-p4-bot':'Bottom 10 Products by Profit',
-  'chart-p4-disc-margin':'Discount vs Margin by Sub-Category',
-  'chart-p4-subcat-scores':'Sub-Category Health Scores',
-  'chart-ch-dist':'Customer Health Score Distribution',
-  'chart-ch-seg':'Avg Health Score by Segment',
-  'chart-p5-aov':'Average Order Value Trend',
-  'chart-p5-seg':'Sales by Segment',
-  'chart-p6-mode':'Revenue by Ship Mode',
-  'chart-p6-days':'Avg Delivery Days by Ship Mode',
-  'chart-p6-margin':'Margin by Ship Mode',
-  'chart-p6-seg-mode':'Ship Mode by Segment'
+// ── Colour map per section ───────────────────────────────────────────────────
+var RPT_COLORS = {
+  'Executive Summary':          {hex:'#6366f1',word:'6366F1',lite:'EEF0FF'},
+  'Overall Performance':        {hex:'#0ea5e9',word:'0EA5E9',lite:'E8F6FF'},
+  'Category Analysis':          {hex:'#10b981',word:'10B981',lite:'E6FAF3'},
+  'Regional Breakdown':         {hex:'#f59e0b',word:'F59E0B',lite:'FFF8E6'},
+  'Product Intelligence':       {hex:'#8b5cf6',word:'8B5CF6',lite:'F3EEFF'},
+  'Customer Health':            {hex:'#ec4899',word:'EC4899',lite:'FDE9F4'},
+  'Discount Analysis':          {hex:'#ef4444',word:'EF4444',lite:'FEE8E8'},
+  'Shipping Analysis':          {hex:'#06b6d4',word:'06B6D4',lite:'E6FAFD'},
+  'Strategic Recommendations':  {hex:'#22c55e',word:'22C55E',lite:'E8FCED'}
+};
+var RPT_NUMS = {
+  'Executive Summary':'01','Overall Performance':'02','Category Analysis':'03',
+  'Regional Breakdown':'04','Product Intelligence':'05','Customer Health':'06',
+  'Discount Analysis':'07','Shipping Analysis':'08','Strategic Recommendations':'09'
 };
 
-function captureChartImage(chartId){
-  try{
-    var canvas=document.getElementById(chartId);
-    if(!canvas)return null;
-    if(_charts&&_charts[chartId]){
-      try{_charts[chartId].resize();_charts[chartId].update('none');}catch(e){}
-    }
-    if(canvas.width<50||canvas.height<50)return null;
-    var off=document.createElement('canvas');
-    off.width=canvas.width; off.height=canvas.height;
-    var ctx=off.getContext('2d');
-    ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,off.width,off.height);
-    ctx.drawImage(canvas,0,0);
-    return off.toDataURL('image/png');
-  }catch(e){console.warn('captureChartImage failed:',chartId,e);return null;}
+// Store for generated report data
+var _rptSections  = [];
+var _rptMeta      = {};
+var _rptChartImgs = {};  // key → base64 PNG
+
+// ── Populate period dropdown after data loads ────────────────────────────────
+function populateReportPeriods() {
+  var sel = document.getElementById('rpt-period');
+  if (!sel || !_agg || !_agg.monthM) return;
+  var MN = ['January','February','March','April','May','June',
+            'July','August','September','October','November','December'];
+  var years  = (_agg.sortedYears || []).slice().sort();
+  var months = Object.keys(_agg.monthM).sort(); // "YYYY-MM"
+
+  var html = '<option value="all">Full Dataset (All Time)</option>';
+  html    += '<option value="y-last">Last Year</option>';
+
+  years.forEach(function(yr) {
+    html += '<optgroup label="── ' + yr + ' ──"></optgroup>';
+    html += '<option value="y-' + yr + '">All of ' + yr + '</option>';
+    months.filter(function(m){ return m.startsWith(yr + '-'); })
+      .forEach(function(mk) {
+        var n = parseInt(mk.split('-')[1], 10);
+        html += '<option value="' + mk + '">&nbsp;&nbsp;&nbsp;' + (MN[n-1]||mk) + ' ' + yr + '</option>';
+      });
+  });
+
+  html += '<optgroup label="── By Quarter ──"></optgroup>';
+  html += '<option value="q1">Q1 (Jan–Mar)</option>';
+  html += '<option value="q2">Q2 (Apr–Jun)</option>';
+  html += '<option value="q3">Q3 (Jul–Sep)</option>';
+  html += '<option value="q4">Q4 (Oct–Dec)</option>';
+
+  html += '<optgroup label="── By Month (all years) ──"></optgroup>';
+  MN.forEach(function(name, i) {
+    html += '<option value="m-' + (i+1) + '">' + name + ' (all years)</option>';
+  });
+
+  sel.innerHTML = html;
 }
 
-async function buildWordDoc(sections,meta){
-  var docx=window.docx;
-  if(!docx||!docx.Document||!docx.Paragraph||!docx.TextRun){
-    throw new Error('Word library not loaded. Please refresh the page.');
+// Call after aggregate sets _agg
+var _v12_origAggregate = aggregate;
+aggregate = function() {
+  _v12_origAggregate.apply(this, arguments);
+  try { populateReportPeriods(); } catch(e) {}
+};
+
+// ── Period label helper ──────────────────────────────────────────────────────
+function rptPeriodLabel(period) {
+  var MN = ['January','February','March','April','May','June',
+            'July','August','September','October','November','December'];
+  if (/^\d{4}-\d{2}$/.test(period)) {
+    var n = parseInt(period.split('-')[1], 10);
+    return (MN[n-1]||'Month') + ' ' + period.split('-')[0];
+  }
+  var map = { all:'Full Dataset', 'y-last':'Last Year',
+    q1:'Q1 (Jan–Mar)', q2:'Q2 (Apr–Jun)', q3:'Q3 (Jul–Sep)', q4:'Q4 (Oct–Dec)' };
+  if (map[period]) return map[period];
+  if (period.startsWith('y-')) return 'Year ' + period.slice(2);
+  if (period.startsWith('m-')) {
+    var i = parseInt(period.slice(2), 10) - 1;
+    return (MN[i]||'Month') + ' (all years)';
+  }
+  return period;
+}
+
+// ── Pre-render charts to offscreen canvases → PNG ────────────────────────────
+var _rptChartInst = {};
+
+function renderReportCharts(fa, sections) {
+  // Destroy previous instances
+  Object.values(_rptChartInst).forEach(function(c) { try { c.destroy(); } catch(e) {} });
+  _rptChartInst = {};
+  _rptChartImgs = {};
+
+  var C = window.Chart;
+  if (!C) return;
+
+  var cats = ['Furniture','Office Supplies','Technology'];
+  var regs = ['West','East','Central','South'];
+  var TX   = { color:'#55557a', font:{size:11, family:"'DM Sans',sans-serif"} };
+  var GR   = { color:'rgba(0,0,0,.05)' };
+
+  function mkCanvas() {
+    var cv = document.createElement('canvas');
+    cv.width = 900; cv.height = 310;
+    cv.style.display = 'none';
+    document.body.appendChild(cv);
+    return cv;
+  }
+  function capture(cv) {
+    try {
+      var off = document.createElement('canvas');
+      off.width = cv.width; off.height = cv.height;
+      var ctx2 = off.getContext('2d');
+      ctx2.fillStyle = '#ffffff';
+      ctx2.fillRect(0, 0, off.width, off.height);
+      ctx2.drawImage(cv, 0, 0);
+      return off.toDataURL('image/png');
+    } catch(e) { return null; }
   }
 
-  var ACC='6366f1', DARK='1a1a2e', MUT='55557a', DIM='9999bb', BRD='dcdcec';
-  var nb={style:'none',size:0,color:'ffffff'};
-  var NB={top:nb,bottom:nb,left:nb,right:nb,insideH:nb,insideV:nb};
-  var sb={style:'single',size:1,color:'e0e0f0'};
-  var SB={top:sb,bottom:sb,left:sb,right:sb};
+  var base = {
+    responsive:false, animation:false,
+    plugins:{ legend:{ labels:{ color:'#33334a', font:{size:11,family:"'DM Sans',sans-serif"}, boxWidth:10, padding:14 } },
+              tooltip:{ titleColor:'#fff', bodyColor:'#c4c4e4' } },
+    scales:{ x:{ ticks:TX, grid:GR }, y:{ ticks:TX, grid:GR, beginAtZero:true } }
+  };
 
-  // ── HELPER: paragraph ──────────────────────────────────────────────────────
-  function P(runs,opts){
-    return new docx.Paragraph(Object.assign({children:Array.isArray(runs)?runs:[runs]},opts||{}));
+  sections.forEach(function(sec) {
+    if (sec.id === 'recs') return;
+    var cv  = mkCanvas();
+    var ctx = cv.getContext('2d');
+    var cfg = null;
+    var hx  = (RPT_COLORS[sec.title]||{}).hex || '#6366f1';
+
+    if (sec.id === 'exec' || sec.id === 'perf') {
+      var mks = Object.keys(_agg.monthM||{}).sort();
+      if (mks.length > 30) mks = mks.slice(-30);
+      var sal = mks.map(function(m){ return (_agg.monthM[m]||{s:0}).s; });
+      var prf = mks.map(function(m){ return (_agg.monthM[m]||{p:0}).p; });
+      cfg = { type:'bar', data:{ labels:mks.map(function(m){ return m.slice(0,7); }), datasets:[
+        { label:'Sales',  data:sal, backgroundColor:'rgba(99,102,241,.45)', borderColor:'#6366f1', borderWidth:1, borderRadius:3, order:2 },
+        { label:'Profit', data:prf, backgroundColor:'rgba(16,185,129,.5)',  borderColor:'#10b981', borderWidth:1, borderRadius:3, order:2 },
+        { label:'Profit (line)', data:prf, type:'line', borderColor:'#10b981', borderWidth:2.5, pointRadius:0, fill:false, tension:.35, order:1 }
+      ]}, options:Object.assign({},base,{ plugins:Object.assign({},base.plugins,{ title:{ display:true, text:'Monthly Sales & Profit Trend', color:'#0d0d1a', font:{size:13,weight:'700',family:"'DM Sans',sans-serif"} } }) }) };
+    }
+    else if (sec.id === 'cat') {
+      var cs = cats.map(function(c){ return (fa.catM[c]||{s:0}).s; });
+      var cm = cats.map(function(c){ var v=fa.catM[c]||{s:0,p:0}; return v.s>0?+(v.p/v.s*100).toFixed(1):0; });
+      cfg = { type:'bar', data:{ labels:cats, datasets:[
+        { label:'Sales ($)', data:cs, backgroundColor:['rgba(99,102,241,.7)','rgba(16,185,129,.7)','rgba(245,158,11,.7)'], borderRadius:5, yAxisID:'y' },
+        { label:'Margin %', data:cm, type:'line', borderColor:'#ef4444', borderWidth:2.5, pointRadius:5, pointBackgroundColor:'#ef4444', fill:false, yAxisID:'y1' }
+      ]}, options:Object.assign({},base,{ plugins:Object.assign({},base.plugins,{ title:{ display:true, text:'Category: Sales & Profit Margin', color:'#0d0d1a', font:{size:13,weight:'700',family:"'DM Sans',sans-serif"} } }),
+        scales:{ x:{ticks:TX,grid:GR}, y:{ticks:TX,grid:GR,beginAtZero:true,title:{display:true,text:'Sales ($)',color:'#6366f1',font:{size:11}}}, y1:{position:'right',ticks:Object.assign({},TX,{color:'#ef4444',callback:function(v){return v+'%';}}),grid:{drawOnChartArea:false},title:{display:true,text:'Margin %',color:'#ef4444',font:{size:11}},beginAtZero:true} } }) };
+    }
+    else if (sec.id === 'reg') {
+      var rs = regs.map(function(r){ return (fa.regM[r]||{s:0}).s; });
+      var rp = regs.map(function(r){ return (fa.regM[r]||{p:0}).p; });
+      var rm = regs.map(function(r){ var v=fa.regM[r]||{s:0,p:0}; return v.s>0?+(v.p/v.s*100).toFixed(1):0; });
+      var rc = ['rgba(99,102,241,.75)','rgba(16,185,129,.75)','rgba(245,158,11,.75)','rgba(236,72,153,.75)'];
+      cfg = { type:'bar', data:{ labels:regs, datasets:[
+        { label:'Sales ($)', data:rs, backgroundColor:rc, borderRadius:5, yAxisID:'y' },
+        { label:'Profit ($)', data:rp, backgroundColor:rc.map(function(c){ return c.replace('.75','.35'); }), borderRadius:5, yAxisID:'y' },
+        { label:'Margin %', data:rm, type:'line', borderColor:'#0ea5e9', borderWidth:2.5, pointRadius:5, pointBackgroundColor:'#0ea5e9', fill:false, yAxisID:'y1' }
+      ]}, options:Object.assign({},base,{ plugins:Object.assign({},base.plugins,{ title:{ display:true, text:'Regional: Sales, Profit & Margin', color:'#0d0d1a', font:{size:13,weight:'700',family:"'DM Sans',sans-serif"} } }),
+        scales:{ x:{ticks:TX,grid:GR}, y:{ticks:TX,grid:GR,beginAtZero:true,title:{display:true,text:'Revenue ($)',color:'#6366f1',font:{size:11}}}, y1:{position:'right',ticks:Object.assign({},TX,{color:'#0ea5e9',callback:function(v){return v+'%';}}),grid:{drawOnChartArea:false},title:{display:true,text:'Margin %',color:'#0ea5e9',font:{size:11}},beginAtZero:true} } }) };
+    }
+    else if (sec.id === 'prod') {
+      var subs = Object.keys(fa.subM).map(function(k){ return {name:k, p:fa.subM[k].p}; }).sort(function(a,b){ return b.p-a.p; }).slice(0,12);
+      cfg = { type:'bar', data:{ labels:subs.map(function(s){ return s.name.length>18?s.name.slice(0,16)+'…':s.name; }), datasets:[{
+        label:'Profit ($)', data:subs.map(function(s){ return s.p; }),
+        backgroundColor:subs.map(function(s){ return s.p>=0?'rgba(16,185,129,.75)':'rgba(239,68,68,.75)'; }),
+        borderColor:subs.map(function(s){ return s.p>=0?'#10b981':'#ef4444'; }), borderWidth:1, borderRadius:4
+      }]}, options:Object.assign({},base,{ indexAxis:'y', plugins:Object.assign({},base.plugins,{ title:{ display:true, text:'Sub-Category Profit Ranking', color:'#0d0d1a', font:{size:13,weight:'700',family:"'DM Sans',sans-serif"} } }),
+        scales:{ x:{ticks:TX,grid:GR}, y:{ticks:Object.assign({},TX,{font:{size:10,family:"'DM Sans',sans-serif"}}),grid:{color:'rgba(0,0,0,.04)'}} } }) };
+    }
+    else if (sec.id === 'cust') {
+      var bands = {healthy:0,risk:0,critical:0};
+      (_chData||[]).forEach(function(cu){ if(bands[cu.band]!==undefined) bands[cu.band]++; });
+      cfg = { type:'doughnut', data:{ labels:['Healthy','At Risk','Critical'], datasets:[{
+        data:[bands.healthy,bands.risk,bands.critical],
+        backgroundColor:['rgba(16,185,129,.85)','rgba(245,158,11,.85)','rgba(239,68,68,.85)'],
+        borderColor:['#10b981','#f59e0b','#ef4444'], borderWidth:2, hoverOffset:8
+      }]}, options:{ responsive:false, animation:false, plugins:{ legend:{ position:'bottom', labels:{ color:'#33334a', font:{size:12,family:"'DM Sans',sans-serif"}, padding:20 } }, title:{ display:true, text:'Customer Health Distribution', color:'#0d0d1a', font:{size:13,weight:'700',family:"'DM Sans',sans-serif"} }, tooltip:{ titleColor:'#fff', bodyColor:'#c4c4e4' } } } };
+    }
+    else if (sec.id === 'disc') {
+      var labels6 = ['0–10%','10–20%','20–30%','30–40%','40–50%','50%+'];
+      var bkts    = _agg.discBkts || [];
+      var avgs    = labels6.map(function(_,i) {
+        var mn=i*10,mx=(i+1)*10;
+        var r = bkts.filter(function(x){ return x.disc*100>=mn&&x.disc*100<mx; });
+        return r.length ? +(r.reduce(function(s,x){ return s+x.margin; },0)/r.length*100).toFixed(1) : 0;
+      });
+      cfg = { type:'bar', data:{ labels:labels6, datasets:[{ label:'Avg Margin %', data:avgs,
+        backgroundColor:avgs.map(function(v){ return v>=0?'rgba(16,185,129,.75)':'rgba(239,68,68,.75)'; }),
+        borderColor:avgs.map(function(v){ return v>=0?'#10b981':'#ef4444'; }), borderWidth:1, borderRadius:5
+      }]}, options:Object.assign({},base,{ plugins:Object.assign({},base.plugins,{ title:{ display:true, text:'Discount Rate vs Average Margin', color:'#0d0d1a', font:{size:13,weight:'700',family:"'DM Sans',sans-serif"} } }),
+        scales:{ x:{ticks:TX,grid:GR}, y:{ticks:Object.assign({},TX,{callback:function(v){return v+'%';}}),grid:GR,beginAtZero:false} } }) };
+    }
+    else if (sec.id === 'ship') {
+      var mn4  = ['Standard Class','Second Class','First Class','Same Day'];
+      var md4  = mn4.map(function(m){ var mo=(_agg.modeM&&_agg.modeM[m])||{s:0,p:0}; return mo.s>0?+(mo.p/mo.s*100).toFixed(1):0; });
+      var mo4  = mn4.map(function(m){ return (_agg.modeM&&_agg.modeM[m]&&_agg.modeM[m].ordCount)||0; });
+      cfg = { type:'bar', data:{ labels:mn4.map(function(n){ return n.replace(' Class',''); }), datasets:[
+        { label:'Profit Margin %', data:md4, backgroundColor:['rgba(99,102,241,.75)','rgba(16,185,129,.75)','rgba(245,158,11,.75)','rgba(236,72,153,.75)'], borderRadius:5, yAxisID:'y' },
+        { label:'Orders', data:mo4, type:'line', borderColor:'#0ea5e9', borderWidth:2.5, pointRadius:5, pointBackgroundColor:'#0ea5e9', fill:false, yAxisID:'y1' }
+      ]}, options:Object.assign({},base,{ plugins:Object.assign({},base.plugins,{ title:{ display:true, text:'Shipping Mode: Margin & Volume', color:'#0d0d1a', font:{size:13,weight:'700',family:"'DM Sans',sans-serif"} } }),
+        scales:{ x:{ticks:TX,grid:GR}, y:{ticks:Object.assign({},TX,{callback:function(v){return v+'%';}}),grid:GR,title:{display:true,text:'Margin %',color:'#6366f1',font:{size:11}}}, y1:{position:'right',ticks:TX,grid:{drawOnChartArea:false},title:{display:true,text:'Orders',color:'#0ea5e9',font:{size:11}}} } }) };
+    }
+
+    if (cfg) {
+      try {
+        // Set animation onComplete to capture chart when fully rendered
+        if (!cfg.options) cfg.options = {};
+        if (!cfg.options.animation) cfg.options.animation = {};
+        (function(id, canvas) {
+          cfg.options.animation.onComplete = function() {
+            try {
+              var png = capture(canvas);
+              if (png) _rptChartImgs[id] = png;
+            } catch(e) { console.warn('chart capture err', id, e); }
+            try { document.body.removeChild(canvas); } catch(e) {}
+          };
+          _rptChartInst[id] = new C(ctx, cfg);
+          // Fallback: if animation is disabled or already complete, capture after a tick
+          setTimeout(function() {
+            if (!_rptChartImgs[id]) {
+              try {
+                var png = capture(canvas);
+                if (png) _rptChartImgs[id] = png;
+              } catch(e) {}
+              try { if(canvas.parentNode) document.body.removeChild(canvas); } catch(e) {}
+            }
+          }, 500);
+        })(sec.id, cv);
+      } catch(e) {
+        console.warn('chart err', sec.id, e);
+        try { document.body.removeChild(cv); } catch(e2) {}
+      }
+    } else {
+      document.body.removeChild(cv);
+    }
+  });
+}
+
+// ── Main generate ────────────────────────────────────────────────────────────
+async function generateReport() {
+  var btn = document.getElementById('report-gen-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Generating…'; }
+
+  var period      = document.getElementById('rpt-period').value;
+  var tone        = document.querySelector('input[name="rpt-tone"]:checked').value;
+  var title       = document.getElementById('rpt-title').value   || 'Superstore Business Review';
+  var forName     = document.getElementById('rpt-for').value     || '';
+  var byName      = document.getElementById('rpt-by').value      || 'Fenxi Analytics';
+  var periodLabel = rptPeriodLabel(period);
+
+  var secs = {
+    exec:document.getElementById('rpt-sec-exec').checked,
+    perf:document.getElementById('rpt-sec-perf').checked,
+    cat: document.getElementById('rpt-sec-cat').checked,
+    reg: document.getElementById('rpt-sec-reg').checked,
+    prod:document.getElementById('rpt-sec-prod').checked,
+    cust:document.getElementById('rpt-sec-cust').checked,
+    disc:document.getElementById('rpt-sec-disc').checked,
+    ship:document.getElementById('rpt-sec-ship').checked,
+    recs:document.getElementById('rpt-sec-recs').checked
+  };
+
+  var totalSteps = Object.values(secs).filter(Boolean).length + 3;
+  var step = 0;
+
+  try {
+    setProgress(totalSteps, ++step, 'Computing data for ' + periodLabel + '…');
+    var fa   = getFilteredAgg(period) || _agg;
+    var nl   = '\n';
+    var cats = ['Furniture','Office Supplies','Technology'];
+    var regs = ['West','East','Central','South'];
+
+    var toneInstr = tone === 'executive'
+      ? 'Concise, direct, CFO-level. Every sentence has a number. No fluff.'
+      : tone === 'detailed'
+        ? 'Detailed analytical style with full context and explanation.'
+        : 'Polished client-facing style. Professional but accessible. Avoid jargon.';
+
+    var ds = 'PERIOD: '+periodLabel+nl;
+    ds += 'TOTAL_SALES='+fS(fa.totalSales)+nl+'TOTAL_PROFIT='+fS(fa.totalProfit)+nl;
+    ds += 'PROFIT_MARGIN='+fP(fa.margin,2)+nl+'TOTAL_ORDERS='+fN(fa.totalOrders)+nl;
+    ds += 'TOTAL_CUSTOMERS='+fN(fa.totalCustomers)+nl+'AVG_ORDER_VALUE='+fS(fa.avgOV)+nl+nl;
+    ds += cats.map(function(c){ var v=fa.catM[c]||{s:0,p:0}; var m=v.s>0?v.p/v.s:0;
+      return c+': SALES='+fS(v.s)+' PROFIT='+fS(v.p)+' MARGIN='+fP(m,2); }).join(nl)+nl+nl;
+    ds += regs.map(function(r){ var v=fa.regM[r]||{s:0,p:0}; var m=v.s>0?v.p/v.s:0;
+      return r+': SALES='+fS(v.s)+' PROFIT='+fS(v.p)+' MARGIN='+fP(m,2); }).join(nl)+nl+nl;
+
+    var topSubs  = Object.keys(fa.subM).map(function(k){ return {name:k,p:fa.subM[k].p,s:fa.subM[k].s}; }).sort(function(a,b){ return b.p-a.p; });
+    var lossSubs = topSubs.filter(function(s){ return s.p<0; });
+    ds += 'SUB-CATEGORIES:'+nl+topSubs.map(function(s){ var m=s.s>0?s.p/s.s:0; return s.name+': PROFIT='+fS(s.p)+' MARGIN='+fP(m,2)+(s.p<0?' LOSS':''); }).join(nl);
+
+    var sys = 'You are a professional business analyst writing a report section. '+toneInstr+
+      ' Use ONLY exact numbers from the data. Write flowing paragraphs, not bullet points. No markdown headers. Every paragraph must contain at least 2 exact figures.';
+
+    // Fire all AI calls in parallel
+    setProgress(totalSteps, ++step, 'Writing all sections in parallel…');
+    var best  = topSubs[0]  || {name:'N/A',p:0};
+    var worst = lossSubs[0] || {name:'none',p:0};
+    var lossStr = lossSubs.slice(0,3).map(function(s){ return s.name+'('+fS(s.p)+')'; }).join(', ')||'none';
+
+    var promMap = {};
+    if(secs.exec) promMap.exec = callAI([{role:'user',content:'Write a BRIEF 3-sentence executive summary for this '+periodLabel+' business report. Sentence 1: the single most important headline number (total sales and profit). Sentence 2: the biggest strength (name the best category/region with its margin) vs the biggest risk (name the worst with its loss). Sentence 3: one specific CFO action item with an estimated dollar recovery. Keep it to 3 sentences MAX — this is the elevator pitch, not the analysis. DATA:'+nl+ds}],sys).then(cleanR).catch(function(){return'';});
+    if(secs.perf) promMap.perf = callAI([{role:'user',content:'Write 2 detailed paragraphs on overall performance for '+periodLabel+'. Do NOT repeat the executive summary. Para 1: deep dive into sales vs profit relationship, margin vs the 10-15% retail benchmark, and what the margin trend means. Para 2: order volume, AOV analysis, customer base size, and regional performance variation — which regions are strong, which are weak, and why. Be specific with regional sales and margin figures. DATA:'+nl+ds}],sys).then(cleanR).catch(function(){return'';});
+    if(secs.cat)  promMap.cat  = callAI([{role:'user',content:'Write 2 paragraphs on category performance for '+periodLabel+'. Compare Furniture, Office Supplies, Technology on sales/profit/margin. DATA:'+nl+ds}],sys).then(cleanR).catch(function(){return'';});
+    if(secs.reg)  promMap.reg  = callAI([{role:'user',content:'Write 2 paragraphs on regional performance for '+periodLabel+'. Compare West/East/Central/South on sales/profit/margin. DATA:'+nl+ds}],sys).then(cleanR).catch(function(){return'';});
+    if(secs.prod) promMap.prod = callAI([{role:'user',content:'Write 2 paragraphs on product performance for '+periodLabel+'. Best sub-cat: '+best.name+' ('+fS(best.p)+'). Worst: '+worst.name+' ('+fS(worst.p)+'). DATA:'+nl+ds}],sys).then(cleanR).catch(function(){return'';});
+    if(secs.cust){
+      var hh=(_chData||[]).filter(function(c){return c.band==='healthy';}).length;
+      var rr=(_chData||[]).filter(function(c){return c.band==='risk';}).length;
+      var cc=(_chData||[]).filter(function(c){return c.band==='critical';}).length;
+      var avg=(_chData||[]).length?Math.round((_chData||[]).reduce(function(s,c){return s+c.score;},0)/(_chData||[]).length):0;
+      promMap.cust = callAI([{role:'user',content:'Write 2 paragraphs on customer health for '+periodLabel+'. Portfolio: '+(_chData||[]).length+' customers, avg score '+avg+'/100, '+hh+' healthy, '+rr+' at risk, '+cc+' critical. DATA:'+nl+ds}],sys).then(cleanR).catch(function(){return'';});
+    }
+    if(secs.disc){
+      var lOrds=(_agg.discBkts||[]).filter(function(x){return x.disc>=0.3&&x.margin<0;}).length;
+      promMap.disc = callAI([{role:'user',content:'Write 2 paragraphs on discount impact for '+periodLabel+'. Loss-making orders at 30%+ discount: '+lOrds+'. Recommend a discount cap policy with estimated profit recovery. DATA:'+nl+ds}],sys).then(cleanR).catch(function(){return'';});
+    }
+    if(secs.ship){
+      var mns=['Standard Class','Second Class','First Class','Same Day'];
+      var sstr=mns.map(function(m){var mo=(_agg.modeM&&_agg.modeM[m])||{s:0,p:0,ordCount:0};return m+': orders='+mo.ordCount+' margin='+(mo.s>0?fP(mo.p/mo.s,2):'N/A');}).join(', ');
+      promMap.ship = callAI([{role:'user',content:'Write 1 paragraph on shipping for '+periodLabel+'. Data: '+sstr+'. Which mode is most profitable? DATA:'+nl+ds}],sys).then(cleanR).catch(function(){return'';});
+    }
+    if(secs.recs){
+      // Compute concrete recovery levers from data
+      var recLevers='';
+      var worstSubRec=_subData.slice().sort(function(a,b){return a.p-b.p;})[0];
+      if(worstSubRec&&worstSubRec.p<0)recLevers+='LEVER 1: Cap discounts on '+worstSubRec.name+' (currently '+(worstSubRec.avgDisc*100).toFixed(0)+'% avg discount, destroying '+fS(Math.abs(worstSubRec.p))+'). Estimated recovery: '+fS(Math.abs(worstSubRec.p)*0.6)+'. ';
+      var highDiscLoss=(_agg.discBkts||[]).filter(function(x){return x.disc>=0.3&&x.margin<0;});
+      var discDestruction=highDiscLoss.reduce(function(s,x){return s+x.margin*x.s;},0);
+      if(discDestruction<0)recLevers+='LEVER 2: Remove/cap orders above 30% discount ('+highDiscLoss.length+' orders destroying '+fS(Math.abs(discDestruction))+'). ';
+      var worstReg='';var wrm=Infinity;['West','East','Central','South'].forEach(function(r){var rv=fa.regM[r]||{s:0,p:0};var m=rv.s>0?rv.p/rv.s:0;if(m<wrm){wrm=m;worstReg=r;}});
+      if(worstReg)recLevers+='LEVER 3: Review '+worstReg+' region pricing (margin '+fP(wrm,2)+' vs blended '+fP(fa.margin,2)+'). ';
+      promMap.recs = callAI([{role:'user',content:'Write exactly 3 numbered strategic recommendations for '+periodLabel+'. Use these SPECIFIC computed recovery levers — do NOT invent generic advice:\n'+recLevers+'\nLoss-making sub-cats: '+lossStr+'.\nFor each recommendation: (1) name the specific action with the specific entity, (2) cite the exact dollar problem, (3) estimate the dollar/percentage improvement. DATA:'+nl+ds}],sys).then(cleanR).catch(function(){return'';});
+    }
+
+    var keys    = Object.keys(promMap);
+    var results = await Promise.all(keys.map(function(k){ return promMap[k]; }));
+    var textMap = {};
+    keys.forEach(function(k,i){ textMap[k] = results[i]; });
+
+    // Build sections
+    var sections = [];
+    if(secs.exec) sections.push({id:'exec',title:'Executive Summary',     text:textMap.exec||'',kpis:[['Total Sales',fS(fa.totalSales)],['Total Profit',fS(fa.totalProfit)],['Profit Margin',fP(fa.margin,2)],['Total Orders',fN(fa.totalOrders)],['Avg Order Value',fS(fa.avgOV)],['Customers',fN(fa.totalCustomers)]]});
+    if(secs.perf) sections.push({id:'perf',title:'Overall Performance',   text:textMap.perf||'',kpis:[['Total Sales',fS(fa.totalSales)],['Total Profit',fS(fa.totalProfit)],['Margin',fP(fa.margin,2)],['Orders',fN(fa.totalOrders)]]});
+    if(secs.cat)  sections.push({id:'cat', title:'Category Analysis',     text:textMap.cat||'', kpis:null});
+    if(secs.reg)  sections.push({id:'reg', title:'Regional Breakdown',    text:textMap.reg||'', kpis:null});
+    if(secs.prod) sections.push({id:'prod',title:'Product Intelligence',  text:textMap.prod||'',kpis:null});
+    if(secs.cust) sections.push({id:'cust',title:'Customer Health',       text:textMap.cust||'',kpis:null});
+    if(secs.disc) sections.push({id:'disc',title:'Discount Analysis',     text:textMap.disc||'',kpis:null});
+    if(secs.ship) sections.push({id:'ship',title:'Shipping Analysis',     text:textMap.ship||'',kpis:null});
+    if(secs.recs) sections.push({id:'recs',title:'Strategic Recommendations',text:textMap.recs||'',kpis:null});
+
+    // Render charts (offscreen → PNG)
+    setProgress(totalSteps, ++step, 'Rendering charts…');
+    renderReportCharts(fa, sections);
+    await new Promise(function(res){ setTimeout(res, 800); }); // wait for captures
+
+    var meta = {
+      title:title, forName:forName, byName:byName, periodLabel:periodLabel,
+      date:new Date().toLocaleDateString('en-IN',{year:'numeric',month:'long',day:'numeric'})
+    };
+    _rptSections = sections;
+    _rptMeta     = meta;
+
+    // Success
+    var prog = document.getElementById('rpt-progress');
+    if (prog) {
+      prog.style.display = 'flex';
+      prog.innerHTML = '<div style="background:var(--green-dim);border:1px solid rgba(22,163,74,.2);border-radius:10px;padding:12px 16px;font-size:13px;font-weight:700;color:var(--green)">✓ Report ready — click View or Word above</div>';
+    }
+    // Enable header buttons
+    var vBtn = document.getElementById('rpt-view-btn');
+    var dBtn = document.getElementById('rpt-dl-btn');
+    if (vBtn) { vBtn.disabled=false; vBtn.style.opacity='1'; vBtn.style.cursor='pointer'; vBtn.style.color='var(--accent)'; vBtn.style.borderColor='var(--accent)'; vBtn.style.background='var(--accent-dim)'; }
+    if (dBtn) { dBtn.disabled=false; dBtn.style.opacity='1'; dBtn.style.cursor='pointer'; dBtn.style.color='var(--text)'; dBtn.style.borderColor='var(--border2)'; }
+
+  } catch(e) {
+    var prog = document.getElementById('rpt-progress');
+    if (prog) { prog.style.display='flex'; prog.innerHTML='<div style="background:var(--red-dim);border:1px solid rgba(220,38,38,.2);border-radius:8px;padding:12px 16px;font-size:13px;color:var(--red)">Error: '+errMsg(e)+'</div>'; }
+  } finally {
+    if (btn) { btn.disabled=false; btn.textContent='✦ Generate'; }
   }
-  function T(text,opts){
-    return new docx.TextRun(Object.assign({text:text,font:'Arial'},opts||{}));
+}
+
+// ── View report in new window ─────────────────────────────────────────────────
+function viewReport() {
+  if (!_rptSections.length) { showTicker('Generate the report first.'); return; }
+  var html = buildReportHTML(_rptSections, _rptMeta, _rptChartImgs);
+  var win = window.open('', '_blank');
+  if (!win) { alert('Pop-ups are blocked — please allow pop-ups for this site then try again.'); return; }
+  win.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8">' +
+    '<title>' + (_rptMeta.title||'Report') + '</title>' +
+    '<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">' +
+    '<style>' +
+    'body{margin:0;background:#dddde8;font-family:\'DM Sans\',sans-serif;}' +
+    '#topbar{position:sticky;top:0;z-index:999;background:#0d0d18;padding:10px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #6366f1;}' +
+    '#topbar span{color:white;font-size:13px;font-weight:700;}' +
+    '.tb-btn{background:linear-gradient(135deg,#6366f1,#4338ca);border:none;color:white;padding:8px 18px;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;margin-left:8px;}' +
+    '.tb-btn.sec{background:none;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.75);}' +
+    '#report-wrap{padding:20px;display:flex;flex-direction:column;align-items:center;gap:4px;}' +
+    '.rp{width:1060px;box-sizing:border-box;overflow:hidden;}' +
+    '@media print{#topbar{display:none!important;}body{background:white;-webkit-print-color-adjust:exact;print-color-adjust:exact;}#report-wrap{padding:0;}' +
+    '.rp{width:100%;page-break-after:always;box-shadow:none!important;}}' +
+    '@page{size:A4 landscape;margin:8mm}' +
+    '</style>' +
+    '<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"><\/script>' +
+    '<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"><\/script>' +
+    '</head><body>' +
+    '<div id="topbar"><span>📊 ' + (_rptMeta.title||'Report') + ' &nbsp;·&nbsp; ' + (_rptMeta.periodLabel||'') + '</span>' +
+    '<div><button class="tb-btn" onclick="exportReportPDF()">🖨 Save as PDF</button>' +
+    '<button class="tb-btn sec" style="background:none;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.75)" onclick="window.print()">🖨 Browser Print</button>' +
+    '<button class="tb-btn sec" onclick="window.close()">✕</button></div></div>' +
+    '<div id="report-wrap">' + html + '</div>' +
+    '<script>' +
+    'async function exportReportPDF(){' +
+    '  var btn=event.target;btn.textContent="Generating…";btn.disabled=true;' +
+    '  try{' +
+    '    var pages=document.querySelectorAll(".rp");' +
+    '    var pdf=new jspdf.jsPDF({orientation:"landscape",unit:"mm",format:"a4"});' +
+    '    var pageW=pdf.internal.pageSize.getWidth();' +
+    '    var pageH=pdf.internal.pageSize.getHeight();' +
+    '    var margin=4;' +
+    '    for(var i=0;i<pages.length;i++){' +
+    '      if(i>0)pdf.addPage("a4","landscape");' +
+    '      var canvas=await html2canvas(pages[i],{scale:2,useCORS:true,backgroundColor:null,logging:false});' +
+    '      var imgW=pageW-margin*2;' +
+    '      var imgH=canvas.height*imgW/canvas.width;' +
+    '      if(imgH>pageH-margin*2)imgH=pageH-margin*2;' +
+    '      pdf.addImage(canvas.toDataURL("image/jpeg",0.95),"JPEG",margin,margin,imgW,imgH);' +
+    '    }' +
+    '    pdf.save("'+(_rptMeta.title||'Fenxi-Report').replace(/[^a-zA-Z0-9 ]/g,'-')+'.pdf");' +
+    '    btn.textContent="🖨 Save as PDF";btn.disabled=false;' +
+    '  }catch(e){alert("PDF error: "+e.message);btn.textContent="🖨 Save as PDF";btn.disabled=false;}' +
+    '}' +
+    '<\/script>' +
+    '</body></html>');
+  win.document.close();
+}
+
+// ── Download Word ─────────────────────────────────────────────────────────────
+var _docxLoaded=false;
+function loadDocxLib(){
+  return new Promise(function(resolve,reject){
+    if(_docxLoaded&&window.docx&&window.docx.Document){resolve();return;}
+    var s=document.createElement('script');
+    s.src='https://unpkg.com/docx@7.8.2/build/index.js';
+    s.onload=function(){_docxLoaded=true;resolve();};
+    s.onerror=function(){reject(new Error('Failed to load Word export library'));};
+    document.head.appendChild(s);
+  });
+}
+async function downloadWordReport() {
+  if (!_rptSections.length) { showTicker('Generate the report first.'); return; }
+  var dBtn = document.getElementById('rpt-dl-btn');
+  if (dBtn) { dBtn.textContent = 'Loading library…'; dBtn.disabled = true; }
+  try {
+    await loadDocxLib();
+    if (dBtn) dBtn.textContent = 'Building…';
+    await buildWordReport(_rptSections, _rptMeta, _rptChartImgs);
+  } catch(e) {
+    alert('Word export error: ' + errMsg(e));
+  } finally {
+    if (dBtn) { dBtn.textContent = '⬇ Word'; dBtn.disabled = false; }
   }
-  function spacer(pts){
-    return P([T('')],{spacing:{after:pts||120}});
+}
+
+// ── Build HTML report (for view window) ──────────────────────────────────────
+function buildReportHTML(sections, meta, imgs) {
+  var MN = ['January','February','March','April','May','June',
+            'July','August','September','October','November','December'];
+
+  function esc(s) {
+    return s==null?'':String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+  function circleSVG() {
+    return '<svg viewBox="0 0 260 260" width="240" height="240" xmlns="http://www.w3.org/2000/svg">' +
+      '<circle cx="130" cy="130" r="122" fill="none" stroke="#6366f1" stroke-width="2" opacity=".5"/>' +
+      '<circle cx="130" cy="130" r="104" fill="rgba(99,102,241,.05)"/>' +
+      '<rect x="75" y="155" width="15" height="44" rx="3" fill="#6366f1" opacity=".4"/>' +
+      '<rect x="98" y="132" width="15" height="67" rx="3" fill="#6366f1" opacity=".55"/>' +
+      '<rect x="121" y="106" width="15" height="93" rx="3" fill="#6366f1" opacity=".75"/>' +
+      '<rect x="144" y="138" width="15" height="61" rx="3" fill="#6366f1" opacity=".5"/>' +
+      '<rect x="167" y="120" width="15" height="79" rx="3" fill="#6366f1" opacity=".65"/>' +
+      '<polyline points="83,158 106,135 129,108 152,141 175,123" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>' +
+      '<circle cx="129" cy="108" r="5" fill="white" opacity=".9"/>' +
+      '</svg>';
   }
 
-  // ── HELPER: KPI grid ───────────────────────────────────────────────────────
-  function kpiGrid(kpis){
-    var COLS=3, W=9360, CW=Math.floor(W/COLS)-20;
-    var GAP=20, rows=[];
-    for(var i=0;i<kpis.length;i+=COLS){
-      var cells=kpis.slice(i,i+COLS).map(function(k){
+  var pages = [];
+
+  // ── Cover ──────────────────────────────────────────────────────────────────
+  pages.push(
+    '<div class="rp" style="background:linear-gradient(140deg,#09090f 55%,#111128 100%);min-height:720px;box-shadow:0 8px 40px rgba(0,0,0,.35);">' +
+    '<div style="position:absolute;inset:0;background-image:radial-gradient(rgba(99,102,241,.14) 1px,transparent 1px);background-size:28px 28px;pointer-events:none;"></div>' +
+    '<div style="position:relative;padding:22px 44px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.06);">' +
+      '<div style="display:flex;align-items:center;gap:10px;">' +
+        '<div style="width:32px;height:32px;background:linear-gradient(135deg,#6366f1,#4338ca);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:white;font-family:monospace;">F</div>' +
+        '<div><div style="font-size:13px;font-weight:700;color:white;">Fenxi Analytics</div><div style="font-size:9px;color:#4a4a7a;letter-spacing:.1em;">BUSINESS INTELLIGENCE</div></div>' +
+      '</div>' +
+      '<span style="font-size:10px;color:#3a3a5a;font-family:monospace;">fenxianalytics.com</span>' +
+    '</div>' +
+    '<div style="position:relative;display:flex;padding:48px 44px 0;gap:28px;align-items:flex-start;">' +
+      '<div style="flex:1;padding-top:16px;">' +
+        '<div style="font-size:10px;font-weight:700;letter-spacing:.2em;color:#818cf8;text-transform:uppercase;margin-bottom:22px;">Business Intelligence Report</div>' +
+        '<h1 style="font-size:52px;font-weight:700;line-height:1.05;color:white;margin:0 0 18px;word-break:break-word;">'+esc(meta.title||'Business Review')+'</h1>' +
+        '<p style="font-size:22px;color:#6366f1;margin:0 0 8px;font-weight:500;">'+esc(meta.periodLabel||'')+'</p>' +
+        '<p style="font-size:13px;color:#4a4a7a;margin:0;">'+esc(meta.date||'')+'</p>' +
+      '</div>' +
+      '<div style="flex:0 0 250px;opacity:.85;">'+circleSVG()+'</div>' +
+    '</div>' +
+    '<div style="position:relative;margin:36px 44px 0;padding:20px 26px;border:1px solid rgba(99,102,241,.18);border-radius:12px;background:rgba(99,102,241,.05);display:grid;grid-template-columns:repeat(4,1fr);gap:18px;">' +
+      (meta.forName ? '<div><div style="font-size:8px;font-weight:700;color:#4a4a7a;text-transform:uppercase;letter-spacing:.14em;margin-bottom:5px;">Prepared For</div><div style="font-size:14px;font-weight:600;color:white;">'+esc(meta.forName)+'</div></div>' : '<div></div>') +
+      '<div><div style="font-size:8px;font-weight:700;color:#4a4a7a;text-transform:uppercase;letter-spacing:.14em;margin-bottom:5px;">Prepared By</div><div style="font-size:14px;font-weight:600;color:white;">'+esc(meta.byName||'Fenxi Analytics')+'</div></div>' +
+      '<div><div style="font-size:8px;font-weight:700;color:#4a4a7a;text-transform:uppercase;letter-spacing:.14em;margin-bottom:5px;">Period</div><div style="font-size:14px;font-weight:600;color:#818cf8;">'+esc(meta.periodLabel||'')+'</div></div>' +
+      '<div><div style="font-size:8px;font-weight:700;color:#4a4a7a;text-transform:uppercase;letter-spacing:.14em;margin-bottom:5px;">Classification</div><div style="font-size:14px;font-weight:600;color:#4ade80;">Confidential</div></div>' +
+    '</div>' +
+    '<div style="height:44px;"></div>' +
+    '</div>'
+  );
+
+  // ── TOC ────────────────────────────────────────────────────────────────────
+  var tocRows = sections.map(function(s, i) {
+    var c = (RPT_COLORS[s.title]||{}).hex||'#6366f1';
+    var n = RPT_NUMS[s.title]||String(i+1).padStart(2,'0');
+    return '<div style="display:flex;align-items:center;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.05);">' +
+      '<span style="font-size:11px;font-weight:700;color:'+c+';font-family:\'DM Mono\',monospace;min-width:36px;letter-spacing:.06em;">'+n+'</span>' +
+      '<span style="font-size:16px;font-weight:500;color:rgba(255,255,255,.88);flex:1;">'+esc(s.title)+'</span>' +
+      '<div style="flex:1;height:1px;background:linear-gradient(to right,'+c+'55,transparent);margin:0 18px;"></div>' +
+      '<div style="width:9px;height:9px;border-radius:50%;background:'+c+';flex-shrink:0;"></div>' +
+      '</div>';
+  }).join('');
+
+  pages.push(
+    '<div class="rp" style="background:#0d0d18;min-height:640px;box-shadow:0 4px 32px rgba(0,0,0,.3);">' +
+    '<div style="padding:52px 44px;">' +
+      '<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:40px;">' +
+        '<div><p style="font-size:10px;font-weight:700;letter-spacing:.2em;color:#818cf8;text-transform:uppercase;margin:0 0 10px;">Report Contents</p>' +
+        '<h2 style="font-size:48px;font-weight:700;color:white;margin:0;line-height:1.1;">Table of<br>contents</h2></div>' +
+        '<div style="opacity:.1;">'+circleSVG()+'</div>' +
+      '</div>' +
+      '<div>'+tocRows+'</div>' +
+    '</div>' +
+    '</div>'
+  );
+
+  // ── Section pages ──────────────────────────────────────────────────────────
+  sections.forEach(function(sec, idx) {
+    var col = RPT_COLORS[sec.title] || {hex:'#6366f1', lite:'EEF0FF'};
+    var hex = col.hex;
+    var lite = '#'+col.lite;
+    var num  = RPT_NUMS[sec.title] || String(idx+1).padStart(2,'0');
+
+    // Chapter divider
+    pages.push(
+      '<div class="rp" style="background:linear-gradient(140deg,'+hex+'18 0%,#09090f 38%);min-height:580px;box-shadow:0 4px 32px rgba(0,0,0,.3);position:relative;overflow:hidden;">' +
+      '<div style="position:absolute;right:-10px;top:-10px;font-size:260px;font-weight:900;color:'+hex+';opacity:.05;font-family:\'DM Mono\',monospace;line-height:1;user-select:none;">'+num+'</div>' +
+      '<div style="position:relative;padding:50px 44px;display:flex;flex-direction:column;justify-content:space-between;min-height:580px;">' +
+        '<div style="font-size:10px;font-weight:700;letter-spacing:.2em;color:'+hex+';text-transform:uppercase;">'+esc(meta.byName||'Fenxi Analytics')+' · '+esc(meta.periodLabel||'')+'</div>' +
+        '<div>' +
+          '<div style="font-size:10px;font-weight:700;color:'+hex+';font-family:\'DM Mono\',monospace;letter-spacing:.12em;margin-bottom:12px;">'+num+'</div>' +
+          '<h2 style="font-size:68px;font-weight:700;color:white;margin:0;line-height:.95;word-break:break-word;">'+esc(sec.title)+'</h2>' +
+        '</div>' +
+        '<div style="display:flex;gap:18px;font-size:10px;color:rgba(255,255,255,.18);"><span>Business</span><span>·</span><span>Analytics</span><span>·</span><span>Performance</span><span>·</span><span>Strategy</span></div>' +
+      '</div>' +
+      '</div>'
+    );
+
+    // KPI cards
+    var kpiHtml = '';
+    if (sec.kpis && sec.kpis.length) {
+      var cols = Math.min(sec.kpis.length, 3);
+      kpiHtml = '<div style="display:grid;grid-template-columns:repeat('+cols+',1fr);gap:11px;margin-bottom:24px;">';
+      sec.kpis.slice(0,6).forEach(function(k) {
+        kpiHtml += '<div style="background:'+lite+';border:1px solid '+hex+'30;border-left:4px solid '+hex+';border-radius:10px;padding:15px 17px;">' +
+          '<div style="font-size:8px;font-weight:700;color:'+hex+';text-transform:uppercase;letter-spacing:.14em;margin-bottom:6px;">'+esc(k[0])+'</div>' +
+          '<div style="font-size:23px;font-weight:700;color:#0d0d1a;line-height:1;font-family:\'DM Mono\',monospace;">'+esc(k[1])+'</div>' +
+          '</div>';
+      });
+      kpiHtml += '</div>';
+    }
+
+    // Pull quote
+    var pullQ = '';
+    if (sec.text && sec.text.length > 60) {
+      var first = (sec.text.match(/(?:\$[\d,.]+[MKB]?|[^.!?])*[.!?](?:\s|$)/) || [''])[0].trim();
+      if (first.length < 40) first = (sec.text.match(/(?:\$[\d,.]+[MKB]?|[^.!?])*[.!?](?:\s|$)(?:(?:\$[\d,.]+[MKB]?|[^.!?])*[.!?](?:\s|$))?/) || [''])[0].trim();
+      if (first.length > 40 && first.length < 220) {
+        pullQ = '<div style="background:linear-gradient(135deg,'+hex+','+hex+'dd);border-radius:11px;padding:18px 22px;margin-bottom:20px;">' +
+          '<div style="font-size:9px;font-weight:700;letter-spacing:.14em;color:rgba(255,255,255,.6);text-transform:uppercase;margin-bottom:8px;">Key Insight</div>' +
+          '<p style="font-size:15px;font-weight:600;color:white;line-height:1.55;margin:0;">'+esc(first)+'</p>' +
+          '</div>';
+      }
+    }
+
+    // Body text
+    var body = '';
+    if (sec.text) {
+      sec.text.split('\n').filter(function(l){ return l.trim(); }).forEach(function(line) {
+        var t = line.trim();
+        var nm = t.match(/^(\d+)\.\s*(.*)/s);
+        if (nm) {
+          body += '<div style="display:flex;gap:11px;margin-bottom:12px;padding:13px 16px;background:'+lite+';border-left:4px solid '+hex+';border-radius:0 8px 8px 0;">' +
+            '<div style="flex-shrink:0;width:24px;height:24px;background:'+hex+';border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:white;">'+esc(nm[1])+'</div>' +
+            '<p style="font-size:13px;line-height:1.65;color:#1a1a2e;margin:0;flex:1;">'+esc(nm[2])+'</p>' +
+            '</div>';
+        } else {
+          body += '<p style="font-size:13px;line-height:1.8;color:#2a2a3e;margin:0 0 12px;text-align:justify;">'+esc(t)+'</p>';
+        }
+      });
+    }
+
+    // Chart image
+    var chartHtml = '';
+    var imgData   = imgs[sec.id];
+    if (imgData) {
+      chartHtml = '<div style="background:white;border:1px solid #e4e4ef;border-radius:11px;overflow:hidden;">' +
+        '<div style="padding:9px 14px;border-bottom:1px solid #f0f0f8;background:'+lite+';display:flex;align-items:center;justify-content:space-between;">' +
+          '<span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:'+hex+';">'+esc(sec.title)+' Analysis</span>' +
+          '<span style="font-size:9px;color:#9999bb;">Fenxi Analytics</span>' +
+        '</div>' +
+        '<div style="padding:12px;"><img src="'+imgData+'" style="width:100%;height:auto;display:block;border-radius:5px;"></div>' +
+        '</div>';
+    }
+
+    var isRecs = sec.id === 'recs';
+    pages.push(
+      '<div class="rp" style="background:white;box-shadow:0 4px 32px rgba(0,0,0,.12);display:flex;flex-direction:column;min-height:700px;">' +
+        '<div style="display:flex;flex:1;">' +
+          '<div style="width:5px;background:'+hex+';flex-shrink:0;"></div>' +
+          '<div style="flex:1;padding:32px 40px;display:flex;flex-direction:column;">' +
+            '<div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:12px;border-bottom:2px solid '+hex+';margin-bottom:22px;">' +
+              '<div style="display:flex;align-items:center;gap:9px;">' +
+                '<span style="font-family:\'DM Mono\',monospace;font-size:11px;font-weight:700;color:'+hex+';letter-spacing:.08em;">'+num+'</span>' +
+                '<span style="font-size:12px;font-weight:700;color:'+hex+';text-transform:uppercase;letter-spacing:.1em;">'+esc(sec.title)+'</span>' +
+              '</div>' +
+              '<span style="font-size:10px;color:#9999bb;">'+esc(meta.byName||'Fenxi Analytics')+' · '+esc(meta.periodLabel||'')+'</span>' +
+            '</div>' +
+            kpiHtml + pullQ +
+            (isRecs
+              ? '<div>'+body+'</div>'
+              : '<div style="display:grid;grid-template-columns:1.1fr 1fr;gap:22px;align-items:start;">' +
+                  '<div>'+body+'</div>' +
+                  '<div>'+chartHtml+'</div>' +
+                '</div>'
+            ) +
+          '</div>' +
+        '</div>' +
+        '<div style="border-top:1px solid #f0f0f8;padding:10px 40px;display:flex;align-items:center;justify-content:space-between;background:#fafafe;">' +
+          '<span style="font-size:10px;color:#9999bb;">'+esc(meta.title||'')+'  ·  '+esc(meta.periodLabel||'')+'</span>' +
+          '<span style="font-size:10px;color:#9999bb;">Fenxi Analytics  ·  Confidential  ·  '+(idx+1)+'/'+sections.length+'</span>' +
+        '</div>' +
+      '</div>'
+    );
+  });
+
+  return '<div style="display:flex;flex-direction:column;gap:4px;align-items:center;">' + pages.join('') + '</div>';
+}
+
+// ── Build Word document ───────────────────────────────────────────────────────
+async function buildWordReport(sections, meta, imgs) {
+  var docx = window.docx;
+  if (!docx||!docx.Document) throw new Error('Word library not loaded — please refresh.');
+
+  var C_BG  = '09090F'; var C_ACC = '6366F1'; var C_DRK = '0D0D1A';
+  var C_MUT = '55557A'; var C_DIM = '9999BB'; var C_BRD = 'E0E0F0';
+
+  var nb = {style:'none',size:0,color:'FFFFFF'};
+  var NB = {top:nb,bottom:nb,left:nb,right:nb,insideH:nb,insideV:nb};
+  var SB_fn = function(c){ var b={style:'single',size:2,color:c||C_BRD}; return {top:b,bottom:b,left:b,right:b}; };
+
+  function P(runs, opts) { return new docx.Paragraph(Object.assign({children:Array.isArray(runs)?runs:[runs]},opts||{})); }
+  function T(t, opts)    { return new docx.TextRun(Object.assign({text:String(t||''),font:'Calibri'},opts||{})); }
+  function SP(n)         { return P([T('')],{spacing:{after:n||80}}); }
+
+  function accentOf(sec) { return (RPT_COLORS[sec.title]||{}).word||'6366F1'; }
+  function liteOf(sec)   { return (RPT_COLORS[sec.title]||{}).lite||'EEF0FF'; }
+
+  // Coloured band table
+  function band(fill, children) {
+    return new docx.Table({ width:{size:9360,type:docx.WidthType.DXA}, columnWidths:[9360],
+      rows:[new docx.TableRow({children:[new docx.TableCell({
+        width:{size:9360,type:docx.WidthType.DXA}, borders:NB,
+        shading:{fill:fill.replace('#',''), type:'clear'},
+        margins:{top:320,bottom:320,left:460,right:460}, children:children
+      })]})] });
+  }
+
+  // KPI grid
+  function kpiGrid(kpis, accent) {
+    var COLS = Math.min(kpis.length, 3);
+    var CW   = Math.floor(9360/COLS) - 20;
+    var rows = [];
+    for (var i=0; i<kpis.length; i+=COLS) {
+      var cells = kpis.slice(i,i+COLS).map(function(k) {
         return new docx.TableCell({
           width:{size:CW,type:docx.WidthType.DXA},
-          borders:SB,
+          borders:{top:{style:'single',size:12,color:accent},bottom:SB_fn().bottom,left:SB_fn().left,right:SB_fn().right},
+          shading:{fill:'F8F8FD',type:'clear'},
           margins:{top:160,bottom:160,left:200,right:200},
-          shading:{fill:'f5f5fc',type:'clear'},
           children:[
-            P([T(k[0],{size:16,bold:true,color:MUT,allCaps:true})],{spacing:{after:50}}),
-            P([T(k[1],{size:34,bold:true,color:ACC})],{spacing:{after:0}})
+            P([T(k[0],{size:15,bold:true,color:C_MUT,allCaps:true})],{spacing:{after:40}}),
+            P([T(k[1],{size:36,bold:true,color:accent})])
           ]
         });
       });
-      // Fill short rows
-      while(cells.length<COLS){
-        cells.push(new docx.TableCell({width:{size:CW,type:docx.WidthType.DXA},borders:NB,children:[P([T('')])]}));
-      }
+      while (cells.length<COLS) cells.push(new docx.TableCell({width:{size:CW,type:docx.WidthType.DXA},borders:NB,children:[P([T('')])]}));
       rows.push(new docx.TableRow({children:cells}));
     }
     return new docx.Table({width:{size:9360,type:docx.WidthType.DXA},columnWidths:Array(COLS).fill(CW),rows:rows});
   }
 
-  // ── HELPER: embed single chart full-width ──────────────────────────────────
-  function embedChart(chartId){
-    var data=captureChartImage(chartId);
-    if(!data)return null;
-    try{
-      var b64=data.replace(/^data:image\/\w+;base64,/,'');
-      var title=CHART_TITLES[chartId]||chartId;
-      return [
-        P([new docx.ImageRun({data:b64,transformation:{width:560,height:240},type:'png'})],
-          {alignment:docx.AlignmentType.CENTER,spacing:{before:160,after:60}}),
-        P([T('Figure: '+title,{size:17,italics:true,color:MUT})],
-          {alignment:docx.AlignmentType.CENTER,spacing:{after:240}})
-      ];
-    }catch(e){return null;}
-  }
-
-  // ── HELPER: two charts side-by-side ───────────────────────────────────────
-  function embedChartPair(id1,id2){
-    var d1=captureChartImage(id1), d2=captureChartImage(id2);
-    function makeCell(data,chartId){
-      if(!data)return new docx.TableCell({width:{size:4560,type:docx.WidthType.DXA},borders:NB,children:[P([T('')])]});
-      try{
-        var b64=data.replace(/^data:image\/\w+;base64,/,'');
-        var title=CHART_TITLES[chartId]||chartId;
-        return new docx.TableCell({
-          width:{size:4560,type:docx.WidthType.DXA},
-          borders:{top:sb,bottom:sb,left:sb,right:sb},
-          margins:{top:80,bottom:80,left:80,right:80},
-          shading:{fill:'fafafa',type:'clear'},
-          children:[
-            P([new docx.ImageRun({data:b64,transformation:{width:248,height:165},type:'png'})],
-              {alignment:docx.AlignmentType.CENTER,spacing:{after:60}}),
-            P([T(title,{size:16,italics:true,color:MUT,bold:true})],
-              {alignment:docx.AlignmentType.CENTER,spacing:{after:0}})
-          ]
-        });
-      }catch(e){return new docx.TableCell({width:{size:4560,type:docx.WidthType.DXA},borders:NB,children:[P([T('')])]});}
-    }
-    var gap=new docx.TableCell({width:{size:240,type:docx.WidthType.DXA},borders:NB,children:[P([T('')])]});
-    return [
-      new docx.Table({
-        width:{size:9360,type:docx.WidthType.DXA},
-        columnWidths:[4560,240,4560],
-        rows:[new docx.TableRow({children:[makeCell(d1,id1),gap,makeCell(d2,id2)]})]
-      }),
-      spacer(240)
-    ];
-  }
-
-  // ── HELPER: meta table row ─────────────────────────────────────────────────
-  function metaRow(label,value){
-    return [new docx.Table({
-      width:{size:9360,type:docx.WidthType.DXA},
-      columnWidths:[2640,6720],
+  // Numbered rec box
+  function recBox(num, txt, accent, lite) {
+    return new docx.Table({ width:{size:9360,type:docx.WidthType.DXA}, columnWidths:[480,8880],
       rows:[new docx.TableRow({children:[
-        new docx.TableCell({
-          width:{size:2640,type:docx.WidthType.DXA},borders:SB,
-          shading:{fill:'f4f4fb',type:'clear'},
-          margins:{top:100,bottom:100,left:180,right:180},
-          children:[P([T(label,{size:19,bold:true,color:MUT,allCaps:true})])]
-        }),
-        new docx.TableCell({
-          width:{size:6720,type:docx.WidthType.DXA},borders:SB,
-          margins:{top:100,bottom:100,left:180,right:180},
-          children:[P([T(value,{size:19,color:DARK})])]
-        })
-      ]})]
-    }), spacer(40)];
+        new docx.TableCell({width:{size:480,type:docx.WidthType.DXA},borders:NB,shading:{fill:accent,type:'clear'},margins:{top:160,bottom:160,left:120,right:120},
+          children:[P([T(num,{size:28,bold:true,color:'FFFFFF'})],{alignment:docx.AlignmentType.CENTER})]}),
+        new docx.TableCell({width:{size:8880,type:docx.WidthType.DXA},
+          borders:{top:{style:'single',size:4,color:accent},bottom:{style:'single',size:4,color:accent},left:nb,right:{style:'single',size:4,color:accent}},
+          shading:{fill:lite,type:'clear'},margins:{top:160,bottom:160,left:240,right:240},
+          children:[P([T(txt,{size:22,color:C_DRK})],{alignment:docx.AlignmentType.BOTH})]})
+      ]})] });
   }
 
-  // ══════════════════════════════════════════════════════════════
-  // COVER PAGE (own section, no footer, different margins)
-  // ══════════════════════════════════════════════════════════════
-  var coverChildren=[];
+  // Embed chart image — dynamically sized based on actual chart aspect ratio
+  function embedChart(imgData, label) {
+    if (!imgData) return [];
+    try {
+      var b64 = imgData.replace(/^data:image\/\w+;base64,/,'');
+      // Determine actual aspect ratio from the base64 image
+      var chartW = 585; // max width in points
+      var chartH = 220; // default height
+      // Try to get actual dimensions from the chart canvas that was captured
+      try {
+        var img = new Image();
+        img.src = imgData;
+        if (img.width && img.height) {
+          chartH = Math.round(chartW * img.height / img.width);
+          chartH = Math.max(150, Math.min(380, chartH)); // clamp between reasonable bounds
+        }
+      } catch(e) {}
+      return [
+        new docx.Table({ width:{size:9360,type:docx.WidthType.DXA}, columnWidths:[9360],
+          rows:[new docx.TableRow({children:[new docx.TableCell({
+            width:{size:9360,type:docx.WidthType.DXA},
+            borders:SB_fn('DCDCF0'), margins:{top:100,bottom:100,left:100,right:100},
+            shading:{fill:'FAFBFE',type:'clear'},
+            children:[P([new docx.ImageRun({data:b64, transformation:{width:chartW,height:chartH}, type:'png'})],{alignment:docx.AlignmentType.CENTER})]
+          })]})]}),
+        P([T(label||'Fenxi Analytics',{size:17,italics:true,color:C_DIM})],{alignment:docx.AlignmentType.CENTER,spacing:{after:180}})
+      ];
+    } catch(e) { return []; }
+  }
 
-  // Full-width colour banner
-  coverChildren.push(new docx.Table({
-    width:{size:10080,type:docx.WidthType.DXA},
-    columnWidths:[10080],
-    rows:[new docx.TableRow({children:[
-      new docx.TableCell({
-        width:{size:10080,type:docx.WidthType.DXA},
-        borders:NB,
-        shading:{fill:'5254d4',type:'clear'},
-        margins:{top:440,bottom:440,left:560,right:560},
-        children:[
-          P([T('FENXI ANALYTICS',{size:18,bold:true,color:'a5b4fc',allCaps:true})],{spacing:{after:120}}),
-          P([T(meta.title||'Business Performance Report',{size:58,bold:true,color:'ffffff'})],{spacing:{after:160}}),
-          P([T(meta.periodLabel||'',{size:26,color:'c7d2fe'})],{spacing:{after:0}})
-        ]
-      })
-    ]})]
-  }));
+  // ── COVER ──────────────────────────────────────────────────────────────────
+  var cover = [];
+  cover.push(band(C_BG, [
+    P([T('FENXI ANALYTICS',{size:16,bold:true,color:'818CF8',allCaps:true})],{spacing:{after:120}}),
+    P([T(meta.title||'Business Report',{size:62,bold:true,color:'FFFFFF'})],{spacing:{after:180}}),
+    P([T(meta.periodLabel||'',{size:30,color:'818CF8'})],{spacing:{after:0}})
+  ]));
+  cover.push(SP(520));
 
-  coverChildren.push(spacer(500));
+  var metaRows = [
+    meta.forName ? ['Prepared For', meta.forName] : null,
+    ['Prepared By',  meta.byName||'Fenxi Analytics'],
+    ['Report Date',  meta.date||''],
+    ['Period',       meta.periodLabel||''],
+    ['Classification','Confidential']
+  ].filter(Boolean);
 
-  // Meta rows
-  if(meta.forName){metaRow('Prepared For',meta.forName).forEach(function(x){coverChildren.push(x);});}
-  metaRow('Prepared By',meta.byName||'Fenxi Analytics').forEach(function(x){coverChildren.push(x);});
-  metaRow('Report Date',meta.date).forEach(function(x){coverChildren.push(x);});
-  metaRow('Period',meta.periodLabel||'Full Dataset').forEach(function(x){coverChildren.push(x);});
-  metaRow('Classification','Confidential').forEach(function(x){coverChildren.push(x);});
+  metaRows.forEach(function(row) {
+    cover.push(new docx.Table({ width:{size:9360,type:docx.WidthType.DXA}, columnWidths:[2800,6560],
+      rows:[new docx.TableRow({children:[
+        new docx.TableCell({width:{size:2800,type:docx.WidthType.DXA},borders:SB_fn(),shading:{fill:'F4F4FB',type:'clear'},margins:{top:120,bottom:120,left:200,right:200},
+          children:[P([T(row[0],{size:19,bold:true,color:C_MUT,allCaps:true})])]}),
+        new docx.TableCell({width:{size:6560,type:docx.WidthType.DXA},borders:SB_fn(),margins:{top:120,bottom:120,left:200,right:200},
+          children:[P([T(row[1]||'',{size:19,color:C_DRK})])]})
+      ]})] }));
+    cover.push(SP(40));
+  });
 
-  coverChildren.push(spacer(400));
+  cover.push(SP(360));
+  cover.push(new docx.Table({ width:{size:9360,type:docx.WidthType.DXA}, columnWidths:[9360],
+    rows:[new docx.TableRow({children:[new docx.TableCell({
+      width:{size:9360,type:docx.WidthType.DXA},
+      borders:{top:nb,bottom:nb,left:{style:'single',size:14,color:C_ACC},right:nb},
+      shading:{fill:'F8F8FD',type:'clear'}, margins:{top:200,bottom:200,left:320,right:280},
+      children:[P([T('Contents',{size:20,bold:true,color:C_ACC,allCaps:true})],{spacing:{after:120}})].concat(
+        sections.map(function(s,i) {
+          return P([T((i+1)+'.  ',{size:21,bold:true,color:accentOf(s)}), T(s.title,{size:21,color:C_DRK})],{spacing:{after:80}});
+        })
+      )
+    })]})]}));
+  cover.push(SP(320));
+  cover.push(P([T('This report was generated by Fenxi Analytics. All figures are computed directly from source data. AI narrative sections should be reviewed before external distribution.',{size:17,italics:true,color:C_DIM})],
+    {border:{top:{style:'single',size:4,color:C_BRD,space:6}},spacing:{before:120}}));
 
-  // Table of contents preview
-  coverChildren.push(new docx.Table({
-    width:{size:9360,type:docx.WidthType.DXA},
-    columnWidths:[9360],
-    rows:[new docx.TableRow({children:[
-      new docx.TableCell({
-        width:{size:9360,type:docx.WidthType.DXA},
-        borders:SB,
-        shading:{fill:'f8f8fd',type:'clear'},
-        margins:{top:180,bottom:180,left:280,right:280},
-        children:[
-          P([T('Contents',{size:20,bold:true,color:ACC,allCaps:true})],{spacing:{after:120}})
-        ].concat(sections.map(function(s,i){
-          return P([
-            T((i+1)+'.  ',{size:20,bold:true,color:ACC}),
-            T(s.title,{size:20,color:DARK})
-          ],{spacing:{after:60}});
-        }))
-      })
-    ]})]
-  }));
+  // ── CONTENT ────────────────────────────────────────────────────────────────
+  var content = [];
 
-  coverChildren.push(spacer(360));
-  coverChildren.push(P([T('This report was generated by Fenxi AI using live data from the connected dataset. All figures are computed directly from source data. AI narrative sections should be reviewed before external distribution.',{size:17,italics:true,color:DIM})],
-    {border:{top:{style:'single',size:4,color:BRD,space:6}},spacing:{before:160}}));
+  sections.forEach(function(sec, idx) {
+    var acc  = accentOf(sec);
+    var lite = liteOf(sec);
+    var num  = RPT_NUMS[sec.title]||String(idx+1).padStart(2,'0');
 
-  // ══════════════════════════════════════════════════════════════
-  // CONTENT PAGES
-  // ══════════════════════════════════════════════════════════════
-  var contentChildren=[];
+    // Section divider
+    content.push(band(C_BG, [
+      P([T(num+'  '+sec.title.toUpperCase(),{size:14,bold:true,color:'818CF8',allCaps:true})],{spacing:{after:160}}),
+      P([T(sec.title,{size:56,bold:true,color:'FFFFFF'})])
+    ]));
+    content.push(P([new docx.PageBreak()]));
 
-  sections.forEach(function(sec,idx){
-
-    // Section number + title heading
-    contentChildren.push(P([
-      T(String(idx+1).padStart(2,'0')+'  ',{size:11,bold:true,color:'a5b4fc',font:'Arial'}),
-      T(sec.title.toUpperCase(),{size:11,bold:true,color:ACC,font:'Arial',allCaps:true})
-    ],{
-      border:{bottom:{style:'single',size:12,color:ACC,space:4}},
-      spacing:{before:idx===0?0:100,after:200},
-      shading:{fill:'f8f8fd',type:'clear'}
-    }));
-
-    // Large section title
-    contentChildren.push(P([T(sec.title,{size:38,bold:true,color:DARK})],{spacing:{before:80,after:200}}));
+    // Section label bar
+    content.push(new docx.Table({ width:{size:9360,type:docx.WidthType.DXA}, columnWidths:[180,9180],
+      rows:[new docx.TableRow({children:[
+        new docx.TableCell({width:{size:180,type:docx.WidthType.DXA},borders:NB,shading:{fill:acc,type:'clear'},margins:{top:60,bottom:60,left:60,right:60},children:[P([T('')])]}),
+        new docx.TableCell({width:{size:9180,type:docx.WidthType.DXA},borders:NB,margins:{top:60,bottom:60,left:240,right:0},children:[
+          P([T(num+'  ',{size:22,bold:true,color:acc}),T(sec.title.toUpperCase(),{size:22,bold:true,color:acc,allCaps:true})],{spacing:{after:40}}),
+          P([T(meta.byName||'Fenxi Analytics',{size:16,color:C_MUT})],{spacing:{after:0}})
+        ]})
+      ]})] }));
+    content.push(SP(100));
+    content.push(new docx.Table({ width:{size:9360,type:docx.WidthType.DXA}, columnWidths:[9360],
+      rows:[new docx.TableRow({children:[new docx.TableCell({width:{size:9360,type:docx.WidthType.DXA},borders:{bottom:{style:'single',size:8,color:acc}},margins:{top:0,bottom:0,left:0,right:0},children:[P([T('')])]})]})]}));
+    content.push(SP(180));
 
     // KPI grid
-    if(sec.kpis&&sec.kpis.length){
-      contentChildren.push(kpiGrid(sec.kpis));
-      contentChildren.push(spacer(240));
+    if (sec.kpis && sec.kpis.length) {
+      content.push(kpiGrid(sec.kpis, acc));
+      content.push(SP(260));
+    }
+
+    // Pull quote
+    if (sec.text) {
+      var first = (sec.text.match(/(?:\$[\d,.]+[MKB]?|[^.!?])*[.!?](?:\s|$)/) || [''])[0].trim();
+      if (first.length < 40) first = (sec.text.match(/(?:\$[\d,.]+[MKB]?|[^.!?])*[.!?](?:\s|$)(?:(?:\$[\d,.]+[MKB]?|[^.!?])*[.!?](?:\s|$))?/) || [''])[0].trim();
+      if (first.length > 50 && first.length < 260) {
+        content.push(band(lite, [P([T(first,{size:24,italics:true,color:acc})])]));
+        content.push(SP(200));
+      }
     }
 
     // Body text
-    if(sec.text&&sec.text.trim()){
-      sec.text.split('\n').filter(function(l){return l.trim();}).forEach(function(line){
-        var trimmed=line.trim();
-        var numMatch=trimmed.match(/^(\d+)\.\s*(.*)/s);
-        if(numMatch){
-          // Numbered rec — shaded callout box
-          contentChildren.push(new docx.Table({
-            width:{size:9360,type:docx.WidthType.DXA},
-            columnWidths:[360,8760],  // colour strip + content
-            rows:[new docx.TableRow({children:[
-              new docx.TableCell({
-                width:{size:360,type:docx.WidthType.DXA},
-                borders:NB,
-                shading:{fill:'6366f1',type:'clear'},
-                margins:{top:120,bottom:120,left:120,right:120},
-                children:[P([T(numMatch[1],{size:22,bold:true,color:'ffffff'})])]
-              }),
-              new docx.TableCell({
-                width:{size:8760,type:docx.WidthType.DXA},
-                borders:{top:sb,bottom:sb,left:nb,right:sb},
-                shading:{fill:'f5f5fc',type:'clear'},
-                margins:{top:120,bottom:120,left:220,right:220},
-                children:[P([T(numMatch[2],{size:22,color:DARK})],{alignment:docx.AlignmentType.BOTH})]
-              })
-            ]})]
-          }));
-          contentChildren.push(spacer(120));
+    if (sec.text) {
+      sec.text.split('\n').filter(function(l){ return l.trim(); }).forEach(function(line) {
+        var t = line.trim();
+        var nm = t.match(/^(\d+)\.\s*(.*)/s);
+        if (nm) {
+          content.push(recBox(nm[1], nm[2], acc, lite));
+          content.push(SP(100));
         } else {
-          contentChildren.push(P([T(trimmed,{size:22,color:DARK})],
-            {spacing:{after:180},alignment:docx.AlignmentType.BOTH}));
+          content.push(P([T(t,{size:22,color:C_DRK})],{spacing:{after:160},alignment:docx.AlignmentType.BOTH}));
         }
       });
     }
 
-    // Charts
-    var ids=sec.chartIds||(sec.chartId?[sec.chartId]:[]);
-    if(ids.length===1){
-      var res=embedChart(ids[0]);
-      if(res)res.forEach(function(x){contentChildren.push(x);});
-    } else if(ids.length>=2){
-      embedChartPair(ids[0],ids[1]).forEach(function(x){contentChildren.push(x);});
-    }
+    // Chart
+    embedChart(imgs[sec.id], 'Figure: '+sec.title+' — Fenxi Analytics · '+meta.periodLabel).forEach(function(el){ content.push(el); });
 
-    // Page break between sections (not after last)
-    if(idx<sections.length-1){
-      contentChildren.push(P([new docx.PageBreak()]));
-    }
+    if (idx < sections.length-1) content.push(P([new docx.PageBreak()]));
   });
 
   // End matter
-  contentChildren.push(spacer(600));
-  contentChildren.push(P([T('')],{border:{bottom:{style:'single',size:6,color:ACC,space:1}},spacing:{before:0,after:0}}));
-  contentChildren.push(spacer(160));
-  contentChildren.push(P([T('Generated by Fenxi Analytics',{size:20,bold:true,color:ACC})],{alignment:docx.AlignmentType.CENTER,spacing:{after:60}}));
-  contentChildren.push(P([T('fenxianalytics.com  ·  contact@fenxianalytics.com',{size:18,color:MUT})],{alignment:docx.AlignmentType.CENTER,spacing:{after:60}}));
-  contentChildren.push(P([T('Confidential — '+meta.date,{size:17,italics:true,color:DIM})],{alignment:docx.AlignmentType.CENTER}));
+  content.push(SP(560));
+  content.push(P([T('')],{border:{bottom:{style:'single',size:6,color:C_ACC}},spacing:{before:0,after:0}}));
+  content.push(SP(160));
+  content.push(P([T('Generated by Fenxi Analytics',{size:22,bold:true,color:C_ACC})],{alignment:docx.AlignmentType.CENTER,spacing:{after:60}}));
+  content.push(P([T('fenxianalytics.com  ·  contact@fenxianalytics.com',{size:19,color:C_MUT})],{alignment:docx.AlignmentType.CENTER,spacing:{after:60}}));
+  content.push(P([T('Confidential — '+(meta.date||''),{size:17,italics:true,color:C_DIM})],{alignment:docx.AlignmentType.CENTER}));
 
-  // ══════════════════════════════════════════════════════════════
-  // BUILD DOCUMENT — two sections (cover + content)
-  // ══════════════════════════════════════════════════════════════
-  var footerPara=new docx.Paragraph({
+  var footer = new docx.Paragraph({
     alignment:docx.AlignmentType.CENTER,
-    border:{top:{style:'single',size:4,color:BRD,space:4}},
+    border:{top:{style:'single',size:4,color:C_BRD,space:4}},
     spacing:{before:60},
     children:[
-      T('Fenxi Analytics  ·  Confidential  ·  Page ',{size:16,color:DIM}),
-      new docx.TextRun({children:[docx.PageNumber.CURRENT],size:16,color:DIM,font:'Arial'}),
-      T(' of ',{size:16,color:DIM}),
-      new docx.TextRun({children:[docx.PageNumber.TOTAL_PAGES],size:16,color:DIM,font:'Arial'})
+      T('Fenxi Analytics  ·  ',{size:16,color:C_DIM}),
+      T(meta.title||'Report',{size:16,bold:true,color:C_ACC}),
+      T('  ·  Confidential  ·  Page ',{size:16,color:C_DIM}),
+      new docx.TextRun({children:[docx.PageNumber.CURRENT],size:16,color:C_DIM,font:'Calibri'}),
+      T(' of ',{size:16,color:C_DIM}),
+      new docx.TextRun({children:[docx.PageNumber.TOTAL_PAGES],size:16,color:C_DIM,font:'Calibri'})
     ]
   });
 
-  var doc=new docx.Document({
-    creator:'Fenxi Analytics',
-    title:meta.title||'Fenxi Report',
-    numbering:{config:[]},
+  var doc = new docx.Document({
+    creator:'Fenxi Analytics', title:meta.title||'Report', numbering:{config:[]},
     sections:[
-      // Cover — no footer, generous margins
-      {
-        properties:{
-          page:{size:{width:12240,height:15840},margin:{top:720,right:1080,bottom:720,left:1080}},
-          type:docx.SectionType?docx.SectionType.NEXT_PAGE:'nextPage'
-        },
-        children:coverChildren
-      },
-      // Content — with footer
-      {
-        properties:{
-          page:{size:{width:12240,height:15840},margin:{top:1080,right:1080,bottom:1080,left:1080}}
-        },
-        footers:{default:new docx.Footer({children:[footerPara]})},
-        children:contentChildren
-      }
+      { properties:{page:{size:{width:12240,height:15840},margin:{top:720,right:1000,bottom:720,left:1000}},type:docx.SectionType?docx.SectionType.NEXT_PAGE:'nextPage'}, children:cover },
+      { properties:{page:{size:{width:12240,height:15840},margin:{top:1000,right:1000,bottom:1000,left:1000}}}, footers:{default:new docx.Footer({children:[footer]})}, children:content }
     ]
   });
 
-  var blob=await docx.Packer.toBlob(doc);
-  var url=URL.createObjectURL(blob);
-  var a=document.createElement('a');a.href=url;
-  a.download=(meta.title||'Fenxi-Report').replace(/[^a-zA-Z0-9 ]/g,'-')+'.docx';
+  var blob = await docx.Packer.toBlob(doc);
+  var url  = URL.createObjectURL(blob);
+  var a    = document.createElement('a');
+  a.href   = url;
+  a.download = (meta.title||'Fenxi-Report').replace(/[^a-zA-Z0-9 ]/g,'-')+'.docx';
   a.click();
-  setTimeout(function(){URL.revokeObjectURL(url);},3000);
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 3000);
 }
+
 
 
 // ═══════════════════════════════════════════════════════
@@ -3453,20 +3970,44 @@ function streamAI(msgs, sysOverride, onChunk, onDone, onError) {
   fetch(AI_PROXY, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ system: sys, messages: clean, stream: true })
+    body: JSON.stringify({ system: sys, messages: clean })
   }).then(function(r) {
     if (!r.ok) return r.text().then(function(b) { throw new Error(r.status + ': ' + b.slice(0, 200)); });
     setAIStatus(true, 'AI Connected');
-    // Try streaming first
+
+    // Try to read as streaming SSE first
     if (r.body && r.body.getReader) {
       var reader = r.body.getReader();
       var decoder = new TextDecoder();
       var buffer = '';
       var full = '';
+      var gotAnyChunk = false;
       function pump() {
         reader.read().then(function(result) {
-          if (result.done) { onDone(full); return; }
-          buffer += decoder.decode(result.value, { stream: true });
+          if (result.done) {
+            // If streaming gave us nothing, try parsing buffer as plain JSON
+            if (!gotAnyChunk && buffer.trim()) {
+              try {
+                var d = JSON.parse(buffer.trim());
+                var text = '';
+                if (d.error) { onError(new Error(d.error.message||JSON.stringify(d.error))); return; }
+                if (d.text) text = d.text;
+                else if (d.content) {
+                  if (typeof d.content === 'string') text = d.content;
+                  else if (Array.isArray(d.content)) text = d.content.map(function(b){return b.text||'';}).join('');
+                }
+                else if (d.choices && d.choices[0]) text = d.choices[0].message&&d.choices[0].message.content||'';
+                onDone(text || full);
+              } catch(e) { onDone(full || buffer.trim()); }
+            } else {
+              onDone(full);
+            }
+            return;
+          }
+          var chunk = decoder.decode(result.value, { stream: true });
+          buffer += chunk;
+
+          // Try SSE line-by-line parsing
           var lines = buffer.split('\n');
           buffer = lines.pop();
           lines.forEach(function(line) {
@@ -3475,15 +4016,11 @@ function streamAI(msgs, sysOverride, onChunk, onDone, onError) {
             if (line.startsWith('data: ')) {
               try {
                 var parsed = JSON.parse(line.slice(6));
-                var chunk = '';
-                if (parsed.choices && parsed.choices[0].delta && parsed.choices[0].delta.content) {
-                  chunk = parsed.choices[0].delta.content;
-                } else if (parsed.delta && parsed.delta.text) {
-                  chunk = parsed.delta.text;
-                } else if (parsed.type === 'content_block_delta' && parsed.delta && parsed.delta.text) {
-                  chunk = parsed.delta.text;
-                }
-                if (chunk) { full += chunk; onChunk(full); }
+                var c = '';
+                if (parsed.choices && parsed.choices[0] && parsed.choices[0].delta) c = parsed.choices[0].delta.content || '';
+                else if (parsed.delta && parsed.delta.text) c = parsed.delta.text;
+                else if (parsed.type === 'content_block_delta' && parsed.delta) c = parsed.delta.text || '';
+                if (c) { full += c; gotAnyChunk = true; onChunk(full); }
               } catch(e) {}
             }
           });
@@ -3492,7 +4029,7 @@ function streamAI(msgs, sysOverride, onChunk, onDone, onError) {
       }
       pump();
     } else {
-      // Fallback: non-streaming
+      // No streaming support — parse JSON directly
       r.json().then(function(d) {
         var text = '';
         if (d.error) { onError(new Error(d.error.message||JSON.stringify(d.error))); return; }
@@ -3501,7 +4038,7 @@ function streamAI(msgs, sysOverride, onChunk, onDone, onError) {
           if (typeof d.content === 'string') text = d.content;
           else if (Array.isArray(d.content)) text = d.content.map(function(b){return b.text||'';}).join('');
         }
-        else if (d.choices && d.choices[0]) text = d.choices[0].message && d.choices[0].message.content || '';
+        else if (d.choices && d.choices[0]) text = d.choices[0].message&&d.choices[0].message.content||'';
         onDone(text);
       }).catch(onError);
     }
@@ -3534,9 +4071,13 @@ function buildFocusedSys(msgs) {
 
   var nl = '\n';
   var base = 'You are Fenxi AI, a sharp retail data analyst. ' + buildVocabContext() + nl;
-  base += 'RESPONSE FORMAT: **Bold headline** with key number. Bullet points with exact figures. **Recommendation:** with $ impact. FOLLOWUPS: ["q1","q2","q3"].' + nl;
+  base += 'CRITICAL: You MUST only use the exact numbers provided in the data below. DO NOT estimate, calculate, or invent any figures. If a number is not in the data, say "I don\'t have that specific figure."' + nl;
+  base += 'RESPONSE FORMAT: Always use bullet format. **Bold headline** with key number. Bullet points with exact figures. **Recommendation:** with $ impact.' + nl;
+  base += 'MANDATORY: End every response with follow-up questions like: FOLLOWUPS: ["What is the margin breakdown by category?","Which products drive the most loss?","How does this compare to last year?"] — replace with questions relevant to your answer.' + nl;
   base += 'CHART FORMAT (only when genuinely helpful): CHART: {"type":"bar","title":"Title","labels":["A","B"],"datasets":[{"label":"Series","data":[1,2],"color":"#6366f1"}]}' + nl + nl;
-  base += 'ACCURACY: Only use exact numbers from data below. Never estimate. If unsure, say so.' + nl + nl;
+  // Always include core totals so every response has them available
+  base += '## CORE TOTALS' + nl;
+  base += 'TOTAL_SALES=' + fS(a.totalSales) + ' TOTAL_PROFIT=' + fS(a.totalProfit) + ' PROFIT_MARGIN=' + fP(a.margin,2) + ' ORDERS=' + fN(a.totalOrders) + ' CUSTOMERS=' + fN(a.totalCustomers) + ' AVG_ORDER_VALUE=' + fS(a.avgOV) + nl + nl;
 
   if (qtype === 'monthly') {
     base += '## MONTHLY LOOKUP DATA' + nl;
@@ -3641,7 +4182,7 @@ function chatSend() {
   if (sw) sw.style.display = 'none';
   if (inp) { inp.value = ''; inp.style.height = 'auto'; }
   appendCMsg('user', text);
-  _chatHistory.push({ role: 'user', content: text + '\n\nAlways use bullet format. Include FOLLOWUPS: [...] and CHART: {...} only if a visual genuinely adds value.' });
+  _chatHistory.push({ role: 'user', content: text + getDataChangeContext() + '\n\nEnd your response with three follow-up questions in this format: FOLLOWUPS: ["first question about the data","second question about the data","third question about the data"]' });
   var snd = document.getElementById('chat-send-btn');
   if (snd) snd.disabled = true;
   _chatLoading = true;
@@ -3683,7 +4224,7 @@ function panelAsk(override) {
     badge.style.display = 'inline';
   }
   appendPMsg('user', text);
-  _pHistory.push({ role: 'user', content: text + '\n\nAlways use bullet format. Include FOLLOWUPS: [...] and CHART: {...} only if genuinely adds value.' });
+  _pHistory.push({ role: 'user', content: text + '\n\nEnd your response with: FOLLOWUPS: ["What is the breakdown by category?","How does this compare to last year?","What specific action would improve this?"]' });
   var snd = document.getElementById('panel-send');
   if (snd) snd.disabled = true;
   _pLoading2 = true;
@@ -3831,41 +4372,49 @@ function detectAnomalies() {
   if (!a.totalSales) return;
   _anomalies = [];
 
-  // Check sub-cat band regressions
+  // Check sub-cat loss-makers (any band with negative profit)
   _subData.forEach(function(sub) {
-    if (sub.band === 'concern' && sub.p < 0) {
+    if (sub.p < 0) {
       _anomalies.push('⚠ ' + sub.name + ' is actively destroying value — ' + fS(Math.abs(sub.p)) + ' loss at ' + fP(sub.s>0?sub.p/sub.s:0,1) + ' margin');
     }
   });
 
-  // Loss-making states with high revenue
-  _stateData.filter(function(s){return s.p<0&&s.s>50000;}).slice(0,3).forEach(function(st){
+  // Loss-making states with meaningful revenue (>$20K)
+  _stateData.filter(function(s){return s.p<0&&s.s>20000;}).slice(0,3).forEach(function(st){
     _anomalies.push('🔴 ' + st.state + ' is loss-making despite ' + fS(st.s) + ' in sales — investigate discount policy');
   });
 
-  // Customer health: critical customers with high revenue
-  var critHighRev = _chData.filter(function(c){return c.band==='critical'&&c.s>20000;}).slice(0,2);
+  // Customer health: critical customers with any significant revenue
+  var critHighRev = _chData.filter(function(c){return c.band==='critical'&&c.s>10000;}).slice(0,2);
   critHighRev.forEach(function(cu){
     _anomalies.push('🚨 ' + cu.name + ' scored ' + cu.score + '/100 (Critical) but generates ' + fS(cu.s) + ' in revenue — at risk of churn');
   });
 
-  // Discount destruction
-  var lossOrds = a.discBkts.filter(function(x){return x.disc>=0.4&&x.margin<0;});
-  if (lossOrds.length > 50) {
+  // Discount destruction (any significant number of loss orders at high discount)
+  var lossOrds = a.discBkts.filter(function(x){return x.disc>=0.3&&x.margin<0;});
+  if (lossOrds.length > 20) {
     var totalDestroyed = lossOrds.reduce(function(s,x){return s+x.margin*x.s;},0);
-    _anomalies.push('💸 ' + lossOrds.length + ' orders discounted ≥40% are loss-making — destroying ' + fS(Math.abs(totalDestroyed)) + ' in profit');
+    _anomalies.push('💸 ' + lossOrds.length + ' orders discounted ≥30% are loss-making — destroying ' + fS(Math.abs(totalDestroyed)) + ' in profit');
+  }
+
+  // Margin below retail benchmark
+  if (a.margin < 0.10) {
+    _anomalies.push('📉 Blended margin is ' + fP(a.margin,2) + ' — below the 10% healthy retail benchmark');
   }
 
   var banner = document.getElementById('anomaly-banner');
   var list = document.getElementById('anomaly-list');
+  var floatDot = document.getElementById('float-dot');
   if (!banner || !list) return;
   if (_anomalies.length) {
     list.innerHTML = _anomalies.map(function(a) {
       return '<div class="anomaly-item"><div class="anomaly-dot"></div><span>' + a + '</span></div>';
     }).join('');
     banner.classList.add('show');
+    if (floatDot) floatDot.classList.add('show');
   } else {
     banner.classList.remove('show');
+    if (floatDot) floatDot.classList.remove('show');
   }
 }
 
@@ -4261,6 +4810,19 @@ function runScenario() {
 // COMPARISON MODE
 // ═══════════════════════════════════════════════════════
 function openCompare() {
+  // Populate year options from actual dataset years
+  var years = (_agg && _agg.sortedYears && _agg.sortedYears.length) ? _agg.sortedYears : [];
+  ['compare-a-years','compare-b-years'].forEach(function(id){
+    var grp = document.getElementById(id);
+    if(!grp) return;
+    grp.innerHTML = '';
+    years.forEach(function(yr){
+      var opt = document.createElement('option');
+      opt.value = 'y-'+yr;
+      opt.textContent = yr;
+      grp.appendChild(opt);
+    });
+  });
   document.getElementById('compare-overlay').style.display = 'flex';
   document.querySelectorAll('.fenxi-logo').forEach(function(el){el.src=FENXI_LOGO;});
   runComparison();
@@ -4418,93 +4980,12 @@ function exportCSV() {
 }
 
 function exportPDF() {
-  // Use browser print with print-optimised CSS
-  window.print();
-  logAction('PDF export triggered via browser print');
+  // Redirect to the report generator for proper PDF export
+  switchPage(1); // ensure we're on overview
+  showTicker('Use the Report button (top-right) to generate a professional PDF report with all sections.');
+  logAction('PDF export — redirected to Report tool');
 }
 
-function exportPPT() {
-  if(typeof PptxGenJS==='undefined'){alert('PPT library not loaded yet — please wait a moment and try again.');return;}
-  try{
-  var pptx = new PptxGenJS();
-  var a = _agg;
-  pptx.layout = 'LAYOUT_WIDE';
-  pptx.defineLayout({ name:'WIDE', width:13.33, height:7.5 });
-
-  // Slide 1: Cover
-  var s1 = pptx.addSlide();
-  s1.addShape(pptx.ShapeType.rect, {x:0,y:0,w:'100%',h:'100%',fill:{color:'6366f1'}});
-  s1.addText('SUPERSTORE ANALYTICS', {x:0.5,y:1.5,w:12,h:1.2,color:'FFFFFF',fontSize:40,bold:true,align:'left'});
-  s1.addText('Business Performance Report', {x:0.5,y:2.8,w:12,h:0.8,color:'C7D2FE',fontSize:22,align:'left'});
-  s1.addText('Generated by Fenxi Analytics  ·  ' + new Date().toLocaleDateString('en-IN',{year:'numeric',month:'long',day:'numeric'}), {x:0.5,y:5.5,w:12,h:0.5,color:'A5B4FC',fontSize:14,align:'left'});
-
-  // Slide 2: KPIs
-  var s2 = pptx.addSlide();
-  s2.addText('Performance Overview', {x:0.5,y:0.3,w:12,h:0.7,color:'6366f1',fontSize:24,bold:true});
-  var kpiData = [
-    ['Total Sales', fS(a.totalSales)],['Total Profit', fS(a.totalProfit)],
-    ['Profit Margin', fP(a.margin,2)],['Total Orders', fN(a.totalOrders)],
-    ['Avg Order Value', fS(a.avgOV)],['Unique Customers', fN(a.totalCustomers)]
-  ];
-  kpiData.forEach(function(kpi, i) {
-    var col = i % 3, row2 = Math.floor(i/3);
-    var x = 0.3 + col*4.4, y = 1.2 + row2*2.5;
-    s2.addShape(pptx.ShapeType.roundRect, {x:x,y:y,w:4,h:2,fill:{color:'F4F4F9'},line:{color:'DCDCEC',width:1},rectRadius:0.1});
-    s2.addText(kpi[0], {x:x+0.2,y:y+0.2,w:3.6,h:0.5,color:'55557A',fontSize:11,bold:true});
-    s2.addText(kpi[1], {x:x+0.2,y:y+0.7,w:3.6,h:1,color:'6366F1',fontSize:26,bold:true});
-  });
-
-  // Slide 3: Category Analysis
-  var s3 = pptx.addSlide();
-  s3.addText('Category Analysis', {x:0.5,y:0.3,w:12,h:0.7,color:'6366f1',fontSize:24,bold:true});
-  var cats = ['Furniture','Office Supplies','Technology'];
-  var catColors = ['F97316','6366F1','0EA5E9'];
-  cats.forEach(function(cat, i) {
-    var cv = a.catM[cat]||{s:0,p:0};var m = cv.s>0?cv.p/cv.s:0;
-    var x = 0.3 + i*4.3, y = 1.2;
-    s3.addShape(pptx.ShapeType.roundRect, {x:x,y:y,w:4,h:5.5,fill:{color:'F4F4F9'},line:{color:catColors[i],width:2},rectRadius:0.1});
-    s3.addText(cat, {x:x+0.2,y:y+0.2,w:3.6,h:0.5,color:catColors[i],fontSize:13,bold:true});
-    s3.addText(fS(cv.s), {x:x+0.2,y:y+0.9,w:3.6,h:0.8,color:'12122A',fontSize:22,bold:true});
-    s3.addText('Sales', {x:x+0.2,y:y+1.6,w:3.6,h:0.4,color:'55557A',fontSize:10});
-    s3.addText(fS(cv.p), {x:x+0.2,y:y+2.2,w:3.6,h:0.8,color:cv.p>=0?'16A34A':'DC2626',fontSize:18,bold:true});
-    s3.addText('Profit', {x:x+0.2,y:y+2.9,w:3.6,h:0.4,color:'55557A',fontSize:10});
-    s3.addText(fP(m,2) + ' margin', {x:x+0.2,y:y+3.5,w:3.6,h:0.5,color:m>=0.1?'16A34A':m>=0?'CA8A04':'DC2626',fontSize:14,bold:true});
-  });
-
-  // Slide 4: Regional
-  var s4 = pptx.addSlide();
-  s4.addText('Regional Breakdown', {x:0.5,y:0.3,w:12,h:0.7,color:'6366f1',fontSize:24,bold:true});
-  var regs = ['West','East','Central','South'];
-  var regColors = ['6366F1','0EA5E9','F97316','10B981'];
-  regs.forEach(function(reg, i) {
-    var rv = a.regM[reg]||{s:0,p:0};var m=rv.s>0?rv.p/rv.s:0;var rs=a.regionScores[reg]||{score:0};
-    var x = 0.3+(i%2)*6.5, y = 1.2+Math.floor(i/2)*3;
-    s4.addShape(pptx.ShapeType.roundRect, {x:x,y:y,w:6,h:2.5,fill:{color:'F4F4F9'},line:{color:regColors[i],width:2},rectRadius:0.1});
-    s4.addText(reg, {x:x+0.2,y:y+0.15,w:4,h:0.5,color:regColors[i],fontSize:16,bold:true});
-    s4.addText('Score: '+rs.score+'/100', {x:x+4,y:y+0.15,w:1.8,h:0.5,color:'55557A',fontSize:11,align:'right'});
-    s4.addText(fS(rv.s)+' sales', {x:x+0.2,y:y+0.8,w:5.6,h:0.5,color:'12122A',fontSize:14,bold:true});
-    s4.addText(fS(rv.p)+' profit  ·  '+fP(m,2)+' margin', {x:x+0.2,y:y+1.35,w:5.6,h:0.5,color:m>=0.1?'16A34A':m>=0?'CA8A04':'DC2626',fontSize:12});
-  });
-
-  // Slide 5: Top Issues + Recommendations
-  var s5 = pptx.addSlide();
-  s5.addText('Key Actions Required', {x:0.5,y:0.3,w:12,h:0.7,color:'6366f1',fontSize:24,bold:true});
-  var lossSubs = _subData.filter(function(s){return s.p<0;}).slice(0,4);
-  var totalLoss = lossSubs.reduce(function(sum,s){return sum+s.p;},0);
-  s5.addText('Loss-Making Sub-Categories (Total: '+fS(Math.abs(totalLoss))+')', {x:0.5,y:1.1,w:12,h:0.5,color:'DC2626',fontSize:14,bold:true});
-  lossSubs.forEach(function(sub, i) {
-    s5.addText('• '+sub.name+' ['+sub.cat+']: '+fS(sub.p)+' at '+fP(sub.s>0?sub.p/sub.s:0,1)+' margin', {x:0.7,y:1.7+i*0.45,w:12,h:0.4,color:'12122A',fontSize:12});
-  });
-  var flagCount = Object.keys(_flaggedCusts).length;
-  if (flagCount) {
-    s5.addText('🚩 '+flagCount+' accounts flagged for review', {x:0.5,y:3.5,w:12,h:0.5,color:'F97316',fontSize:13,bold:true});
-  }
-  s5.addText('Generated by Fenxi Analytics  ·  fenxianalytics.com', {x:0.5,y:6.8,w:12,h:0.4,color:'9999BB',fontSize:10,align:'center'});
-
-  pptx.writeFile({ fileName: 'Fenxi-Analytics-Report.pptx' });
-  logAction('PowerPoint exported');
-  }catch(e){alert('PPT export failed: '+e.message);console.error('PPT export error',e);}
-}
 
 // ═══════════════════════════════════════════════════════
 // OVERRIDE openExpand FOR SMART CACHING
@@ -4534,33 +5015,6 @@ function openExpand(key) {
   }
   document.getElementById('expand-overlay').classList.add('open');
 }
-
-// ═══════════════════════════════════════════════════════
-// OVERRIDE fetchData TO ALSO RUN ANOMALY DETECTION
-// ═══════════════════════════════════════════════════════
-var _origFetchData = fetchData;
-fetchData = function() {
-  fetch(API_URL)
-  .then(function(r){ return r.json(); })
-  .then(function(rows){
-    var prev = _lastSales;
-    _data = rows; aggregate(); _lastSales = _agg.totalSales;
-    computeDataDiff(prev);
-    detectAnomalies();
-    renderAll();
-    var now = new Date();
-    document.getElementById('sr-rows').textContent = fN(rows.length)+' rows';
-    document.getElementById('sr-orders').textContent = fN(_agg.totalOrders)+' orders';
-    document.getElementById('sr-fetch').textContent = 'fetched '+now.toLocaleTimeString();
-    if (prev > 0 && Math.abs(_agg.totalSales-prev)/prev > 0.005) {
-      showTicker('Data refreshed — '+(_dataChangeSummary||'data updated'));
-      var stale = document.getElementById('exec-stale-nudge');
-      if (stale && _execLoaded) stale.style.display = 'inline-flex';
-    }
-    if (!_execLoaded) genExecSummary(false);
-  })
-  .catch(function(){ document.getElementById('sr-fetch').textContent = 'fetch error — retrying'; });
-};
 
 // ═══════════════════════════════════════════════════════
 // REPORT LOGGING OVERRIDE
@@ -4595,10 +5049,7 @@ function addExportButtons() {
     menu.id = 'export-menu';
     menu.style = 'display:none;position:fixed;right:20px;top:66px;z-index:200;background:var(--bg-card);border:1px solid var(--border2);border-radius:9px;box-shadow:0 8px 30px rgba(0,0,0,.15);overflow:hidden;min-width:170px';
     menu.innerHTML = [
-      ['📊 Export CSV', 'exportCSV()'],
-      ['📄 Export PDF', 'exportPDF()'],
-      ['📑 Export PPT', 'exportPPT()'],
-      ['💾 Export Text', 'exportSaved()']
+      ['📊 Export CSV', 'exportCSV()']
     ].map(function(item) {
       return '<button onclick="' + item[1] + ';document.getElementById(\'export-menu\').style.display=\'none\'" style="display:block;width:100%;text-align:left;padding:10px 16px;background:none;border:none;color:var(--text);font-size:13px;cursor:pointer;font-family:\'DM Sans\',sans-serif;transition:background .1s" onmouseover="this.style.background=\'var(--bg-hover)\'" onmouseout="this.style.background=\'none\'">' + item[0] + '</button>';
     }).join('');
@@ -4616,10 +5067,7 @@ function addExportButtons() {
 // ═══════════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', function() {
   // Check libraries loaded
-  if(window.docx&&window.docx.Document)console.log('✅ docx library loaded');
-  else console.warn('⚠️ docx library not loaded — Word export will fail');
-  if(typeof PptxGenJS!=='undefined')console.log('✅ pptxgenjs loaded');
-  else console.warn('⚠️ PptxGenJS not loaded — PPT export will fail');
+  console.log('✅ docx library will load on demand when Word export is used');
 
   // Load persisted state first
   lsLoad();
@@ -4691,6 +5139,10 @@ function getFilteredAgg(period){
       var od=r['Order Date']||''; var parts=od.split('/');
       if(parts.length!==3)return false;
       var yr=parts[2]; var mo=+parts[0];
+      // Exact YYYY-MM e.g. "2021-03" → compare April 2021 vs May 2019 etc
+      if(/^\d{4}-\d{2}$/.test(period)){
+        return yr===period.split('-')[0] && mo===parseInt(period.split('-')[1],10);
+      }
       if(period.startsWith('y-')){
         var targetYr=period==='y-last'?String(+(_agg.sortedYears[_agg.sortedYears.length-1]||'2024')):period.slice(2);
         return yr===targetYr;
@@ -4893,6 +5345,248 @@ function setProgress(total, current, msg){
     +'<div style="font-size:12.5px;color:var(--muted)">'+msg+'</div>';
 }
 
+// ═══════════════════════════════════════════════════════
+// TOAST NOTIFICATION SYSTEM
+// ═══════════════════════════════════════════════════════
+function showToast(msg, type, duration) {
+  type = type || 'info';
+  duration = duration || 4000;
+  var icons = {success:'✅',info:'ℹ️',warning:'⚠️',error:'❌'};
+  var container = document.getElementById('toast-container');
+  if (!container) return;
+  var toast = document.createElement('div');
+  toast.className = 'toast ' + type;
+  toast.innerHTML = '<span class="toast-icon">' + (icons[type]||'ℹ️') + '</span>'
+    + '<div class="toast-body">' + msg + '</div>'
+    + '<button class="toast-close" onclick="this.parentElement.classList.add(\'removing\');setTimeout(function(){this.parentElement.remove();}.bind(this),250)">✕</button>';
+  container.appendChild(toast);
+  setTimeout(function() {
+    if (toast.parentElement) {
+      toast.classList.add('removing');
+      setTimeout(function() { if (toast.parentElement) toast.remove(); }, 250);
+    }
+  }, duration);
+}
+// Override showTicker to use toast
+var _origShowTicker = showTicker;
+showTicker = function(msg) {
+  showToast(msg, 'success');
+  try { _origShowTicker(msg); } catch(e) {}
+};
+
+// ═══════════════════════════════════════════════════════
+// SCORE FILTERS — Products, States, Sub-categories
+// ═══════════════════════════════════════════════════════
+var _prodScoreFilter = 'all';
+var _stateScoreFilter = 'all';
+var _subScoreFilter = 'all';
+
+function setScoreFilter(type, band, btn) {
+  if (type === 'prod') { _prodScoreFilter = band; _prodShowCount = 50; renderProdTbl(); }
+  if (type === 'state') { _stateScoreFilter = band; renderStateTbl(); }
+  if (type === 'sub') { _subScoreFilter = band; renderSubTbl(); }
+  // Update button states
+  var grp = btn.parentElement;
+  if (grp) grp.querySelectorAll('.score-filter-btn').forEach(function(b) {
+    b.className = 'score-filter-btn' + (b === btn ? (band === 'all' ? ' active' : band === 'strong' ? ' active-green' : band === 'watch' ? ' active-yellow' : ' active-red') : '');
+  });
+}
+
+function scoreFilterHTML(type) {
+  return '<div class="score-filter">'
+    + '<button class="score-filter-btn active" onclick="setScoreFilter(\'' + type + '\',\'all\',this)">All</button>'
+    + '<button class="score-filter-btn" onclick="setScoreFilter(\'' + type + '\',\'strong\',this)">🟢 Strong</button>'
+    + '<button class="score-filter-btn" onclick="setScoreFilter(\'' + type + '\',\'watch\',this)">🟡 Watch</button>'
+    + '<button class="score-filter-btn" onclick="setScoreFilter(\'' + type + '\',\'concern\',this)">🔴 Concern</button>'
+    + '</div>';
+}
+
+// Inject score filters into pages after data loads
+function injectScoreFilters() {
+  // Product table
+  var prodControls = document.querySelector('#page-4 .tbl-controls');
+  if (prodControls && !prodControls.querySelector('.score-filter')) {
+    prodControls.insertAdjacentHTML('beforeend', scoreFilterHTML('prod'));
+  }
+  // State table
+  var stateCard = document.querySelector('#page-3 .tbl-controls');
+  if (stateCard && !stateCard.querySelector('.score-filter')) {
+    stateCard.insertAdjacentHTML('beforeend', scoreFilterHTML('state'));
+  }
+  // Sub-category table
+  var subControls = document.querySelector('#page-2 .tbl-controls');
+  if (subControls && !subControls.querySelector('.score-filter')) {
+    subControls.insertAdjacentHTML('beforeend', scoreFilterHTML('sub'));
+  }
+}
+
+// Patch render functions to apply score filters
+var _origRenderProdTbl = renderProdTbl;
+renderProdTbl = function() {
+  _origRenderProdTbl();
+  if (_prodScoreFilter !== 'all') {
+    // Re-render with filter applied
+    var sk = _prodSortKeyMap[_prodSort] || 'p';
+    var sorted = _prodData.slice().sort(function(a, b) { return b[sk] - a[sk]; });
+    var q = (document.getElementById('prod-search') || {}).value || '';
+    if (q) sorted = sorted.filter(function(p) { return p.name.toLowerCase().includes(q.toLowerCase()); });
+    if (_prodScoreFilter === 'strong') sorted = sorted.filter(function(p) { return p.score >= 70; });
+    else if (_prodScoreFilter === 'watch') sorted = sorted.filter(function(p) { return p.score >= 45 && p.score < 70; });
+    else if (_prodScoreFilter === 'concern') sorted = sorted.filter(function(p) { return p.score < 45; });
+    var showing = sorted.slice(0, _prodShowCount);
+    var hasMore = sorted.length > _prodShowCount;
+    var tbl = document.getElementById('prod-tbl'); if (!tbl) return;
+    tbl.querySelector('tbody').innerHTML = showing.map(function(p) {
+      var m = p.s > 0 ? p.p / p.s : 0;
+      return '<tr onclick="openProdDetail(\'' + p.name.replace(/\\/g, '\\\\').replace(/'/g, "\\'") + '\',\'' + p.cat + '\')">'
+        + '<td class="lbl clickable" style="max-width:200px;overflow:hidden;text-overflow:ellipsis" title="' + p.name.replace(/"/g, '&quot;') + '">' + p.name + '</td>'
+        + '<td style="color:' + CAT_C[p.cat] + ';font-family:\'DM Sans\',sans-serif;font-size:12px">' + p.cat + '</td>'
+        + '<td>' + scoreBadge(p.score, p.band) + '</td><td>' + fS(p.s) + '</td>'
+        + '<td class="' + (p.p >= 0 ? 'profit-pos' : 'profit-neg') + '">' + fS(p.p) + '</td>'
+        + '<td class="' + (m >= 0.1 ? 'profit-pos' : m >= 0 ? '' : 'profit-neg') + '">' + fP(m, 1) + '</td>'
+        + '<td>' + fN(p.q) + '</td><td>' + (p.avgDisc * 100).toFixed(0) + '%</td></tr>';
+    }).join('') + (hasMore ? '<tr><td colspan="8" style="text-align:center;padding:14px"><button onclick="_prodShowCount+=50;renderProdTbl()" style="background:var(--accent-dim);border:1px solid rgba(99,102,241,.25);color:var(--accent);padding:6px 20px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer">Show more (' + (sorted.length - _prodShowCount) + ' remaining)</button></td></tr>' : '');
+    document.getElementById('prod-count').textContent = showing.length + ' of ' + sorted.length + ' products';
+  }
+};
+
+var _origRenderStateTbl = renderStateTbl;
+renderStateTbl = function() {
+  // Apply score filter before rendering
+  var origData = _stateData;
+  if (_stateScoreFilter !== 'all') {
+    var bandMap = {'strong':'healthy','watch':'risk','concern':'critical'};
+    // States use score thresholds directly
+    if (_stateScoreFilter === 'strong') _stateData = origData.filter(function(s) { return s.score >= 70; });
+    else if (_stateScoreFilter === 'watch') _stateData = origData.filter(function(s) { return s.score >= 45 && s.score < 70; });
+    else if (_stateScoreFilter === 'concern') _stateData = origData.filter(function(s) { return s.score < 45; });
+  }
+  _origRenderStateTbl();
+  _stateData = origData;
+};
+
+var _origRenderSubTbl = renderSubTbl;
+renderSubTbl = function() {
+  var origData = _subData;
+  if (_subScoreFilter !== 'all') {
+    if (_subScoreFilter === 'strong') _subData = origData.filter(function(s) { return s.score >= 70; });
+    else if (_subScoreFilter === 'watch') _subData = origData.filter(function(s) { return s.score >= 45 && s.score < 70; });
+    else if (_subScoreFilter === 'concern') _subData = origData.filter(function(s) { return s.score < 45; });
+  }
+  _origRenderSubTbl();
+  _subData = origData;
+};
+
+// ═══════════════════════════════════════════════════════
+// SCORE INFO BUTTONS PER PAGE
+// ═══════════════════════════════════════════════════════
+function injectScoreInfoButtons() {
+  // Customer page
+  var custHeader = document.querySelector('#page-5 .section-header');
+  if (custHeader && !custHeader.querySelector('.score-info-btn')) {
+    var btn = document.createElement('button');
+    btn.className = 'score-info-btn';
+    btn.innerHTML = '❓ How Customer Health Scores work';
+    btn.onclick = function() { openScoreMethod(); };
+    custHeader.appendChild(btn);
+  }
+  // Product page
+  var prodHeader = document.querySelector('#page-4 .section-header');
+  if (prodHeader && !prodHeader.querySelector('.score-info-btn')) {
+    var btn2 = document.createElement('button');
+    btn2.className = 'score-info-btn';
+    btn2.innerHTML = '❓ How Product Health Scores work';
+    btn2.onclick = function() { openScoreMethod(); };
+    prodHeader.appendChild(btn2);
+  }
+  // Regional page
+  var regHeader = document.querySelector('#page-3 .section-header');
+  if (regHeader && !regHeader.querySelector('.score-info-btn')) {
+    var btn3 = document.createElement('button');
+    btn3.className = 'score-info-btn';
+    btn3.innerHTML = '❓ How Region & State Scores work';
+    btn3.onclick = function() { openScoreMethod(); };
+    regHeader.appendChild(btn3);
+  }
+  // Sales & Profit page (sub-cat scores)
+  var salesHeader = document.querySelector('#page-2 .section-header');
+  if (salesHeader && !salesHeader.querySelector('.score-info-btn')) {
+    var btn4 = document.createElement('button');
+    btn4.className = 'score-info-btn';
+    btn4.innerHTML = '❓ How Sub-Category Scores work';
+    btn4.onclick = function() { openScoreMethod(); };
+    salesHeader.appendChild(btn4);
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// DATA CHANGE AWARENESS IN AI
+// ═══════════════════════════════════════════════════════
+var _lastDataChangeMsg = '';
+function getDataChangeContext() {
+  if (_dataChangeSummary && _dataChangeSummary !== _lastDataChangeMsg) {
+    _lastDataChangeMsg = _dataChangeSummary;
+    return '\n\n[DATA UPDATE: ' + _dataChangeSummary + ' — mention this change in your response if relevant.]';
+  }
+  return '';
+}
+
+// ═══════════════════════════════════════════════════════
+// CSV upload removed — use the API data source
+
+// ═══════════════════════════════════════════════════════
+// ACCESSIBILITY — ARIA + FOCUS TRAPPING
+// ═══════════════════════════════════════════════════════
+function addAccessibility() {
+  // Add ARIA attributes to all modals
+  var modals = [
+    {id: 'detail-modal', label: 'Detail Analysis'},
+    {id: 'expand-overlay', label: 'Explore Chart'},
+    {id: 'score-method-overlay', label: 'Score Methodology'},
+    {id: 'scenario-overlay', label: 'Scenario Modeller'},
+    {id: 'compare-overlay', label: 'Period Comparison'},
+    {id: 'autopsy-overlay', label: 'Profit Autopsy'},
+    {id: 'vocab-overlay', label: 'Client Settings'}
+  ];
+  modals.forEach(function(m) {
+    var el = document.getElementById(m.id);
+    if (el) {
+      el.setAttribute('role', 'dialog');
+      el.setAttribute('aria-modal', 'true');
+      el.setAttribute('aria-label', m.label);
+    }
+  });
+  // Add aria-label to nav tabs
+  document.querySelectorAll('.nav-tab').forEach(function(tab) {
+    var pg = tab.getAttribute('data-page');
+    var names = {1:'Overview',2:'Sales & Profit',3:'Regional',4:'Products',5:'Customers',6:'Shipping',7:'AI Chat'};
+    tab.setAttribute('aria-label', names[pg] || 'Page ' + pg);
+  });
+  // Add aria-label to key buttons
+  var fb = document.getElementById('float-btn');
+  if (fb) fb.setAttribute('aria-label', 'Open Fenxi AI assistant');
+}
+
+// ═══════════════════════════════════════════════════════
+// INJECT ALL NEW FEATURES ON PAGE SWITCH
+// ═══════════════════════════════════════════════════════
+var _origSwitchPage = switchPage;
+switchPage = function(n) {
+  _origSwitchPage(n);
+  setTimeout(function() {
+    injectScoreFilters();
+    injectScoreInfoButtons();
+  }, 100);
+};
+
+// Run on initial load too
+var _origDOMReady = null;
+setTimeout(function() {
+  injectScoreFilters();
+  injectScoreInfoButtons();
+  addAccessibility();
+}, 2000);
+
 </script>
 
 
@@ -4954,15 +5648,15 @@ function setProgress(total, current, msg){
         <img class="fenxi-logo" src="" alt="Fenxi" style="width:26px;height:26px;border-radius:7px;object-fit:cover"/>
         <div>
           <div style="font-size:15px;font-weight:700">📄 Report Builder</div>
-          <div style="font-size:11px;color:var(--muted)">Generate a downloadable Word document with AI narrative and charts</div>
+          <div style="font-size:11px;color:var(--muted)">Generate a professional report with AI narrative — View online or Download as Word</div>
         </div>
       </div>
-      <div style="display:flex;gap:8px">
-        <div style="display:flex;align-items:center;gap:8px">
+      <div style="display:flex;gap:8px;align-items:center">
           <span id="rpt-ai-status" style="font-size:11px;color:var(--muted)"></span>
-          <button id="report-gen-btn" onclick="generateReport()" style="background:linear-gradient(135deg,#6366f1,#4f46e5);border:none;color:#fff;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">📄 Generate &amp; Download</button>
-        </div>
-        <button onclick="closeReportBuilder()" style="background:none;border:none;color:var(--muted);font-size:19px;cursor:pointer;padding:2px 6px;border-radius:5px">✕</button>
+          <button id="rpt-view-btn" onclick="viewReport()" disabled style="opacity:.35;background:none;border:1.5px solid var(--border2);color:var(--muted);padding:7px 13px;border-radius:7px;font-size:12px;font-weight:600;cursor:default;transition:all .2s">👁️ View</button>
+          <button id="rpt-dl-btn" onclick="downloadWordReport()" disabled style="opacity:.35;background:none;border:1.5px solid var(--border2);color:var(--muted);padding:7px 13px;border-radius:7px;font-size:12px;font-weight:600;cursor:default;transition:all .2s">⬇ Word</button>
+          <button id="report-gen-btn" onclick="generateReport()" style="background:linear-gradient(135deg,#6366f1,#4f46e5);border:none;color:#fff;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;transition:opacity .15s">❆ Generate</button>
+          <button onclick="closeReportBuilder()" style="background:none;border:none;color:var(--muted);font-size:19px;cursor:pointer;padding:2px 6px;border-radius:5px">✕</button>
       </div>
     </div>
     <!-- Body -->
@@ -4974,16 +5668,8 @@ function setProgress(total, current, msg){
           <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">Report Period</div>
           <select id="rpt-period" onchange="updateReportPreview()" style="width:100%;padding:8px 10px;border-radius:7px;border:1.5px solid var(--border2);background:var(--bg-card);color:var(--text);font-size:13px;outline:none">
             <option value="all">Full Dataset (All Time)</option>
-            <option value="y-last">Last Year</option>
-            <option value="y-2021">Year 2021</option>
-            <option value="y-2022">Year 2022</option>
-            <option value="y-2023">Year 2023</option>
-            <option value="y-2024">Year 2024</option>
-            <option value="q1">Q1 (Jan–Mar)</option>
-            <option value="q2">Q2 (Apr–Jun)</option>
-            <option value="q3">Q3 (Jul–Sep)</option>
-            <option value="q4">Q4 (Oct–Dec)</option>
           </select>
+          <div style="font-size:10px;color:var(--dim);margin-top:4px;">Year &amp; month options load automatically after data uploads</div>
         </div>
         <!-- Sections -->
         <div style="margin-bottom:20px">
@@ -5108,8 +5794,7 @@ function setProgress(total, current, msg){
           <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">Period A</div>
           <select id="compare-a" onchange="runComparison()" style="padding:7px 10px;border-radius:7px;border:1.5px solid var(--border2);background:var(--bg-card);color:var(--text);font-size:13px;outline:none">
             <option value="all">Full Dataset</option>
-            <optgroup label="── By Year ──">
-              <option value="y-2021">2021</option><option value="y-2022">2022</option><option value="y-2023">2023</option><option value="y-2024">2024</option>
+            <optgroup label="── By Year ──" id="compare-a-years">
             </optgroup>
             <optgroup label="── By Quarter ──">
               <option value="q1">Q1 (Jan–Mar)</option><option value="q2" selected>Q2 (Apr–Jun)</option><option value="q3">Q3 (Jul–Sep)</option><option value="q4">Q4 (Oct–Dec)</option>
@@ -5127,8 +5812,7 @@ function setProgress(total, current, msg){
           <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">Period B</div>
           <select id="compare-b" onchange="runComparison()" style="padding:7px 10px;border-radius:7px;border:1.5px solid var(--border2);background:var(--bg-card);color:var(--text);font-size:13px;outline:none">
             <option value="all">Full Dataset</option>
-            <optgroup label="── By Year ──">
-              <option value="y-2021">2021</option><option value="y-2022">2022</option><option value="y-2023">2023</option><option value="y-2024">2024</option>
+            <optgroup label="── By Year ──" id="compare-b-years">
             </optgroup>
             <optgroup label="── By Quarter ──">
               <option value="q1">Q1 (Jan–Mar)</option><option value="q2">Q2 (Apr–Jun)</option><option value="q3">Q3 (Jul–Sep)</option><option value="q4" selected>Q4 (Oct–Dec)</option>
@@ -5253,5 +5937,6 @@ function setProgress(total, current, msg){
     </div>
   </div>
 </div>
+<div id="toast-container"></div>
 </body>
 </html>
