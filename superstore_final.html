@@ -505,7 +505,7 @@ input,textarea{font-family:'DM Sans',sans-serif}
     <button class="btn" id="theme-btn" onclick="toggleTheme()">🌙</button>
     <div id="ai-status-pill" style="display:flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;border:1px solid var(--border)"><span id="ai-status-dot" style="width:6px;height:6px;border-radius:50%;background:var(--dim)"></span><span id="ai-status-txt">AI connecting…</span></div>
     <button class="btn" onclick="openSavedPanel()">Saved</button>
-    <button onclick="openReportBuilder()" style="background:linear-gradient(135deg,#6366f1,#4f46e5);border:none;color:#fff;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;transition:opacity .15s" title="Generate Report">📄 Report</button>
+    <button onclick="openReportBuilder()" style="background:linear-gradient(135deg,#6366f1,#4f46e5);border:none;color:#fff;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;transition:opacity .15s" title="Generate Report">Report</button>
   </div>
 </div>
 
@@ -736,7 +736,7 @@ input,textarea{font-family:'DM Sans',sans-serif}
       </div>
       <div class="card">
         <div class="card-title-row">
-          <div class="card-title">Top 10 Loss-Making Products ⚠</div>
+          <div class="card-title">Top 10 Loss-Making Products</div>
           <button class="chart-explore-btn" onclick="openExpand('p4-bot')"><img class="fenxi-logo" src="" alt=""/> Explore</button>
         </div>
         <div class="card-explain">These products are destroying value. Heavy discounting on high-ticket items is the usual cause.</div>
@@ -927,9 +927,9 @@ input,textarea{font-family:'DM Sans',sans-serif}
         </div>
       </div>
       <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
-        <button onclick="openAutopsy()" style="background:linear-gradient(135deg,#f97316,#dc2626);border:none;color:#fff;padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;cursor:pointer">🔬 Profit Autopsy</button>
+        <button onclick="openAutopsy()" style="background:linear-gradient(135deg,#f97316,#dc2626);border:none;color:#fff;padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;cursor:pointer">Profit Autopsy</button>
         <button onclick="openScenario()" style="background:linear-gradient(135deg,#8b5cf6,#6366f1);border:none;color:#fff;padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;cursor:pointer">🔮 Scenario</button>
-        <button onclick="openCompare()" style="background:linear-gradient(135deg,#0ea5e9,#0d9488);border:none;color:#fff;padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;cursor:pointer">📊 Compare</button>
+        <button onclick="openCompare()" style="background:linear-gradient(135deg,#0ea5e9,#0d9488);border:none;color:#fff;padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:700;cursor:pointer">Compare Periods</button>
         <button class="btn" style="font-size:11px" onclick="clearChat()">Clear</button>
       </div>
     </div>
@@ -1066,10 +1066,10 @@ input,textarea{font-family:'DM Sans',sans-serif}
     </div>
   </div>
   <div class="sp-tabs">
-    <button class="sp-tab active" onclick="switchSavedTab('insights',this)">💡 Insights</button>
-    <button class="sp-tab" onclick="switchSavedTab('queries',this)">📌 Queries</button>
-    <button class="sp-tab" onclick="switchSavedTab('flagged',this)">🚩 Flagged</button>
-    <button class="sp-tab" onclick="switchSavedTab('log',this)">📋 Log</button>
+    <button class="sp-tab active" onclick="switchSavedTab('insights',this)">Insights</button>
+    <button class="sp-tab" onclick="switchSavedTab('queries',this)">Queries</button>
+    <button class="sp-tab" onclick="switchSavedTab('flagged',this)">Flagged</button>
+    <button class="sp-tab" onclick="switchSavedTab('log',this)">Log</button>
   </div>
   <div class="sp-body" id="saved-list"></div>
 </div>
@@ -1839,7 +1839,7 @@ function renderCHKPIs(){
     {lbl:'🟢 Healthy',val:healthy+' customers',color:'#10b981'},
     {lbl:'🟡 At Risk',val:risk+' customers',color:'#ca8a04'},
     {lbl:'🔴 Critical',val:critical+' customers',color:'#dc2626'},
-    {lbl:'🚩 Flagged',val:flagCount+' accounts',color:'#f97316'}
+    {lbl:'Flagged',val:flagCount+' accounts',color:'#f97316'}
   ].map(function(k){
     return'<div class="kpi-card" style="border-top-color:'+k.color+'">'
     +'<div class="kpi-label">'+k.lbl+'</div>'
@@ -1897,7 +1897,7 @@ function renderCustomerHealth(){
       {lbl:'🟢 Healthy',val:healthy+' customers',color:'#10b981'},
       {lbl:'🟡 At Risk',val:risk+' customers',color:'#ca8a04'},
       {lbl:'🔴 Critical',val:critical+' customers',color:'#dc2626'},
-      {lbl:'🚩 Flagged',val:flagCount+' accounts',color:'#f97316'}
+      {lbl:'Flagged',val:flagCount+' accounts',color:'#f97316'}
     ].map(function(k){
       return'<div class="kpi-card" style="border-top-color:'+k.color+'">'
       +'<div class="kpi-label">'+k.lbl+'</div>'
@@ -1955,7 +1955,7 @@ function openCHDetail(custId){
   var c=_chData.find(function(x){return x.id===custId;});if(!c)return;
   var meta='<span class="badge '+(c.band==='healthy'?'badge-green':c.band==='risk'?'badge-yellow':'badge-red')+'">'+bandLabel(c.band)+' · '+c.score+'/100</span>'
     +'<span class="badge" style="background:'+SEG_C[c.seg]+'22;color:'+SEG_C[c.seg]+'">'+c.seg+'</span>'
-    +(_flaggedCusts[c.id]?'<span class="badge badge-yellow">🚩 Flagged</span>':'');
+    +(_flaggedCusts[c.id]?'<span class="badge badge-yellow">Flagged</span>':'');
   var subTbl='<thead><tr><th>Dimension</th><th>Score</th><th>Weight</th><th>Value</th></tr></thead><tbody>'
     +scoreDimRow('Profitability',c.profSc,'35%',fP(c.margin,1)+' margin')
     +scoreDimRow('Order Frequency',c.freqSc,'25%',c.freq.toFixed(2)+' orders/month')
@@ -2021,7 +2021,8 @@ function buildSys(){
   var a=_agg;
   if(!a.totalSales)return'You are Fenxi AI, an analytics assistant. Data is loading.';
 
-  var s='You are Fenxi AI, a sharp retail data analyst embedded in a live Superstore analytics dashboard.\n\n';
+  var s='You are Fenxi AI, a sharp retail data analyst embedded in a live Superstore analytics dashboard.\n';
+  s+='IMPORTANT: All the data you need to answer ANY question is provided below. Read every section. NEVER say you don\'t have data — it is ALL here.\n\n';
 
   // ── OUTPUT FORMAT ──
   s+='## RESPONSE FORMAT\n';
@@ -2183,8 +2184,9 @@ function buildSys(){
   s+='1. ONLY use numbers from the data above. Never estimate or approximate.\n';
   s+='2. If asked about a specific month, look it up in MONTHLY DATA above.\n';
   s+='3. If asked about a specific state, look it up in ALL STATES above.\n';
-  s+='4. If you cannot find an exact figure, say so explicitly.\n';
-  s+='5. Always cite exact figures — never say "approximately" or "around".\n\n';
+  s+='4. ALL the data you need is in this prompt. Look through every section carefully before answering.\n';
+  s+='5. Always cite exact figures — never say "approximately" or "around".\n';
+  s+='6. NEVER say "I don\'t have that figure" — the data IS above. Re-read the sections.\n\n';
   s+='## RESPONSE FORMAT\n';
   s+='Always use bullet format. **Bold headline** with key number. Bullet points with exact figures from data above.\n';
   s+='**Recommendation:** with $ impact.\n';
@@ -2205,7 +2207,7 @@ function callAI(msgs, sysOverride){
   var MAX=14;
   var trimmed=msgs.length>MAX?msgs.slice(0,2).concat(msgs.slice(-(MAX-2))):msgs;
   var clean=[];trimmed.forEach(function(m){if(!clean.length||m.role!==clean[clean.length-1].role)clean.push(m);});
-  return fetch(AI_PROXY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system:sys,messages:clean})})
+  return fetch(AI_PROXY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system:sys,messages:clean,quality:'low'})})
   .then(function(r){if(!r.ok)return r.text().then(function(b){throw new Error(r.status+': '+b.slice(0,200));});return r.json();})
   .then(function(d){
     setAIStatus(true,'AI Connected');
@@ -2615,7 +2617,7 @@ function openCustDetail(custId){
   var meta='<span class="badge" style="background:'+SEG_C[cust.seg]+'22;color:'+SEG_C[cust.seg]+'">'+cust.seg+'</span>'
     +scoreBadge(cust.score,cust.band)
     +'<span class="badge '+(m>=0.1?'badge-green':m>=0?'badge-yellow':'badge-red')+'">'+fP(m,1)+' margin</span>'
-    +(_flaggedCusts[custId]?'<span class="badge badge-yellow">🚩 Flagged</span>':'');
+    +(_flaggedCusts[custId]?'<span class="badge badge-yellow">Flagged</span>':'');
   var prompt=cust.name+' ('+cust.seg+') — Sales: '+fS(cust.s)+', Profit: '+fS(cust.p)+', Margin: '+fP(m,2)+', Orders: '+cust.ord+', HealthScore: '+cust.score+'/100\nCategories: '+Object.keys(custCat).join(', ')+'\n\n'
     +'Respond using this format:\n'
     +'**Customer Verdict:** One sentence on this customer\'s value.\n\n'
@@ -3397,9 +3399,9 @@ function viewReport() {
     '<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"><\/script>' +
     '<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"><\/script>' +
     '</head><body>' +
-    '<div id="topbar"><span>📊 ' + (_rptMeta.title||'Report') + ' &nbsp;·&nbsp; ' + (_rptMeta.periodLabel||'') + '</span>' +
-    '<div><button class="tb-btn" onclick="exportReportPDF()">🖨 Save as PDF</button>' +
-    '<button class="tb-btn sec" style="background:none;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.75)" onclick="window.print()">🖨 Browser Print</button>' +
+    '<div id="topbar"><span>' + (_rptMeta.title||'Report') + ' &nbsp;·&nbsp; ' + (_rptMeta.periodLabel||'') + '</span>' +
+    '<div><button class="tb-btn" onclick="exportReportPDF()">Save as PDF</button>' +
+    '<button class="tb-btn sec" style="background:none;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.75)" onclick="window.print()">Browser Print</button>' +
     '<button class="tb-btn sec" onclick="window.close()">✕</button></div></div>' +
     '<div id="report-wrap">' + html + '</div>' +
     '<script>' +
@@ -3420,8 +3422,8 @@ function viewReport() {
     '      pdf.addImage(canvas.toDataURL("image/jpeg",0.95),"JPEG",margin,margin,imgW,imgH);' +
     '    }' +
     '    pdf.save("'+(_rptMeta.title||'Fenxi-Report').replace(/[^a-zA-Z0-9 ]/g,'-')+'.pdf");' +
-    '    btn.textContent="🖨 Save as PDF";btn.disabled=false;' +
-    '  }catch(e){alert("PDF error: "+e.message);btn.textContent="🖨 Save as PDF";btn.disabled=false;}' +
+    '    btn.textContent="Save as PDF";btn.disabled=false;' +
+    '  }catch(e){alert("PDF error: "+e.message);btn.textContent="Save as PDF";btn.disabled=false;}' +
     '}' +
     '<\/script>' +
     '</body></html>');
@@ -3959,7 +3961,7 @@ function logAction(text) {
 // STREAMING AI CALL
 // ═══════════════════════════════════════════════════════
 function streamAI(msgs, sysOverride, onChunk, onDone, onError) {
-  var sys = sysOverride || buildFocusedSys(msgs);
+  var sys = sysOverride || buildSys();
   var MAX = 14;
   var trimmed = msgs.length > MAX ? msgs.slice(0, 2).concat(msgs.slice(-(MAX-2))) : msgs;
   var clean = [];
@@ -3970,7 +3972,7 @@ function streamAI(msgs, sysOverride, onChunk, onDone, onError) {
   fetch(AI_PROXY, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ system: sys, messages: clean })
+    body: JSON.stringify({ system: sys, messages: clean, quality: 'high' })
   }).then(function(r) {
     if (!r.ok) return r.text().then(function(b) { throw new Error(r.status + ': ' + b.slice(0, 200)); });
     setAIStatus(true, 'AI Connected');
@@ -4053,13 +4055,16 @@ function streamAI(msgs, sysOverride, onChunk, onDone, onError) {
 // ═══════════════════════════════════════════════════════
 function classifyQuery(text) {
   var t = text.toLowerCase();
-  if (/\b(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|oct|nov|dec)\b/.test(t)) return 'monthly';
+  if (/\b(monthly|month.by.month|january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|oct|nov|dec)\b/.test(t)) return 'monthly';
   if (/\b(flagged|flag|review|watch list)\b/.test(t)) return 'flagged';
   if (/\b(state|california|texas|new york|ohio|florida|illinois|pennsylvania|washington|virginia|georgia)\b/.test(t)) return 'state';
   if (/\b(health|score|at.risk|critical|healthy|band)\b/.test(t)) return 'health';
-  if (/\b(trend|year|annual|growth|2021|2022|2023|2024|yoy|quarter)\b/.test(t)) return 'trend';
+  if (/\b(trend|year|annual|growth|2014|2015|2016|2017|2021|2022|2023|2024|yoy|quarter)\b/.test(t)) return 'trend';
   if (/\b(ship|shipping|mode|delivery|days)\b/.test(t)) return 'shipping';
-  if (/\b(product|item|sku|copier|printer|chair|table|phone)\b/.test(t)) return 'product';
+  if (/\b(product|item|sku|copier|printer|chair|table|phone|best.sell|worst.sell|top.product|loss.mak)\b/.test(t)) return 'product';
+  if (/\b(categor|sub.?categor|breakdown|furniture|office|technology|segment|consumer|corporate|home.office)\b/.test(t)) return 'category';
+  if (/\b(region|west|east|central|south|geographic)\b/.test(t)) return 'region';
+  if (/\b(discount|disc|coupon|promotion|markdown)\b/.test(t)) return 'discount';
   return 'full';
 }
 
@@ -4070,47 +4075,92 @@ function buildFocusedSys(msgs) {
   if (!a.totalSales) return buildSys();
 
   var nl = '\n';
-  var base = 'You are Fenxi AI, a sharp retail data analyst. ' + buildVocabContext() + nl;
-  base += 'CRITICAL: You MUST only use the exact numbers provided in the data below. DO NOT estimate, calculate, or invent any figures. If a number is not in the data, say "I don\'t have that specific figure."' + nl;
-  base += 'RESPONSE FORMAT: Always use bullet format. **Bold headline** with key number. Bullet points with exact figures. **Recommendation:** with $ impact.' + nl;
-  base += 'MANDATORY: End every response with follow-up questions like: FOLLOWUPS: ["What is the margin breakdown by category?","Which products drive the most loss?","How does this compare to last year?"] — replace with questions relevant to your answer.' + nl;
-  base += 'CHART FORMAT (only when genuinely helpful): CHART: {"type":"bar","title":"Title","labels":["A","B"],"datasets":[{"label":"Series","data":[1,2],"color":"#6366f1"}]}' + nl + nl;
-  // Always include core totals so every response has them available
-  base += '## CORE TOTALS' + nl;
-  base += 'TOTAL_SALES=' + fS(a.totalSales) + ' TOTAL_PROFIT=' + fS(a.totalProfit) + ' PROFIT_MARGIN=' + fP(a.margin,2) + ' ORDERS=' + fN(a.totalOrders) + ' CUSTOMERS=' + fN(a.totalCustomers) + ' AVG_ORDER_VALUE=' + fS(a.avgOV) + nl + nl;
+  var base = 'You are Fenxi AI, a retail data analyst. Answer using ONLY the exact numbers below. Never estimate.' + nl;
+  base += buildVocabContext() + nl;
+  base += 'FORMAT: **Bold headline** with key number. Then bullet points (•) with exact figures. End with **Recommendation:** and a specific action.' + nl;
+  base += 'MANDATORY: End every response with FOLLOWUPS: ["question 1","question 2","question 3"] — three relevant follow-up questions.' + nl;
+  base += 'CHART (optional, only if helpful): CHART: {"type":"bar","title":"Title","labels":["A","B"],"datasets":[{"label":"Series","data":[1,2],"color":"#6366f1"}]}' + nl + nl;
+  base += 'CORE TOTALS: Sales=' + fS(a.totalSales) + ' Profit=' + fS(a.totalProfit) + ' Margin=' + fP(a.margin,2) + ' Orders=' + fN(a.totalOrders) + ' Customers=' + fN(a.totalCustomers) + ' AOV=' + fS(a.avgOV) + nl + nl;
+
+  if (qtype === 'category') {
+    base += '## CATEGORIES — USE THESE EXACT NUMBERS TO ANSWER' + nl;
+    ['Furniture','Office Supplies','Technology'].forEach(function(cat){
+      var cv=a.catM[cat]||{s:0,p:0,ordCount:0};var m=cv.s>0?cv.p/cv.s:0;
+      base+=cat+': Sales='+fS(cv.s)+' Profit='+fS(cv.p)+' Margin='+fP(m,2)+' Orders='+fN(cv.ordCount)+nl;
+    });
+    base += nl + '## SUB-CATEGORIES' + nl;
+    _subData.forEach(function(sub){
+      var m=sub.s>0?sub.p/sub.s:0;
+      base+=sub.name+' ['+sub.cat+']: Sales='+fS(sub.s)+' Profit='+fS(sub.p)+' Margin='+fP(m,2)+' Score='+sub.score+'/100'+(sub.p<0?' LOSS':'')+nl;
+    });
+    base += nl + '## SEGMENTS' + nl;
+    ['Consumer','Corporate','Home Office'].forEach(function(seg){
+      var sg=a.segM[seg]||{s:0,p:0,ord:new Set()};var m=sg.s>0?sg.p/sg.s:0;
+      base+=seg+': Sales='+fS(sg.s)+' Profit='+fS(sg.p)+' Margin='+fP(m,2)+nl;
+    });
+    return base;
+  }
+
+  if (qtype === 'region') {
+    base += '## REGIONS — USE THESE EXACT NUMBERS TO ANSWER' + nl;
+    ['West','East','Central','South'].forEach(function(reg){
+      var rv=a.regM[reg]||{s:0,p:0};var m=rv.s>0?rv.p/rv.s:0;
+      var rs=a.regionScores[reg]||{score:0,band:'concern',growth:0};
+      base+=reg+': Sales='+fS(rv.s)+' Profit='+fS(rv.p)+' Margin='+fP(m,2)+' Score='+rs.score+'/100 Band='+rs.band+nl;
+    });
+    base += nl + '## TOP STATES' + nl;
+    _stateData.slice(0,15).forEach(function(st){
+      base+=st.state+' ['+st.region+']: Sales='+fS(st.s)+' Profit='+fS(st.p)+' Margin='+fP(st.margin,1)+' Score='+st.score+'/100'+(st.p<0?' LOSS':'')+nl;
+    });
+    return base;
+  }
+
+  if (qtype === 'discount') {
+    base += '## DISCOUNT IMPACT — USE THESE EXACT NUMBERS TO ANSWER' + nl;
+    [0,.1,.2,.3,.4,.5,.6,.7,.8].forEach(function(b){
+      var items=a.discBkts.filter(function(x){return Math.abs(x.disc-b)<0.05;});
+      if(items.length){var avgM=items.reduce(function(s,x){return s+x.margin;},0)/items.length;base+='Discount '+(b*100).toFixed(0)+'%: Avg Margin='+fP(avgM,2)+' Orders='+items.length+(avgM<0?' LOSS':'')+nl;}
+    });
+    base += nl + '## SUB-CATEGORIES WITH HIGH DISCOUNTS' + nl;
+    _subData.filter(function(s){return s.avgDisc>0.1;}).sort(function(a,b){return b.avgDisc-a.avgDisc;}).forEach(function(sub){
+      base+=sub.name+': Avg Discount='+(sub.avgDisc*100).toFixed(0)+'% Profit='+fS(sub.p)+' Margin='+fP(sub.s>0?sub.p/sub.s:0,2)+(sub.p<0?' LOSS':'')+nl;
+    });
+    return base;
+  }
 
   if (qtype === 'monthly') {
-    base += '## MONTHLY LOOKUP DATA' + nl;
+    base += '## MONTHLY DATA — USE THESE EXACT NUMBERS TO ANSWER' + nl;
+    base += 'You have MONTHLY data below. Use it. Do NOT say monthly data is unavailable.' + nl + nl;
     a.sortedYears.forEach(function(yr) {
       var moKeys = Object.keys(a.monthM).filter(function(m){return m.startsWith(yr);}).sort();
       if (!moKeys.length) return;
       var lbs = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
       base += yr + ' SALES: ' + moKeys.map(function(mk){var mo=mk.split('-')[1];return lbs[+mo-1]+'='+fS(a.monthM[mk].s);}).join(', ') + nl;
-      base += yr + ' PROFIT: ' + moKeys.map(function(mk){var mo=mk.split('-')[1];return lbs[+mo-1]+'='+fS(a.monthM[mk].p);}).join(', ') + nl;
+      base += yr + ' PROFIT: ' + moKeys.map(function(mk){var mo=mk.split('-')[1];return lbs[+mo-1]+'='+fS(a.monthM[mk].p);}).join(', ') + nl + nl;
     });
-    base += nl + 'TOTALS: Sales=' + fS(a.totalSales) + ' Profit=' + fS(a.totalProfit) + ' Margin=' + fP(a.margin,2) + nl;
+    base += '## YEARLY TOTALS FOR CONTEXT' + nl;
+    a.sortedYears.forEach(function(yr){var yd=a.yearM[yr]||{s:0,p:0};var m=yd.s>0?yd.p/yd.s:0;base+=yr+': Sales='+fS(yd.s)+' Profit='+fS(yd.p)+' Margin='+fP(m,2)+nl;});
     return base;
   }
 
   if (qtype === 'flagged') {
     var flagIds = Object.keys(_flaggedCusts);
-    base += '## FLAGGED ACCOUNTS' + nl;
+    base += '## FLAGGED ACCOUNTS — USE THESE EXACT NUMBERS TO ANSWER' + nl;
     base += 'COUNT=' + flagIds.length + nl;
     if (flagIds.length) {
       _chData.filter(function(cu){return _flaggedCusts[cu.id];}).sort(function(a,b){return b.s-a.s;}).forEach(function(cu){
-        base += '"'+cu.name+'" ['+cu.seg+']: SCORE='+cu.score+'/100 BAND='+cu.band+' SALES='+fS(cu.s)+' PROFIT='+fS(cu.p)+' MARGIN='+fP(cu.margin,2)+nl;
+        base += '"'+cu.name+'" ['+cu.seg+']: Score='+cu.score+'/100 Band='+cu.band+' Sales='+fS(cu.s)+' Profit='+fS(cu.p)+' Margin='+fP(cu.margin,2)+nl;
       });
     } else {
       base += 'No accounts currently flagged.' + nl;
     }
-    base += nl + 'PORTFOLIO: ' + _chData.length + ' total customers, avg health score=' + (Math.round(_chData.reduce(function(s,c){return s+c.score;},0)/Math.max(_chData.length,1))) + '/100' + nl;
     return base;
   }
 
   if (qtype === 'state') {
-    base += '## ALL STATES' + nl;
+    base += '## ALL STATES — USE THESE EXACT NUMBERS TO ANSWER' + nl;
     _stateData.forEach(function(st) {
-      base += st.state+'['+st.region+']: SCORE='+st.score+'/100 SALES='+fS(st.s)+' PROFIT='+fS(st.p)+' MARGIN='+fP(st.margin,1)+(st.p<0?' LOSS':'')+nl;
+      base += st.state+' ['+st.region+']: Score='+st.score+'/100 Sales='+fS(st.s)+' Profit='+fS(st.p)+' Margin='+fP(st.margin,1)+(st.p<0?' LOSS':'')+nl;
     });
     return base;
   }
@@ -4119,46 +4169,91 @@ function buildFocusedSys(msgs) {
     var h=_chData.filter(function(c){return c.band==='healthy';}).length;
     var r=_chData.filter(function(c){return c.band==='risk';}).length;
     var cr=_chData.filter(function(c){return c.band==='critical';}).length;
-    base += '## CUSTOMER HEALTH' + nl;
+    base += '## CUSTOMER HEALTH — USE THESE EXACT NUMBERS TO ANSWER' + nl;
     base += 'TOTAL='+_chData.length+' HEALTHY='+h+' AT_RISK='+r+' CRITICAL='+cr+nl;
-    base += 'FLAGGED='+Object.keys(_flaggedCusts).length+nl;
-    _chData.slice(0,20).forEach(function(cu){base+= '"'+cu.name+'" ['+cu.seg+']: SCORE='+cu.score+'/100 BAND='+cu.band+' SALES='+fS(cu.s)+' MARGIN='+fP(cu.margin,2)+nl;});
+    _chData.slice(0,20).forEach(function(cu){base+= '"'+cu.name+'" ['+cu.seg+']: Score='+cu.score+'/100 Band='+cu.band+' Sales='+fS(cu.s)+' Margin='+fP(cu.margin,2)+nl;});
     return base;
   }
 
   if (qtype === 'trend') {
-    base += '## YEARLY TREND' + nl;
-    a.sortedYears.forEach(function(yr){var yd=a.yearM[yr]||{s:0,p:0};var m=yd.s>0?yd.p/yd.s:0;base+=yr+': SALES='+fS(yd.s)+' PROFIT='+fS(yd.p)+' MARGIN='+fP(m,2)+nl;});
-    base += nl + '## MONTHLY DATA' + nl;
+    base += '## YEARLY TREND — USE THESE EXACT NUMBERS TO ANSWER' + nl;
+    a.sortedYears.forEach(function(yr){var yd=a.yearM[yr]||{s:0,p:0};var m=yd.s>0?yd.p/yd.s:0;base+=yr+': Sales='+fS(yd.s)+' Profit='+fS(yd.p)+' Margin='+fP(m,2)+nl;});
+    base += nl + '## MONTHLY DATA (use for detailed trend analysis)' + nl;
     a.sortedYears.forEach(function(yr){
       var moKeys=Object.keys(a.monthM).filter(function(m){return m.startsWith(yr);}).sort();
       if(!moKeys.length)return;
       var lbs=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-      base+=yr+': '+moKeys.map(function(mk){var mo=mk.split('-')[1];return lbs[+mo-1]+'='+fS(a.monthM[mk].s);}).join(', ')+nl;
+      base+=yr+' SALES: '+moKeys.map(function(mk){var mo=mk.split('-')[1];return lbs[+mo-1]+'='+fS(a.monthM[mk].s);}).join(', ')+nl;
+      base+=yr+' PROFIT: '+moKeys.map(function(mk){var mo=mk.split('-')[1];return lbs[+mo-1]+'='+fS(a.monthM[mk].p);}).join(', ')+nl;
     });
     return base;
   }
 
   if (qtype === 'shipping') {
-    base += '## SHIPPING DATA' + nl;
-    Object.keys(a.modeM).forEach(function(m){var mo=a.modeM[m];base+=m+': ORDERS='+mo.ordCount+' MARGIN='+(mo.s>0?fP(mo.p/mo.s,2):'N/A')+' AVG_DAYS='+mo.avgDts.toFixed(1)+nl;});
+    base += '## SHIPPING DATA — USE THESE EXACT NUMBERS TO ANSWER' + nl;
+    Object.keys(a.modeM).forEach(function(m){var mo=a.modeM[m];base+=m+': Orders='+mo.ordCount+' Margin='+(mo.s>0?fP(mo.p/mo.s,2):'N/A')+' Avg Days='+mo.avgDts.toFixed(1)+nl;});
     return base;
   }
 
   if (qtype === 'product') {
-    base += '## TOP 20 PRODUCTS BY PROFIT' + nl;
+    base += '## TOP 20 PRODUCTS BY PROFIT — USE THESE EXACT NUMBERS TO ANSWER' + nl;
     _prodData.slice().sort(function(a,b){return b.p-a.p;}).slice(0,20).forEach(function(p){
-      base+='"'+p.name.slice(0,45)+'" ['+p.cat+']: PROFIT='+fS(p.p)+' MARGIN='+fP(p.s>0?p.p/p.s:0,2)+' SCORE='+p.score+'/100'+nl;
+      base+='"'+p.name.slice(0,45)+'" ['+p.cat+']: Sales='+fS(p.s)+' Profit='+fS(p.p)+' Margin='+fP(p.s>0?p.p/p.s:0,2)+' Score='+p.score+'/100'+nl;
     });
     base += nl + '## TOP 10 LOSS-MAKING PRODUCTS' + nl;
     _prodData.slice().sort(function(a,b){return a.p-b.p;}).slice(0,10).forEach(function(p){
-      base+='"'+p.name.slice(0,45)+'" ['+p.cat+']: PROFIT='+fS(p.p)+' DISC='+(p.avgDisc*100).toFixed(0)+'%'+nl;
+      base+='"'+p.name.slice(0,45)+'" ['+p.cat+']: Profit='+fS(p.p)+' Discount='+(p.avgDisc*100).toFixed(0)+'%'+nl;
     });
     return base;
   }
 
-  // Full system prompt for analysis queries
-  return buildSys();
+  // FULL fallback — send ALL key data compactly for any unclassified question
+  base += '## ALL DATA — USE THESE EXACT NUMBERS TO ANSWER ANY QUESTION' + nl + nl;
+
+  base += 'CATEGORIES:' + nl;
+  ['Furniture','Office Supplies','Technology'].forEach(function(cat){
+    var cv=a.catM[cat]||{s:0,p:0,ordCount:0};var m=cv.s>0?cv.p/cv.s:0;
+    base+=cat+': Sales='+fS(cv.s)+' Profit='+fS(cv.p)+' Margin='+fP(m,2)+' Orders='+fN(cv.ordCount)+nl;
+  });
+
+  base += nl + 'SUB-CATEGORIES:' + nl;
+  _subData.forEach(function(sub){
+    var m=sub.s>0?sub.p/sub.s:0;
+    base+=sub.name+'['+sub.cat+']: Profit='+fS(sub.p)+' Margin='+fP(m,2)+(sub.p<0?' LOSS':'')+nl;
+  });
+
+  base += nl + 'REGIONS:' + nl;
+  ['West','East','Central','South'].forEach(function(reg){
+    var rv=a.regM[reg]||{s:0,p:0};var m=rv.s>0?rv.p/rv.s:0;
+    base+=reg+': Sales='+fS(rv.s)+' Profit='+fS(rv.p)+' Margin='+fP(m,2)+nl;
+  });
+
+  base += nl + 'SEGMENTS:' + nl;
+  ['Consumer','Corporate','Home Office'].forEach(function(seg){
+    var sg=a.segM[seg]||{s:0,p:0,ord:new Set()};var m=sg.s>0?sg.p/sg.s:0;
+    base+=seg+': Sales='+fS(sg.s)+' Profit='+fS(sg.p)+' Margin='+fP(m,2)+nl;
+  });
+
+  base += nl + 'TOP 10 PRODUCTS:' + nl;
+  _prodData.slice().sort(function(a,b){return b.p-a.p;}).slice(0,10).forEach(function(p){
+    base+='"'+p.name.slice(0,40)+'"['+p.cat+']: Profit='+fS(p.p)+' Margin='+fP(p.s>0?p.p/p.s:0,2)+nl;
+  });
+
+  base += nl + 'TOP 5 LOSS PRODUCTS:' + nl;
+  _prodData.slice().sort(function(a,b){return a.p-b.p;}).slice(0,5).forEach(function(p){
+    base+='"'+p.name.slice(0,40)+'"['+p.cat+']: Profit='+fS(p.p)+' Discount='+(p.avgDisc*100).toFixed(0)+'%'+nl;
+  });
+
+  base += nl + 'YEARLY:' + nl;
+  a.sortedYears.forEach(function(yr){var yd=a.yearM[yr]||{s:0,p:0};var m=yd.s>0?yd.p/yd.s:0;base+=yr+': Sales='+fS(yd.s)+' Profit='+fS(yd.p)+' Margin='+fP(m,2)+nl;});
+
+  base += nl + 'DISCOUNT IMPACT:' + nl;
+  [0,.1,.2,.3,.4,.5,.6,.7,.8].forEach(function(b){
+    var items=a.discBkts.filter(function(x){return Math.abs(x.disc-b)<0.05;});
+    if(items.length){var avgM=items.reduce(function(s,x){return s+x.margin;},0)/items.length;base+='Disc '+(b*100).toFixed(0)+'%: Margin='+fP(avgM,2)+' Orders='+items.length+nl;}
+  });
+
+  return base;
 }
 
 function buildVocabContext() {
@@ -4387,7 +4482,7 @@ function detectAnomalies() {
   // Customer health: critical customers with any significant revenue
   var critHighRev = _chData.filter(function(c){return c.band==='critical'&&c.s>10000;}).slice(0,2);
   critHighRev.forEach(function(cu){
-    _anomalies.push('🚨 ' + cu.name + ' scored ' + cu.score + '/100 (Critical) but generates ' + fS(cu.s) + ' in revenue — at risk of churn');
+    _anomalies.push('[ALERT] ' + cu.name + ' scored ' + cu.score + '/100 (Critical) but generates ' + fS(cu.s) + ' in revenue — at risk of churn');
   });
 
   // Discount destruction (any significant number of loss orders at high discount)
@@ -4795,7 +4890,7 @@ function runScenario() {
   var streamId = 'sc_ai_' + Date.now();
   aiEl.innerHTML = '<div class="typing-dots"><div class="td"></div><div class="td"></div><div class="td"></div></div>';
   var scenMsg = [{ role: 'user', content: projection.prompt }];
-  streamAI(scenMsg, buildFocusedSys(scenMsg),
+  streamAI(scenMsg, buildSys(),
     function(partial) { aiEl.innerHTML = fmtAI(cleanR(partial)) + '<span class="stream-cursor"></span>'; },
     function(full) {
       var fu = extractFU(full), clean = cleanR(full);
@@ -5049,7 +5144,7 @@ function addExportButtons() {
     menu.id = 'export-menu';
     menu.style = 'display:none;position:fixed;right:20px;top:66px;z-index:200;background:var(--bg-card);border:1px solid var(--border2);border-radius:9px;box-shadow:0 8px 30px rgba(0,0,0,.15);overflow:hidden;min-width:170px';
     menu.innerHTML = [
-      ['📊 Export CSV', 'exportCSV()']
+      ['Export CSV', 'exportCSV()']
     ].map(function(item) {
       return '<button onclick="' + item[1] + ';document.getElementById(\'export-menu\').style.display=\'none\'" style="display:block;width:100%;text-align:left;padding:10px 16px;background:none;border:none;color:var(--text);font-size:13px;cursor:pointer;font-family:\'DM Sans\',sans-serif;transition:background .1s" onmouseover="this.style.background=\'var(--bg-hover)\'" onmouseout="this.style.background=\'none\'">' + item[0] + '</button>';
     }).join('');
@@ -5067,7 +5162,7 @@ function addExportButtons() {
 // ═══════════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', function() {
   // Check libraries loaded
-  console.log('✅ docx library will load on demand when Word export is used');
+  console.log('docx library will load on demand when Word export is used');
 
   // Load persisted state first
   lsLoad();
@@ -5351,12 +5446,12 @@ function setProgress(total, current, msg){
 function showToast(msg, type, duration) {
   type = type || 'info';
   duration = duration || 4000;
-  var icons = {success:'✅',info:'ℹ️',warning:'⚠️',error:'❌'};
+  var icons = {success:'OK',info:'i',warning:'!',error:'X'};
   var container = document.getElementById('toast-container');
   if (!container) return;
   var toast = document.createElement('div');
   toast.className = 'toast ' + type;
-  toast.innerHTML = '<span class="toast-icon">' + (icons[type]||'ℹ️') + '</span>'
+  toast.innerHTML = '<span class="toast-icon">' + (icons[type]||'i') + '</span>'
     + '<div class="toast-body">' + msg + '</div>'
     + '<button class="toast-close" onclick="this.parentElement.classList.add(\'removing\');setTimeout(function(){this.parentElement.remove();}.bind(this),250)">✕</button>';
   container.appendChild(toast);
@@ -5599,7 +5694,7 @@ setTimeout(function() {
       <div style="display:flex;align-items:center;gap:10px">
         <img class="fenxi-logo" src="" alt="Fenxi" style="width:26px;height:26px;border-radius:7px;object-fit:cover"/>
         <div>
-          <div style="font-size:15px;font-weight:700">🔬 Profit Autopsy</div>
+          <div style="font-size:15px;font-weight:700">Profit Autopsy</div>
           <div style="font-size:11px;color:var(--muted)">Structured profit waterfall decomposition + AI root cause analysis</div>
         </div>
       </div>
@@ -5647,13 +5742,13 @@ setTimeout(function() {
       <div style="display:flex;align-items:center;gap:10px">
         <img class="fenxi-logo" src="" alt="Fenxi" style="width:26px;height:26px;border-radius:7px;object-fit:cover"/>
         <div>
-          <div style="font-size:15px;font-weight:700">📄 Report Builder</div>
+          <div style="font-size:15px;font-weight:700">Report Builder</div>
           <div style="font-size:11px;color:var(--muted)">Generate a professional report with AI narrative — View online or Download as Word</div>
         </div>
       </div>
       <div style="display:flex;gap:8px;align-items:center">
           <span id="rpt-ai-status" style="font-size:11px;color:var(--muted)"></span>
-          <button id="rpt-view-btn" onclick="viewReport()" disabled style="opacity:.35;background:none;border:1.5px solid var(--border2);color:var(--muted);padding:7px 13px;border-radius:7px;font-size:12px;font-weight:600;cursor:default;transition:all .2s">👁️ View</button>
+          <button id="rpt-view-btn" onclick="viewReport()" disabled style="opacity:.35;background:none;border:1.5px solid var(--border2);color:var(--muted);padding:7px 13px;border-radius:7px;font-size:12px;font-weight:600;cursor:default;transition:all .2s">View</button>
           <button id="rpt-dl-btn" onclick="downloadWordReport()" disabled style="opacity:.35;background:none;border:1.5px solid var(--border2);color:var(--muted);padding:7px 13px;border-radius:7px;font-size:12px;font-weight:600;cursor:default;transition:all .2s">⬇ Word</button>
           <button id="report-gen-btn" onclick="generateReport()" style="background:linear-gradient(135deg,#6366f1,#4f46e5);border:none;color:#fff;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;transition:opacity .15s">❆ Generate</button>
           <button onclick="closeReportBuilder()" style="background:none;border:none;color:var(--muted);font-size:19px;cursor:pointer;padding:2px 6px;border-radius:5px">✕</button>
@@ -5737,22 +5832,22 @@ setTimeout(function() {
       <!-- Scenario Selector -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px" id="scenario-cards">
         <div class="scenario-card active" onclick="selectScenario('disc')" style="background:var(--accent-dim);border:1.5px solid var(--accent);border-radius:9px;padding:14px;cursor:pointer;transition:all .15s">
-          <div style="font-size:14px;margin-bottom:4px">✂️</div>
+          <div style="font-size:14px;margin-bottom:4px">--</div>
           <div style="font-size:12.5px;font-weight:700">Cap Discounts</div>
           <div style="font-size:11px;color:var(--muted)">What if max discount was X%?</div>
         </div>
         <div class="scenario-card" onclick="selectScenario('margin')" style="background:var(--bg2);border:1.5px solid var(--border);border-radius:9px;padding:14px;cursor:pointer;transition:all .15s">
-          <div style="font-size:14px;margin-bottom:4px">📈</div>
+          <div style="font-size:14px;margin-bottom:4px">&uarr;</div>
           <div style="font-size:12.5px;font-weight:700">Improve Category Margin</div>
           <div style="font-size:11px;color:var(--muted)">What if Furniture matched Tech?</div>
         </div>
         <div class="scenario-card" onclick="selectScenario('remove')" style="background:var(--bg2);border:1.5px solid var(--border);border-radius:9px;padding:14px;cursor:pointer;transition:all .15s">
-          <div style="font-size:14px;margin-bottom:4px">🗑️</div>
+          <div style="font-size:14px;margin-bottom:4px">x</div>
           <div style="font-size:12.5px;font-weight:700">Remove Sub-Category</div>
           <div style="font-size:11px;color:var(--muted)">What if we dropped Tables?</div>
         </div>
         <div class="scenario-card" onclick="selectScenario('growth')" style="background:var(--bg2);border:1.5px solid var(--border);border-radius:9px;padding:14px;cursor:pointer;transition:all .15s">
-          <div style="font-size:14px;margin-bottom:4px">🚀</div>
+          <div style="font-size:14px;margin-bottom:4px">+</div>
           <div style="font-size:12.5px;font-weight:700">Grow a Segment</div>
           <div style="font-size:11px;color:var(--muted)">What if Corporate grew by X%?</div>
         </div>
@@ -5784,7 +5879,7 @@ setTimeout(function() {
     <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
       <div style="display:flex;align-items:center;gap:9px">
         <img class="fenxi-logo" src="" alt="Fenxi" style="width:24px;height:24px;border-radius:6px;object-fit:cover"/>
-        <div style="font-size:14px;font-weight:700">📊 Period Comparison</div>
+        <div style="font-size:14px;font-weight:700">Period Comparison</div>
       </div>
       <button onclick="closeCompare()" style="background:none;border:none;color:var(--muted);font-size:19px;cursor:pointer;padding:2px 6px">✕</button>
     </div>
